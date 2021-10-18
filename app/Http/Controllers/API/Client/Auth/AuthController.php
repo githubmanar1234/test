@@ -1,0 +1,206 @@
+<?php
+
+namespace App\Http\Controllers\API\Client\Auth;
+
+
+use App\Exceptions\GeneralException;
+use App\Helpers\Constants;
+use App\Helpers\Helpers;
+use App\Helpers\Mapper;
+use App\Helpers\JsonResponse;
+use App\Helpers\ResponseStatus;
+use App\Helpers\ValidatorHelper;
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use App\Http\Repositories\IRepositories\IUserRepository;
+use Illuminate\Validation\Rule;
+use Kreait\Firebase\Exception\Messaging\InvalidMessage;
+use Kreait\Firebase\Factory;
+
+class AuthController extends Controller
+{
+    protected $userRepository;
+    protected $authMethodRepository;
+    protected $requestData;
+    protected $factory;
+    protected $messaging;
+
+    public function __construct(
+        IUserRepository $userRepository
+    )
+    {
+        $this->userRepository = $userRepository;
+        $this->requestData = Mapper::toUnderScore(\Request()->all());
+        $this->factory = (new Factory)->withServiceAccount(base_path("sihhatler-olsun-firebase-adminsdk-h9gs0-f3ae80cb6e.json"));
+    }
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     * @throws GeneralException
+     * @throws \Kreait\Firebase\Exception\FirebaseException
+     * @throws \Kreait\Firebase\Exception\MessagingException
+     */
+    public function login()
+    {
+
+        $data = $this->requestData;
+        $validation_rules = [
+            'phone' => 'required_without',
+            'password' => 'required'
+        ];
+        $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
+        if ($validator->passes()) {
+            if (isset($data['phone']))
+                $dbUser = $this->userRepository->findBy('phone', $data['phone']);
+
+            $deviceName = isset($this->requestData['device_name']) ? $this->requestData['device_name'] : "access token";
+            if (!$dbUser) {
+                return JsonResponse::respondError(JsonResponse::MSG_LOGIN_FAILED, ResponseStatus::NOT_AUTHORIZED);
+            } else {
+                if (Hash::check($data['password'], $dbUser->password)) {
+                    $token = $dbUser->createToken($deviceName)->plainTextToken;
+                    $dbUser['access_token'] = $token;
+                    return JsonResponse::respondSuccess(JsonResponse::MSG_LOGIN_SUCCESSFULLY, $dbUser);
+                } else
+                    return JsonResponse::respondError(JsonResponse::MSG_LOGIN_FAILED, ResponseStatus::NOT_AUTHORIZED);
+            }
+        } else {
+            return JsonResponse::respondError($validator->errors()->all());
+        }
+
+    }
+
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     * @throws GeneralException
+     * @throws \Kreait\Firebase\Exception\AuthException
+     * @throws \Kreait\Firebase\Exception\FirebaseException
+     */
+    public function Register()
+    {
+
+        $data = $this->requestData;
+        $validation_rules = [
+            'phone' => 'required|unique:users,phone',
+            'password' => 'required|confirmed|min:6',
+            'country_id' => 'required|exists:countries,id',
+            'fcm_token' => 'required',
+        ];
+        if (isset($data['yob']))
+            $validation_rules['yob'] = 'date';
+        if (isset($data['name']))
+            $validation_rules['name'] = "string|max:30";
+        $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
+        if ($validator->passes()) {
+            $auth = $this->factory->createAuth();
+            // Retrieve the UID (User ID) from the verified Firebase credential's token
+            $uid = $this->verifyToken($auth)->claims()->get('sub');
+            $user = $auth->getUser($uid);
+            // Retrieve the user model linked with the Firebase UID
+            $data['firebase_uid'] = $uid;
+            if ($data['phone'] != $user->phoneNumber) {
+
+                Log::error("register failed provided phone number not the same on the google firebase database");
+                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST, ResponseStatus::BAD_REQUEST);
+            }
+            $deviceName = isset($this->requestData['device_name']) ? $this->requestData['device_name'] : "access token";
+            $data['fcm_token'] = $this->requestData['fcm_token'];
+            $data['name'] = $this->requestData['name'];
+            $data['password'] = Hash::make($data['password']);
+
+            $dbUser = $this->userRepository->create($data);
+            // Create a Personnal Access Token
+            $token = $dbUser->createToken($deviceName)->plainTextToken;
+            // Store the created token
+            $dbUser['access_token'] = $token;
+            return JsonResponse::respondSuccess(JsonResponse::MSG_LOGIN_SUCCESSFULLY, $dbUser);
+        } else {
+            return JsonResponse::respondError($validator->errors()->all());
+
+        }
+
+    }
+
+
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     * @desc get authenticated user
+     * @author samh 
+     */
+    public function getUser()
+    {
+
+        try {
+            $user =$this->userRepository->find( Auth::guard('client')->id());
+            // $user->append('workExperienceTitles');
+            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $user);
+        } catch (\Exception $ex) {
+            Log::info("exception" . $ex->getMessage());
+            return JsonResponse::respondError($ex->getMessage());
+        }
+
+    }
+
+    /**
+     * logout and revoke user tokens
+     * @return \Illuminate\Http\JsonResponse
+     * @author Samh Dev
+     */
+    public function logout()
+    {
+        try {
+            $user = Auth::guard('client')->user();
+            $user->tokens()->where('id', $user->currentAccessToken()->id)->delete();
+            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS);
+        } catch (\Exception $ex) {
+            Log::debug($ex->getMessage());
+            return JsonResponse::respondError("exception" . JsonResponse::MSG_FAILED);
+        }
+
+    }
+
+    /**
+     * customize rules
+     * @param $data
+     * @return array
+     * @author Samh Dev
+     */
+    public static function customizeRules($data)
+    {
+        $validation_rules = User::create_update_rules;
+        return $validation_rules;
+    }
+
+    public function generateCode()
+    {
+        $code = "";
+        while (true) {
+            $code = Helpers::generateRandomString();
+            if (!$this->userRepository->getAllInvitationCodes()->search($code))
+                break;
+
+        }
+        return $code;
+    }
+
+    /**
+     * @param $auth
+     * @return mixed
+     * @throws GeneralException
+     */
+    public function verifyToken(\Kreait\Firebase\Contract\Auth $auth)
+    {
+        // Retrieve the Firebase credential's token
+        $idTokenString = $this->requestData['access_token'];
+        try { // Try to verify the Firebase credential token with Google
+            $verifiedIdToken = $auth->verifyIdToken($idTokenString);
+            return $verifiedIdToken;
+        } catch (InvalidMessage $e) { // If the token has the wrong format
+            Log::debug($e->getMessage());
+            throw new GeneralException(JsonResponse::MSG_BAD_REQUEST, JsonResponse::MSG_NOT_AUTHORIZED);
+        }
+    }
+}
