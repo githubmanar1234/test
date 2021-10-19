@@ -19,15 +19,96 @@ use Illuminate\Validation\Rule;
 
 /**
  * @OA\GET(
- * path="/api/admin/getAllService",
- * summary="Get all",
+ * path="/api/admin/getAllServices",
+ * summary="Index",
  * description="GET all services",
- * tags={"admin"},
+ * tags={"Dashboard/Services"},
  * 
 *   @OA\Response(
 *     response=200,
 *     description="Success",
 *  ),
+ * )
+ */
+
+ /**
+ * @OA\GET(
+ * path="/api/admin/getService/{id}",
+ * summary="Show",
+ * description="GET service by id",
+ * tags={"Dashboard/Services"},
+ *      @OA\Parameter(
+ *         name="id",
+ *         in="query",
+ *         required=true,
+ *      ),
+ *   @OA\Response(
+ *     response=200,
+ *     description="Success",
+ *  ),
+ * )
+ */
+
+ /**
+ * @OA\Post(
+ * path="/api/admin/addService",
+ * summary="Store",
+ * description="Add service",
+ * tags={"Dashboard/Services"},
+ * @OA\RequestBody(
+ *    required=true,
+ *    description="Pass service data",
+ *    @OA\JsonContent(
+ *       required={"title","category_id"},
+ *       @OA\Property(property="title", type="string", format="title", example="title1"),
+ *       @OA\Property(property="category_id", type="integer", format="category_id", example="1"),
+ *    ),
+ * ),
+*   @OA\Response(
+ *     response=200,
+ *     description="Success",
+ *  ),
+ * )
+ */
+
+ /**
+ * @OA\Put(
+ * path="/api/admin/editService/{id}",
+ * summary="Edit",
+ * description="Update service",
+ * tags={"Dashboard/Services"},
+ * @OA\RequestBody(
+ *    required=true,
+ *    description="Pass service data",
+ *    @OA\JsonContent(
+ *       required={"title","description","category_id"},
+ *       @OA\Property(property="title", type="string", format="title", example="title1"),
+ *       @OA\Property(property="description", type="string", format="description", example="title1title1"),
+ *       @OA\Property(property="category_id", type="integer", format="category_id", example="1"),
+ *    ),
+ * ),
+*   @OA\Response(
+ *     response=200,
+ *     description="Success",
+ *  ),
+ * )
+ */
+
+  /**
+ * @OA\Delete(
+ * path="/api/admin/deleteService/{id}",
+ * summary="Delete",
+ * description="Delete service",
+ * tags={"Dashboard/Services"},
+ *      @OA\Parameter(
+ *         name="id",
+ *         in="query",
+ *         required=true,
+ *      ),
+ *   @OA\Response(
+ *     response=200,
+ *     description="Success",
+ *  ),
  * )
  */
 

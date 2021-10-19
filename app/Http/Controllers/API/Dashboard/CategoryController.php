@@ -16,6 +16,101 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
+
+/**
+ * @OA\GET(
+ * path="/api/admin/getAllServiceCategories",
+ * summary="Index",
+ * description="GET all categories",
+ * tags={"Dashboard/Categories"},
+ * 
+*   @OA\Response(
+*     response=200,
+*     description="Success",
+*  ),
+ * )
+ */
+
+ /**
+ * @OA\GET(
+ * path="/api/admin/getServiceCategory/{id}",
+ * summary="Show",
+ * description="GET serviceCategory by id",
+ * tags={"Dashboard/Categories"},
+ *      @OA\Parameter(
+ *         name="id",
+ *         in="query",
+ *         required=true,
+ *      ),
+ *   @OA\Response(
+ *     response=200,
+ *     description="Success",
+ *  ),
+ * )
+ */
+
+ /**
+ * @OA\Post(
+ * path="/api/admin/addServiceCategory",
+ * summary="Store",
+ * description="Add ServiceCategory",
+ * tags={"Dashboard/Categories"},
+ * @OA\RequestBody(
+ *    required=true,
+ *    description="Pass category data",
+ *    @OA\JsonContent(
+ *       required={"title","order"},
+ *       @OA\Property(property="title", type="string", format="title", example="title1"),
+ *       @OA\Property(property="order", type="integer", format="order", example="1"),
+ *    ),
+ * ),
+*   @OA\Response(
+ *     response=200,
+ *     description="Success",
+ *  ),
+ * )
+ */
+
+ /**
+ * @OA\Put(
+ * path="/api/admin/editServiceCategory/{id}",
+ * summary="Edit",
+ * description="Update ServiceCategory",
+ * tags={"Dashboard/Categories"},
+ * @OA\RequestBody(
+ *    required=true,
+ *    description="Pass Category data",
+ *    @OA\JsonContent(
+ *       required={"title","description","category_id"},
+ *       @OA\Property(property="title", type="string", format="title", example="title1"),
+ *       @OA\Property(property="description", type="string", format="description", example="title1title1"),
+ *    ),
+ * ),
+*   @OA\Response(
+ *     response=200,
+ *     description="Success",
+ *  ),
+ * )
+ */
+
+  /**
+ * @OA\Delete(
+ * path="/api/admin/deleteServiceCategory/{id}",
+ * summary="Delete",
+ * description="Delete serviceCategory",
+ * tags={"Dashboard/Categories"},
+ *      @OA\Parameter(
+ *         name="id",
+ *         in="query",
+ *         required=true,
+ *      ),
+ *   @OA\Response(
+ *     response=200,
+ *     description="Success",
+ *  ),
+ * )
+ */
+
 class CategoryController extends Controller
 {
     private $userRepository;

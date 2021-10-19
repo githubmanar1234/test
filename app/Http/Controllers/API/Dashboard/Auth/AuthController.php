@@ -14,6 +14,51 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Repositories\IRepositories\IUserRepository;
 
+/**
+ * @OA\Post(
+ * path="/api/admin/auth/login",
+ * summary="Sign in",
+ * description="Login by email, password",
+ * tags={"Auth"},
+ * @OA\RequestBody(
+ *    required=true,
+ *    description="Pass user credentials",
+ *    @OA\JsonContent(
+ *       required={"email","password"},
+ *       @OA\Property(property="email", type="string", format="email", example="user1@mail.com"),
+ *       @OA\Property(property="password", type="string", format="password", example="PassWord12345"),
+ *    ),
+ * ),
+ * @OA\Response(
+ *    response=422,
+ *    description="Wrong credentials response",
+ *    @OA\JsonContent(
+ *       @OA\Property(property="message", type="string", example="Sorry, wrong email address or password. Please try again")
+ *        )
+ *     )
+ * )
+ */
+
+ /**
+ * @OA\Post(
+ * path="/api/admin/auth/logout",
+ * summary="Logout",
+ * description="Logout user and invalidate token",
+ * tags={"Auth"},
+ * security={ {"bearer": {} }},
+ * @OA\Response(
+ *    response=200,
+ *    description="Success"
+ *     ),
+ * @OA\Response(
+ *    response=401,
+ *    description="Returns when user is not authenticated",
+ *    @OA\JsonContent(
+ *       @OA\Property(property="message", type="string", example="Not authorized"),
+ *    )
+ * )
+ * )
+ */
 
 class AuthController extends Controller
 {

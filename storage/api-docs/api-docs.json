@@ -1,17 +1,375 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Your super  ApplicationAPI",
+        "title": "Barbers apis documentation",
         "version": "1.0.0"
     },
     "paths": {
-        "/api/admin/getAllService": {
+        "/api/admin/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Sign in",
+                "description": "Login by email, password",
+                "requestBody": {
+                    "description": "Pass user credentials",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user1@mail.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "PassWord12345"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "Wrong credentials response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Sorry, wrong email address or password. Please try again"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/auth/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout",
+                "description": "Logout user and invalidate token",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "401": {
+                        "description": "Returns when user is not authenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Not authorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/getAllServiceCategories": {
             "get": {
                 "tags": [
-                    "admin"
+                    "Dashboard/Categories"
                 ],
-                "summary": "Get all",
+                "summary": "Index",
+                "description": "GET all categories",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/admin/getServiceCategory/{id}": {
+            "get": {
+                "tags": [
+                    "Dashboard/Categories"
+                ],
+                "summary": "Show",
+                "description": "GET serviceCategory by id",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/admin/addServiceCategory": {
+            "post": {
+                "tags": [
+                    "Dashboard/Categories"
+                ],
+                "summary": "Store",
+                "description": "Add ServiceCategory",
+                "requestBody": {
+                    "description": "Pass category data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "order"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "format": "title",
+                                        "example": "title1"
+                                    },
+                                    "order": {
+                                        "type": "integer",
+                                        "format": "order",
+                                        "example": "1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/admin/editServiceCategory/{id}": {
+            "put": {
+                "tags": [
+                    "Dashboard/Categories"
+                ],
+                "summary": "Edit",
+                "description": "Update ServiceCategory",
+                "requestBody": {
+                    "description": "Pass Category data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "description",
+                                    "category_id"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "format": "title",
+                                        "example": "title1"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "format": "description",
+                                        "example": "title1title1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/admin/deleteServiceCategory/{id}": {
+            "delete": {
+                "tags": [
+                    "Dashboard/Categories"
+                ],
+                "summary": "Delete",
+                "description": "Delete serviceCategory",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/admin/getAllServices": {
+            "get": {
+                "tags": [
+                    "Dashboard/Services"
+                ],
+                "summary": "Index",
                 "description": "GET all services",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/admin/getService/{id}": {
+            "get": {
+                "tags": [
+                    "Dashboard/Services"
+                ],
+                "summary": "Show",
+                "description": "GET service by id",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/admin/addService": {
+            "post": {
+                "tags": [
+                    "Dashboard/Services"
+                ],
+                "summary": "Store",
+                "description": "Add service",
+                "requestBody": {
+                    "description": "Pass service data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "category_id"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "format": "title",
+                                        "example": "title1"
+                                    },
+                                    "category_id": {
+                                        "type": "integer",
+                                        "format": "category_id",
+                                        "example": "1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/admin/editService/{id}": {
+            "put": {
+                "tags": [
+                    "Dashboard/Services"
+                ],
+                "summary": "Edit",
+                "description": "Update service",
+                "requestBody": {
+                    "description": "Pass service data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "description",
+                                    "category_id"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "format": "title",
+                                        "example": "title1"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "format": "description",
+                                        "example": "title1title1"
+                                    },
+                                    "category_id": {
+                                        "type": "integer",
+                                        "format": "category_id",
+                                        "example": "1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/admin/deleteService/{id}": {
+            "delete": {
+                "tags": [
+                    "Dashboard/Services"
+                ],
+                "summary": "Delete",
+                "description": "Delete service",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Success"

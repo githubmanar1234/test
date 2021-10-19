@@ -96,7 +96,7 @@ Route::group([
         Route::get('getCategoriesOrder', [CategoryController::class, 'getCategoriesOrders']);
 
         //Services
-        Route::get('getAllService', [ServiceController::class, 'index']);
+        Route::get('getAllServices', [ServiceController::class, 'index']);
         Route::get('getService/{id}', [ServiceController::class, 'show']);
         Route::get('services/find', [CategoryController::class, 'find']);
         Route::post('addService', [ServiceController::class, 'store']);
