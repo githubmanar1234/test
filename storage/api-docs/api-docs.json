@@ -5,43 +5,16 @@
         "version": "1.0.0"
     },
     "paths": {
-        "/api/admin/auth/login": {
-            "post": {
+        "/api/admin/getAllService": {
+            "get": {
                 "tags": [
-                    "auth"
+                    "admin"
                 ],
-                "summary": "Sign in",
-                "description": "Login by email, password",
-                "requestBody": {
-                    "description": "Pass user credentials",
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "email",
-                                    "password"
-                                ],
-                                "properties": {
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "admin@admin.com"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "format": "password",
-                                        "example": "password"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
+                "summary": "Get all",
+                "description": "GET all services",
                 "responses": {
                     "200": {
-                        "description": " credentials response"
+                        "description": "Success"
                     }
                 }
             }

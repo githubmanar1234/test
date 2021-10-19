@@ -95,7 +95,13 @@ Route::group([
         Route::post('updateCategoriesOrder', [CategoryController::class, 'updateCategoriesOrder']);
         Route::get('getCategoriesOrder', [CategoryController::class, 'getCategoriesOrders']);
 
+        //Services
         Route::get('getAllService', [ServiceController::class, 'index']);
+        Route::get('getService/{id}', [ServiceController::class, 'show']);
+        Route::get('services/find', [CategoryController::class, 'find']);
+        Route::post('addService', [ServiceController::class, 'store']);
+        Route::put('editService/{id}', [ServiceController::class, 'updateService']);
+        Route::delete('deleteService/{id}', [ServiceController::class, 'destroy']);
 
     });
 
