@@ -51,7 +51,6 @@ class UserController extends Controller
     }
 
 
-
     /**
      * @param User $user
      * @return \Illuminate\Http\JsonResponse

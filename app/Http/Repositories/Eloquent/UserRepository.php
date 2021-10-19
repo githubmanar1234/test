@@ -2,7 +2,6 @@
 
 namespace App\Http\Repositories\Eloquent;
 
-
 use App\Exceptions\GeneralException;
 use App\Helpers\Constants;
 use App\Helpers\JsonResponse;

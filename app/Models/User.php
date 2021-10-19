@@ -37,6 +37,7 @@ class User extends Authenticatable
         'location'
     ];
 
+    
     /**
      * The attributes that should be hidden for arrays.
      *

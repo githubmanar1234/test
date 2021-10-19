@@ -18,6 +18,8 @@ class Service extends AppModel
 //        return $this->hasOne(ServiceDetail::class, 'service_id');
 //    }
 
+    //protected $with = ['category'];
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

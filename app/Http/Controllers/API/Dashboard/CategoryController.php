@@ -50,7 +50,7 @@ class CategoryController extends Controller
         $data = $this->categoryRepository->allAsQuery()->orderBy('order')->get();
         return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
     }
-
+    
     /**
      * find category by title or description
      * @return \Illuminate\Http\JsonResponse

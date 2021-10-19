@@ -8,6 +8,7 @@ use App\Http\Controllers\API\Dashboard\Auth\PasswordResetController;
 use App\Http\Controllers\API\Dashboard\SettingController;
 use App\Http\Controllers\API\Dashboard\UserController;
 use App\Http\Controllers\API\Dashboard\CategoryController;
+use App\Http\Controllers\API\Dashboard\ServiceController;
 use Illuminate\Support\Facades\Route;
 use \App\Http\Controllers\API\Client\Auth\AuthController as ClientAuthController;
 use \App\Http\Controllers\API\Client\CategoryController as ClientCategoryController;
@@ -93,6 +94,8 @@ Route::group([
 
         Route::post('updateCategoriesOrder', [CategoryController::class, 'updateCategoriesOrder']);
         Route::get('getCategoriesOrder', [CategoryController::class, 'getCategoriesOrders']);
+
+        Route::get('getAllService', [ServiceController::class, 'index']);
 
     });
 
