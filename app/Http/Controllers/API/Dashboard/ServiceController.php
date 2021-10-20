@@ -8,8 +8,10 @@ use App\Helpers\Constants;
 use App\Helpers\FileHelper;
 use App\Helpers\JsonResponse;
 use App\Helpers\Mapper;
+use App\Models\Category;
 use App\Helpers\ValidatorHelper;
 use App\Http\Repositories\IRepositories\IServiceRepository;
+use App\Http\Repositories\IRepositories\ICategoryRepository;
 use App\Http\Repositories\IRepositories\IUserRepository;
 use App\Models\Service;
 use Illuminate\Support\Facades\Auth;
@@ -117,16 +119,19 @@ class ServiceController extends Controller
 {
     private $userRepository;
     private $serviceRepository;
+    private $categoryRepository;
     private $requestData;
     private $authUser;
 
     public function __construct(
         IServiceRepository $serviceRepository,
+        ICategoryRepository $categoryRepository,
         IUserRepository $userRepository
     )
     {
         $this->userRepository = $userRepository;
         $this->serviceRepository = $serviceRepository;
+        $this->categoryRepository = $categoryRepository;
         $this->requestData = Mapper::toUnderScore(\Request()->all());
         $this->authUser = Auth::guard('admin')->user();
         Validator::extend('languages', function ($attribute, $value, $parameters, $validator) {
@@ -228,6 +233,21 @@ class ServiceController extends Controller
             return JsonResponse::respondSuccess(trans(JsonResponse::MSG_DELETED_SUCCESSFULLY));
         }
         return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);    
+    }
+
+
+    public function findByCategoryId()
+    {
+        $request_data = $this->requestData;
+
+        $data = $this->serviceRepository->allAsQuery();
+        if (isset($this->requestData['category_id'])) {
+            $data = $data->where("category_id" , '=' , $request_data['category_id']);
+        }
+       
+        $data = $data->get();
+        return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+
     }
 
 

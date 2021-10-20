@@ -7,6 +7,7 @@ use App\Http\Controllers\API\Dashboard\Auth\AuthController;
 use App\Http\Controllers\API\Dashboard\Auth\PasswordResetController;
 use App\Http\Controllers\API\Dashboard\SettingController;
 use App\Http\Controllers\API\Dashboard\UserController;
+use App\Http\Controllers\API\Dashboard\SalonController;
 use App\Http\Controllers\API\Dashboard\CategoryController;
 use App\Http\Controllers\API\Dashboard\ServiceController;
 use Illuminate\Support\Facades\Route;
@@ -98,10 +99,14 @@ Route::group([
         //Services
         Route::get('getAllServices', [ServiceController::class, 'index']);
         Route::get('getService/{id}', [ServiceController::class, 'show']);
-        Route::get('services/find', [CategoryController::class, 'find']);
+        Route::get('services/find', [ServiceController::class, 'find']);
+        Route::get('serviceOfCategory/find', [ServiceController::class, 'findByCategoryId']);
         Route::post('addService', [ServiceController::class, 'store']);
         Route::put('editService/{id}', [ServiceController::class, 'updateService']);
         Route::delete('deleteService/{id}', [ServiceController::class, 'destroy']);
+
+        //Salon
+        Route::get('getPendingSalons', [SalonController::class, 'find']);
 
     });
 

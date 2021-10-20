@@ -6,6 +6,7 @@ namespace App\Providers;
 
 
 use App\Http\Repositories\Eloquent\AdminRepository;
+use App\Http\Repositories\Eloquent\SalonRepository;
 use App\Http\Repositories\Eloquent\AdRepository;
 use App\Http\Repositories\Eloquent\CategoryRepository;
 use App\Http\Repositories\Eloquent\CityRepository;
@@ -19,6 +20,7 @@ use App\Http\Repositories\Eloquent\SettingRepository;
 use App\Http\Repositories\Eloquent\SubserviceRepository;
 use App\Http\Repositories\Eloquent\UserRepository;
 use App\Http\Repositories\IRepositories\IAdminRepository;
+use App\Http\Repositories\IRepositories\ISalonRepository;
 use App\Http\Repositories\IRepositories\IAdRepository;
 use App\Http\Repositories\IRepositories\ICategoryRepository;
 use App\Http\Repositories\IRepositories\ICityRepository;
@@ -48,6 +50,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(ICountryRepository::class, CountryRepository::class);
         $this->app->bind(ICategoryRepository::class, CategoryRepository::class);
         $this->app->bind(IServiceRepository::class, ServiceRepository::class);
+        $this->app->bind(ISalonRepository::class, SalonRepository::class);
         $this->app->bind(IServiceDetailsRepository::class, ServiceDetailsRepository::class);
         $this->app->bind(IJobDetailsRepository::class, JobDetailsRepository::class);
         $this->app->bind(IJobRepository::class, JobRepository::class);
