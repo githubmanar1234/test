@@ -247,6 +247,20 @@
                 }
             }
         },
+        "/api/admin/getAcceptedAndRejectedSalons": {
+            "get": {
+                "tags": [
+                    "Dashboard/Salons"
+                ],
+                "summary": "Get",
+                "description": "GET all accepted and rejected salons ",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
         "/api/admin/setAcceptedSalon": {
             "post": {
                 "tags": [

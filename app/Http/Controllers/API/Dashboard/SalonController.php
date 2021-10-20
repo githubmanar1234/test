@@ -36,6 +36,20 @@ use Illuminate\Validation\Rule;
  */
 
  /**
+ * @OA\GET(
+ * path="/api/admin/getAcceptedAndRejectedSalons",
+ * summary="Get",
+ * description="GET all accepted and rejected salons ",
+ * tags={"Dashboard/Salons"},
+ * 
+*   @OA\Response(
+*     response=200,
+*     description="Success",
+*  ),
+ * )
+ */
+
+ /**
  * @OA\Post(
  * path="/api/admin/setAcceptedSalon",
  * summary="Store",
@@ -134,6 +148,28 @@ class SalonController extends Controller
         
           
     }
+
+    public function getAcceptedAndRejectedSalons()
+    {
+        $request_data = $this->requestData;
+
+        $data = $this->salonRepository->allAsQuery();
+
+        $data = $data->Where("status", '=', "Rejected")->orWhere("status", '=', "Accepted");
+
+        $data = $data->get();
+
+        if($data){
+            
+            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+        }
+        else{
+            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        }
+        
+          
+    }
+
 
     public function setAcceptedSalon(Request $request)
     {

@@ -106,6 +106,7 @@ Route::group([
         Route::delete('deleteService/{id}', [ServiceController::class, 'destroy']);
 
         //Salon
+        Route::get('getAcceptedAndRejectedSalons', [SalonController::class, 'getAcceptedAndRejectedSalons']);
         Route::get('getPendingSalons', [SalonController::class, 'getPendingSalons']);
         Route::post('setAcceptedSalon', [SalonController::class, 'setAcceptedSalon']);
         Route::post('setRejectedSalon', [SalonController::class, 'setRejectedSalon']);
