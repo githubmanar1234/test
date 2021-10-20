@@ -233,6 +233,90 @@
                 }
             }
         },
+        "/api/admin/getPendingSalons": {
+            "get": {
+                "tags": [
+                    "Dashboard/Salons"
+                ],
+                "summary": "Get",
+                "description": "GET all pending salons ",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/admin/setAcceptedSalon": {
+            "post": {
+                "tags": [
+                    "Dashboard/Salons"
+                ],
+                "summary": "Store",
+                "description": "Set accepted Salon",
+                "requestBody": {
+                    "description": "Pass id for salon ",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "salon_id"
+                                ],
+                                "properties": {
+                                    "salon_id": {
+                                        "type": "integer",
+                                        "format": "salon_id",
+                                        "example": "1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/admin/setRejectedSalon": {
+            "post": {
+                "tags": [
+                    "Dashboard/Salons"
+                ],
+                "summary": "Store",
+                "description": "Set rejected Salon",
+                "requestBody": {
+                    "description": "Pass id for salon ",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "salon_id"
+                                ],
+                                "properties": {
+                                    "salon_id": {
+                                        "type": "integer",
+                                        "format": "salon_id",
+                                        "example": "1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
         "/api/admin/getAllServices": {
             "get": {
                 "tags": [

@@ -21,6 +21,63 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 
+/**
+ * @OA\GET(
+ * path="/api/admin/getPendingSalons",
+ * summary="Get",
+ * description="GET all pending salons ",
+ * tags={"Dashboard/Salons"},
+ * 
+*   @OA\Response(
+*     response=200,
+*     description="Success",
+*  ),
+ * )
+ */
+
+ /**
+ * @OA\Post(
+ * path="/api/admin/setAcceptedSalon",
+ * summary="Store",
+ * description="Set accepted Salon",
+ * tags={"Dashboard/Salons"},
+ * @OA\RequestBody(
+ *    required=true,
+ *    description="Pass id for salon ",
+ *    @OA\JsonContent(
+ *       required={"salon_id"},
+ *       @OA\Property(property="salon_id", type="integer", format="salon_id", example="1"),
+ *    ),
+ * ),
+*   @OA\Response(
+ *     response=200,
+ *     description="Success",
+ *  ),
+ * )
+ */
+
+
+ /**
+ * @OA\Post(
+ * path="/api/admin/setRejectedSalon",
+ * summary="Store",
+ * description="Set rejected Salon",
+ * tags={"Dashboard/Salons"},
+ * @OA\RequestBody(
+ *    required=true,
+ *    description="Pass id for salon ",
+ *    @OA\JsonContent(
+ *       required={"salon_id"},
+ *       @OA\Property(property="salon_id", type="integer", format="salon_id", example="1"),
+ *    ),
+ * ),
+*   @OA\Response(
+ *     response=200,
+ *     description="Success",
+ *  ),
+ * )
+ */
+
 class SalonController extends Controller
 {
     private $userRepository;
