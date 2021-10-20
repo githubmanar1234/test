@@ -12,7 +12,7 @@ class Salon extends AppModel
     //use SoftDeletes;
 
     protected $table = "salons";
-    protected $fillable = ['name', 'status', 'salon_code', 'city_id' , 'user_id'];
+    protected $fillable = ['name', 'status', 'reason','salon_code', 'city_id' , 'user_id'];
     public $translatable = ['name'];
 
 
