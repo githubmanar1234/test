@@ -19,20 +19,24 @@ class Salon extends AppModel
     public $translatable = ['name'];
 
 
-    public function users()
-    {
-        $users = User::whereHas('salonReport', function ($q)  {
-            $q->where('salon_id', $this->id );
-        })->orderBy('id', 'desc')->get();
+    // public function users()
+    // {
+    //     $users = User::whereHas('salonReport', function ($q)  {
+    //         $q->where('salon_id', $this->id );
+    //     })->orderBy('id', 'desc')->get();
 
-        return $users;
-    }
+    //     return $users;
+    // }
 
     public function salonReports()
     {
         return $this->hasMany(SalonReport::class);
     }
     
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
 
     // public function category()
     // {
