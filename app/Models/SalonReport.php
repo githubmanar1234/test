@@ -6,33 +6,28 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 //use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Translatable\HasTranslations;
 
-class Salon extends AppModel
+class SalonReport extends AppModel
 {
     use HasFactory,HasTranslations;
     //use SoftDeletes;
 
-    protected $table = "salons";
+    protected $fillable = ['reason', 'salon_id' , 'user_id'];
+    public $translatable = ['reason'];
 
 
-    protected $fillable = ['name', 'status', 'reason','salon_code', 'city_id' , 'user_id', 'type' , 'is_open'];
+    // public function users()
+    // {
+    //     $users = User::whereHas('salonReport', function ($q)  {
+    //         $q->where('salon_id', $this->id );
+    //     })->orderBy('id', 'desc')->get();
 
-    public $translatable = ['name'];
+    //     return $users;
+    // }
 
-
-    public function users()
-    {
-        $users = User::whereHas('salonReport', function ($q)  {
-            $q->where('salon_id', $this->id );
-        })->orderBy('id', 'desc')->get();
-
-        return $users;
-    }
-
-    public function salonReports()
-    {
-        return $this->hasMany(SalonReport::class);
-    }
-    
+    // public function salonReport()
+    // {
+    //     return $this->hasMany(SalonReport::class);
+    // }
 
     // public function category()
     // {

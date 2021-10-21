@@ -38,6 +38,7 @@ class Constants
     const STATUS_REJECTED ='Rejected';
     const STATUS_ACCEPTED ='Accepted';
     const STATUS_PENDING ='Pending';
+    const STATUS_DISABLE ='Disable';
     const STATUSES = [
         Constants::STATUS_REJECTED,
         Constants::STATUS_ACCEPTED,

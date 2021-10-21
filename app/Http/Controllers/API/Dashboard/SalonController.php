@@ -149,6 +149,52 @@ class SalonController extends Controller
           
     }
 
+    public function getReportedSalons()
+    {
+        $request_data = $this->requestData;
+
+        $data = $this->salonRepository->reportedSalons();
+  
+        return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+          
+    }
+
+    public function show($id)
+    {
+        $data =  $this->salonRepository->find($id);
+        
+        if($data){
+
+            $data = $data->salonReports;
+            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_SUCCESS), $data);
+        }
+        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+    }
+
+
+    //To test just 
+    public function store(Request $request)
+    {
+        $data = $this->requestData;
+        $validation_rules = [
+            'name' => "required",
+            'user_id' => "required",
+            'city_id' => "required",
+            'salon_code' => "required",
+           
+        ];
+        $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
+        if ($validator->passes()) {
+
+        
+            $resource = $this->salonRepository->create($data);
+        
+            if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
+            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
+        }
+        return JsonResponse::respondError($validator->errors()->all());
+    }
+
     public function getAcceptedAndRejectedSalons()
     {
         $request_data = $this->requestData;
@@ -170,7 +216,6 @@ class SalonController extends Controller
           
     }
 
-
     public function setAcceptedSalon(Request $request)
     {
         $request_data = $this->requestData;
@@ -190,6 +235,7 @@ class SalonController extends Controller
                 if($data->status == Constants::STATUS_PENDING){
     
                     $data->status = "Accepted" ;
+                    $data->is_available = 1 ;
                     $data->save();
                     return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
                 }  
@@ -225,6 +271,7 @@ class SalonController extends Controller
     
                     $data->status = "Rejected" ;                 
                     $data->reason = $request_data['reason'] ;
+                    $data->is_available = 0 ;
                     $data->save();
                     return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
                 }  
@@ -239,4 +286,40 @@ class SalonController extends Controller
         return JsonResponse::respondError($validator->errors()->all());
     }
 
+    public function setDisabledSalon(Request $request)
+    {
+        $request_data = $this->requestData;
+        $validation_rules = [
+            'salon_id' => "required",
+            'reason' => "required",
+        ];
+
+        $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
+        if ($validator->passes()) {
+
+            $data = $this->salonRepository->allAsQuery();
+
+            $data = $data->find($request_data['salon_id']);
+
+            if($data){
+
+                if($data->status == Constants::STATUS_ACCEPTED){
+    
+                    $data->status = "Disable" ;                 
+                    $data->reason = $request_data['reason'] ;
+                    $data->is_available = 0 ;
+                    $data->save();
+                    return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+                }  
+                else{
+                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                    } 
+            }
+             else{
+                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+              }
+        }
+        return JsonResponse::respondError($validator->errors()->all());
+    }
+  
 }

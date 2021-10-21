@@ -17,4 +17,16 @@ class SalonRepository extends BaseRepository implements ISalonRepository
     }
 
 
+    /**
+     * get salons who has salon Reports
+     * @return [Salon]
+     */
+    public function reportedSalons()
+    {
+        $reportedSalons = $this->model->whereHas('salonReports', function ($q)  {
+        })->orderBy('id', 'desc')->with('salonReports')->get();
+
+        return $reportedSalons;
+    }
+
 }

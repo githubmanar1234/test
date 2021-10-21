@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class UpdateColumnsSalonsTable extends Migration
+class AddIsAvailableToSalonsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,9 @@ class UpdateColumnsSalonsTable extends Migration
      */
     public function up()
     {
-        //
         Schema::table('salons', function (Blueprint $table) {
-
-            // $table->json('title')->change();
-            $table->string('reason')->after('status');
-           
-
+            //
+            $table->boolean('is_available')->default(true)->after('reason');
         });
     }
 
@@ -30,7 +26,8 @@ class UpdateColumnsSalonsTable extends Migration
      */
     public function down()
     {
-        //
-       
+        Schema::table('salons', function (Blueprint $table) {
+            //
+        });
     }
 }

@@ -10,6 +10,7 @@ use App\Http\Controllers\API\Dashboard\UserController;
 use App\Http\Controllers\API\Dashboard\SalonController;
 use App\Http\Controllers\API\Dashboard\CategoryController;
 use App\Http\Controllers\API\Dashboard\ServiceController;
+use App\Http\Controllers\API\Dashboard\ReportController;
 use Illuminate\Support\Facades\Route;
 use \App\Http\Controllers\API\Client\Auth\AuthController as ClientAuthController;
 use \App\Http\Controllers\API\Client\CategoryController as ClientCategoryController;
@@ -110,6 +111,14 @@ Route::group([
         Route::get('getPendingSalons', [SalonController::class, 'getPendingSalons']);
         Route::post('setAcceptedSalon', [SalonController::class, 'setAcceptedSalon']);
         Route::post('setRejectedSalon', [SalonController::class, 'setRejectedSalon']);
+        Route::post('setDisabledSalon', [SalonController::class, 'setDisabledSalon']);
+        Route::post('addSalon', [SalonController::class, 'store']);
+
+        //Reports
+        Route::get('getReportedSalons', [ReportController::class, 'getReportedSalons']);
+        Route::get('getReportBySalon/{id}', [ReportController::class, 'show']);
+        Route::post('addReportForSalon', [ReportController::class, 'store']);
+
 
     });
 
