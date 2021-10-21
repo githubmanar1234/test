@@ -183,22 +183,23 @@ class SalonController extends Controller
 
             $data = $this->salonRepository->allAsQuery();
 
-            $data = $data->where("id", $request_data['salon_id']);
-
-            $data = $data->first();
+            $data = $data->find($request_data['salon_id']);
 
             if($data){
-                
-                if($data->status == "Pending"){
 
+                if($data->status == Constants::STATUS_PENDING){
+    
                     $data->status = "Accepted" ;
                     $data->save();
-                }
+                    return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+                }  
                 else{
                     return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-                }
+                    } 
             }
-            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+             else{
+                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+              }
         }
         return JsonResponse::respondError($validator->errors()->all());
     }
@@ -216,24 +217,26 @@ class SalonController extends Controller
 
             $data = $this->salonRepository->allAsQuery();
 
-            $data = $data->where("id", $request_data['salon_id']);
-
-            $data = $data->first();
+            $data = $data->find($request_data['salon_id']);
 
             if($data){
 
-                if($data->status == "Pending"){
-                $data->status = "Rejected" ;
-                $data->reason = $request_data['reason'] ;
-                $data->save();
-                }     
+                if($data->status == Constants::STATUS_PENDING){
+    
+                    $data->status = "Rejected" ;                 
+                    $data->reason = $request_data['reason'] ;
+                    $data->save();
+                    return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+                }  
                 else{
-                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);     
-                }
-            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                    } 
+            }
+             else{
+                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+              }
         }
         return JsonResponse::respondError($validator->errors()->all());
-    }
     }
 
 }

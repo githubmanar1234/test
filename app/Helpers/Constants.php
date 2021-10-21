@@ -37,12 +37,11 @@ class Constants
         ];
     const STATUS_REJECTED ='Rejected';
     const STATUS_ACCEPTED ='Accepted';
-    const STATUS_UNDER_REVIEW ='Under review';
-    const STATUS_UPDATE_REQUEST ='Update request';
+    const STATUS_PENDING ='Pending';
     const STATUSES = [
         Constants::STATUS_REJECTED,
         Constants::STATUS_ACCEPTED,
-        Constants::STATUS_UNDER_REVIEW,
+        Constants::STATUS_PENDING,
     ];
     const NOTIFICATION_TYPE_KEY = "Type";
     const NOTIFICATION_TYPE_SERVICE = "Service";
