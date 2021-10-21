@@ -67,6 +67,7 @@ class ReportController extends Controller
 
     public function show($id)
     {
+        
         $data =  $this->salonRepository->find($id);
         
         if($data){

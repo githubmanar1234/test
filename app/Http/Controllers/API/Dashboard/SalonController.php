@@ -92,6 +92,8 @@ use Illuminate\Validation\Rule;
  * )
  */
 
+ // 3 new
+
 class SalonController extends Controller
 {
     private $userRepository;
@@ -154,8 +156,12 @@ class SalonController extends Controller
         $request_data = $this->requestData;
 
         $data = $this->salonRepository->reportedSalons();
-  
-        return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+        if($data){
+            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+        }
+        else{
+            return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
+        }
           
     }
 
