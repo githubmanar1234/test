@@ -18,103 +18,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-
-/**
- * @OA\GET(
- * path="/api/admin/getAllServices",
- * summary="Index",
- * description="GET all services",
- * tags={"Dashboard/Services"},
- * 
-*   @OA\Response(
-*     response=200,
-*     description="Success",
-*  ),
- * )
- */
-
- /**
- * @OA\GET(
- * path="/api/admin/getService/{id}",
- * summary="Show",
- * description="GET service by id",
- * tags={"Dashboard/Services"},
- *      @OA\Parameter(
- *         name="id",
- *         in="query",
- *         required=true,
- *      ),
- *   @OA\Response(
- *     response=200,
- *     description="Success",
- *  ),
- * )
- */
-
- /**
- * @OA\Post(
- * path="/api/admin/addService",
- * summary="Store",
- * description="Add service",
- * tags={"Dashboard/Services"},
- * @OA\RequestBody(
- *    required=true,
- *    description="Pass service data",
- *    @OA\JsonContent(
- *       required={"title","category_id"},
- *       @OA\Property(property="title", type="string", format="title", example="title1"),
- *       @OA\Property(property="category_id", type="integer", format="category_id", example="1"),
- *    ),
- * ),
-*   @OA\Response(
- *     response=200,
- *     description="Success",
- *  ),
- * )
- */
-
- /**
- * @OA\Put(
- * path="/api/admin/editService/{id}",
- * summary="Edit",
- * description="Update service",
- * tags={"Dashboard/Services"},
- * @OA\RequestBody(
- *    required=true,
- *    description="Pass service data",
- *    @OA\JsonContent(
- *       required={"title","description","category_id"},
- *       @OA\Property(property="title", type="string", format="title", example="title1"),
- *       @OA\Property(property="description", type="string", format="description", example="title1title1"),
- *       @OA\Property(property="category_id", type="integer", format="category_id", example="1"),
- *    ),
- * ),
-*   @OA\Response(
- *     response=200,
- *     description="Success",
- *  ),
- * )
- */
-
-  /**
- * @OA\Delete(
- * path="/api/admin/deleteService/{id}",
- * summary="Delete",
- * description="Delete service",
- * tags={"Dashboard/Services"},
- *      @OA\Parameter(
- *         name="id",
- *         in="query",
- *         required=true,
- *      ),
- *   @OA\Response(
- *     response=200,
- *     description="Success",
- *  ),
- * )
- */
+ 
 
 
+
+
+
+
+
+
+ 
 class ServiceController extends Controller
 {
     private $userRepository;
@@ -147,6 +60,20 @@ class ServiceController extends Controller
         });
     }
 
+    /**
+ * @OA\GET(
+ * path="/api/admin/getAllServices",
+ * summary="Index",
+ * description="GET all services",
+ * tags={"Dashboard/Services"},
+ * 
+*   @OA\Response(
+*     response=200,
+*     description="Success",
+*  ),
+ * )
+ */
+
     public function index()
     {
         $data = $this->serviceRepository->all();
@@ -155,6 +82,24 @@ class ServiceController extends Controller
         return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
     }
     
+      /**
+ * @OA\GET(
+ * path="/api/admin/getService/{id}",
+ * summary="Show",
+ * description="GET Service id",
+ * tags={"Dashboard/Services"},
+ *      @OA\Parameter(
+ *         name="id",
+ *         in="query",
+ *         required=true,
+ *      ),
+ *   @OA\Response(
+ *     response=200,
+ *     description="Success",
+ *  ),
+ * )
+ */
+
     public function show($id)
     {
         $service = Service::find($id);
@@ -164,6 +109,24 @@ class ServiceController extends Controller
         return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
     }
 
+
+         /**
+ * @OA\GET(
+ * path="/api/admin/services/find",
+ * summary="Find",
+ * description="GET Service by title , description or both",
+ * tags={"Dashboard/Services"},
+ *      @OA\Parameter(
+ *         name="title",
+ *         in="query",
+ *         required=true,
+ *      ),
+ *   @OA\Response(
+ *     response=200,
+ *     description="Success",
+ *  ),
+ * )
+ */
 
     public function find()
     {
@@ -183,6 +146,28 @@ class ServiceController extends Controller
     }
 
 
+     /**
+ * @OA\Post(
+ * path="/api/admin/addService",
+ * summary="Store",
+ * description="Add service",
+ * tags={"Dashboard/Services"},
+ * @OA\RequestBody(
+ *    required=true,
+ *    description="Pass service data",
+ *    @OA\JsonContent(
+ *       required={"title","category_id"},
+ *       @OA\Property(property="title", type="string", format="title", example="title1"),
+ *       @OA\Property(property="category_id", type="integer", format="category_id", example="1"),
+ *    ),
+ * ),
+*   @OA\Response(
+ *     response=200,
+ *     description="Success",
+ *  ),
+ * )
+ */
+
     public function store(Request $request)
     {
         $data = $this->requestData;
@@ -199,6 +184,29 @@ class ServiceController extends Controller
         }
         return JsonResponse::respondError($validator->errors()->all());
     }
+
+     /**
+ * @OA\Put(
+ * path="/api/admin/editService/{id}",
+ * summary="Edit",
+ * description="Update service",
+ * tags={"Dashboard/Services"},
+ * @OA\RequestBody(
+ *    required=true,
+ *    description="Pass service data",
+ *    @OA\JsonContent(
+ *       required={"title","description","category_id"},
+ *       @OA\Property(property="title", type="string", format="title", example="title1"),
+ *       @OA\Property(property="description", type="string", format="description", example="title1title1"),
+ *       @OA\Property(property="category_id", type="integer", format="category_id", example="1"),
+ *    ),
+ * ),
+*   @OA\Response(
+ *     response=200,
+ *     description="Success",
+ *  ),
+ * )
+ */
 
     public function updateService(Request $request, $id) 
     {
@@ -225,6 +233,24 @@ class ServiceController extends Controller
     }
 
     
+      /**
+ * @OA\Delete(
+ * path="/api/admin/deleteService/{id}",
+ * summary="Delete",
+ * description="Delete service",
+ * tags={"Dashboard/Services"},
+ *      @OA\Parameter(
+ *         name="id",
+ *         in="query",
+ *         required=true,
+ *      ),
+ *   @OA\Response(
+ *     response=200,
+ *     description="Success",
+ *  ),
+ * )
+ */
+
     public function destroy($id)
     {
         $resource = Service::find($id);
@@ -235,6 +261,23 @@ class ServiceController extends Controller
         return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);    
     }
 
+    /**
+ * @OA\GET(
+ * path="/api/admin/serviceOfCategory/find",
+ * summary="Show",
+ * description="GET report by salon's id",
+ * tags={"Dashboard/Reports"},
+ *      @OA\Parameter(
+ *         name="id",
+ *         in="query",
+ *         required=true,
+ *      ),
+ *   @OA\Response(
+ *     response=200,
+ *     description="Success",
+ *  ),
+ * )
+ */
 
     public function findByCategoryId()
     {

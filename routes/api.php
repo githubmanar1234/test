@@ -119,6 +119,9 @@ Route::group([
         Route::get('getReportBySalon/{id}', [ReportController::class, 'show']);
         Route::post('addReportForSalon', [ReportController::class, 'store']);
 
+        //Settings
+        Route::get('getAllSettings', [SettingController::class, 'index']);
+
 
     });
 

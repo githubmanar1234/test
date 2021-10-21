@@ -21,78 +21,15 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 
-/**
- * @OA\GET(
- * path="/api/admin/getPendingSalons",
- * summary="Get",
- * description="GET all pending salons ",
- * tags={"Dashboard/Salons"},
- * 
-*   @OA\Response(
-*     response=200,
-*     description="Success",
-*  ),
- * )
- */
-
- /**
- * @OA\GET(
- * path="/api/admin/getAcceptedAndRejectedSalons",
- * summary="Get",
- * description="GET all accepted and rejected salons ",
- * tags={"Dashboard/Salons"},
- * 
-*   @OA\Response(
-*     response=200,
-*     description="Success",
-*  ),
- * )
- */
-
- /**
- * @OA\Post(
- * path="/api/admin/setAcceptedSalon",
- * summary="Store",
- * description="Set accepted Salon",
- * tags={"Dashboard/Salons"},
- * @OA\RequestBody(
- *    required=true,
- *    description="Pass id for salon ",
- *    @OA\JsonContent(
- *       required={"salon_id"},
- *       @OA\Property(property="salon_id", type="integer", format="salon_id", example="1"),
- *    ),
- * ),
-*   @OA\Response(
- *     response=200,
- *     description="Success",
- *  ),
- * )
- */
+ 
 
 
- /**
- * @OA\Post(
- * path="/api/admin/setRejectedSalon",
- * summary="Store",
- * description="Set rejected Salon",
- * tags={"Dashboard/Salons"},
- * @OA\RequestBody(
- *    required=true,
- *    description="Pass id for salon ",
- *    @OA\JsonContent(
- *       required={"salon_id"},
- *       @OA\Property(property="salon_id", type="integer", format="salon_id", example="1"),
- *    ),
- * ),
-*   @OA\Response(
- *     response=200,
- *     description="Success",
- *  ),
- * )
- */
 
- // 3 new
+
+
+
+
+
 
 class SalonController extends Controller
 {
@@ -129,6 +66,20 @@ class SalonController extends Controller
         });
     }
 
+    /**
+ * @OA\GET(
+ * path="/api/admin/getPendingSalons",
+ * summary="Get",
+ * description="GET all pending salons ",
+ * tags={"Dashboard/Salons"},
+ * 
+*   @OA\Response(
+*     response=200,
+*     description="Success",
+*  ),
+ * )
+ */
+
     public function getPendingSalons()
     {
         $request_data = $this->requestData;
@@ -151,33 +102,23 @@ class SalonController extends Controller
           
     }
 
-    public function getReportedSalons()
-    {
-        $request_data = $this->requestData;
 
-        $data = $this->salonRepository->reportedSalons();
-        if($data){
-            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
-        }
-        else{
-            return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
-        }
-          
-    }
 
-    public function show($id)
-    {
-        $data =  $this->salonRepository->find($id);
+    
+    // public function show($id)
+    // {
+    //     $data =  $this->salonRepository->find($id);
         
-        if($data){
+    //     if($data){
 
-            $data = $data->salonReports;
-            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_SUCCESS), $data);
-        }
-        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-    }
+    //         $data = $data->salonReports;
+    //         return JsonResponse::respondSuccess(trans(JsonResponse::MSG_SUCCESS), $data);
+    //     }
+    //     return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+    // }
 
 
+    
     //To test just 
     public function store(Request $request)
     {
@@ -201,6 +142,19 @@ class SalonController extends Controller
         return JsonResponse::respondError($validator->errors()->all());
     }
 
+    /**
+ * @OA\GET(
+ * path="/api/admin/getAcceptedAndRejectedSalons",
+ * summary="Get",
+ * description="GET all accepted and rejected salons ",
+ * tags={"Dashboard/Salons"},
+ * 
+*   @OA\Response(
+*     response=200,
+*     description="Success",
+*  ),
+ * )
+ */
     public function getAcceptedAndRejectedSalons()
     {
         $request_data = $this->requestData;
@@ -221,6 +175,27 @@ class SalonController extends Controller
         
           
     }
+
+     /**
+ * @OA\Post(
+ * path="/api/admin/setAcceptedSalon",
+ * summary="Store",
+ * description="Set accepted Salon",
+ * tags={"Dashboard/Salons"},
+ * @OA\RequestBody(
+ *    required=true,
+ *    description="Pass id for salon ",
+ *    @OA\JsonContent(
+ *       required={"salon_id"},
+ *       @OA\Property(property="salon_id", type="integer", format="salon_id", example="1"),
+ *    ),
+ * ),
+*   @OA\Response(
+ *     response=200,
+ *     description="Success",
+ *  ),
+ * )
+ */
 
     public function setAcceptedSalon(Request $request)
     {
@@ -255,6 +230,28 @@ class SalonController extends Controller
         }
         return JsonResponse::respondError($validator->errors()->all());
     }
+
+    
+ /**
+ * @OA\Post(
+ * path="/api/admin/setRejectedSalon",
+ * summary="Store",
+ * description="Set rejected Salon",
+ * tags={"Dashboard/Salons"},
+ * @OA\RequestBody(
+ *    required=true,
+ *    description="Pass id for salon ",
+ *    @OA\JsonContent(
+ *       required={"salon_id"},
+ *       @OA\Property(property="salon_id", type="integer", format="salon_id", example="1"),
+ *    ),
+ * ),
+*   @OA\Response(
+ *     response=200,
+ *     description="Success",
+ *  ),
+ * )
+ */
 
     public function setRejectedSalon(Request $request)
     {
@@ -292,6 +289,27 @@ class SalonController extends Controller
         return JsonResponse::respondError($validator->errors()->all());
     }
 
+    
+ /**
+ * @OA\Post(
+ * path="/api/admin/setDisabledSalon",
+ * summary="Store",
+ * description="Set disabled Salon",
+ * tags={"Dashboard/Salons"},
+ * @OA\RequestBody(
+ *    required=true,
+ *    description="Pass id for salon ",
+ *    @OA\JsonContent(
+ *       required={"salon_id"},
+ *       @OA\Property(property="salon_id", type="integer", format="salon_id", example="1"),
+ *    ),
+ * ),
+*   @OA\Response(
+ *     response=200,
+ *     description="Success",
+ *  ),
+ * )
+ */
     public function setDisabledSalon(Request $request)
     {
         $request_data = $this->requestData;

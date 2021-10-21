@@ -55,6 +55,20 @@ class ReportController extends Controller
     }
 
    
+    /**
+ * @OA\GET(
+ * path="/api/admin/getReportedSalons",
+ * summary="Get",
+ * description="GET all reported salons ",
+ * tags={"Dashboard/Reports"},
+ * 
+*   @OA\Response(
+*     response=200,
+*     description="Success",
+*  ),
+ * )
+ */
+
     public function getReportedSalons()
     {
         $request_data = $this->requestData;
@@ -64,6 +78,24 @@ class ReportController extends Controller
         return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
           
     }
+
+      /**
+ * @OA\GET(
+ * path="/api/admin/getReportBySalon/{id}",
+ * summary="Show",
+ * description="GET report by salon's id",
+ * tags={"Dashboard/Reports"},
+ *      @OA\Parameter(
+ *         name="id",
+ *         in="query",
+ *         required=true,
+ *      ),
+ *   @OA\Response(
+ *     response=200,
+ *     description="Success",
+ *  ),
+ * )
+ */
 
     public function show($id)
     {

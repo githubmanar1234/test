@@ -233,6 +233,43 @@
                 }
             }
         },
+        "/api/admin/getReportedSalons": {
+            "get": {
+                "tags": [
+                    "Dashboard/Reports"
+                ],
+                "summary": "Get",
+                "description": "GET all reported salons ",
+                "operationId": "00ce195372e65417cd7ed713496e1701",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/admin/getReportBySalon/{id}": {
+            "get": {
+                "tags": [
+                    "Dashboard/Reports"
+                ],
+                "summary": "Show",
+                "description": "GET report by salon's id",
+                "operationId": "12d7b22d307481ca05642298774421d9",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
         "/api/admin/getPendingSalons": {
             "get": {
                 "tags": [
@@ -240,6 +277,7 @@
                 ],
                 "summary": "Get",
                 "description": "GET all pending salons ",
+                "operationId": "de494ea82dbbb8c9bc786510e27700c7",
                 "responses": {
                     "200": {
                         "description": "Success"
@@ -254,6 +292,7 @@
                 ],
                 "summary": "Get",
                 "description": "GET all accepted and rejected salons ",
+                "operationId": "caf6924fb067f8345374cdb1cad89887",
                 "responses": {
                     "200": {
                         "description": "Success"
@@ -268,6 +307,7 @@
                 ],
                 "summary": "Store",
                 "description": "Set accepted Salon",
+                "operationId": "a2e9e4f015d6770b596d28e7c1f1c55a",
                 "requestBody": {
                     "description": "Pass id for salon ",
                     "required": true,
@@ -303,6 +343,43 @@
                 ],
                 "summary": "Store",
                 "description": "Set rejected Salon",
+                "operationId": "bdacadace915c07b2e4b79ae6c3e9c34",
+                "requestBody": {
+                    "description": "Pass id for salon ",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "salon_id"
+                                ],
+                                "properties": {
+                                    "salon_id": {
+                                        "type": "integer",
+                                        "format": "salon_id",
+                                        "example": "1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/admin/setDisabledSalon": {
+            "post": {
+                "tags": [
+                    "Dashboard/Salons"
+                ],
+                "summary": "Store",
+                "description": "Set disabled Salon",
+                "operationId": "2f2ea09780b879d0a490f4e2e9a2d0e9",
                 "requestBody": {
                     "description": "Pass id for salon ",
                     "required": true,
@@ -338,6 +415,7 @@
                 ],
                 "summary": "Index",
                 "description": "GET all services",
+                "operationId": "81cd447411334b3a3af1b0083e390814",
                 "responses": {
                     "200": {
                         "description": "Success"
@@ -351,10 +429,33 @@
                     "Dashboard/Services"
                 ],
                 "summary": "Show",
-                "description": "GET service by id",
+                "description": "GET Service id",
+                "operationId": "3e21efb44e56a54fe9a6c0af5213f067",
                 "parameters": [
                     {
                         "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/admin/services/find": {
+            "get": {
+                "tags": [
+                    "Dashboard/Services"
+                ],
+                "summary": "Find",
+                "description": "GET Service by title , description or both",
+                "operationId": "7dffe018b0856c668434d39ed3aec3fd",
+                "parameters": [
+                    {
+                        "name": "title",
                         "in": "query",
                         "required": true
                     }
@@ -373,6 +474,7 @@
                 ],
                 "summary": "Store",
                 "description": "Add service",
+                "operationId": "5f9c7bf1eec029484b45259f97cf662b",
                 "requestBody": {
                     "description": "Pass service data",
                     "required": true,
@@ -414,6 +516,7 @@
                 ],
                 "summary": "Edit",
                 "description": "Update service",
+                "operationId": "268c6460ef1e62784f903f5aee745c6e",
                 "requestBody": {
                     "description": "Pass service data",
                     "required": true,
@@ -461,6 +564,29 @@
                 ],
                 "summary": "Delete",
                 "description": "Delete service",
+                "operationId": "d31173eb9bd88b0d0c81c74d1ac79bc8",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/admin/serviceOfCategory/find": {
+            "get": {
+                "tags": [
+                    "Dashboard/Reports"
+                ],
+                "summary": "Show",
+                "description": "GET report by salon's id",
+                "operationId": "413c77eed7254fd4f689c1e98665af16",
                 "parameters": [
                     {
                         "name": "id",
