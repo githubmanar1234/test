@@ -28,12 +28,12 @@ class Constants
 
     const LANGUAGE_EN = "en";
     const LANGUAGES_AR = "ar";
-    const LANGUAGES_FR = "fr";
+    const LANGUAGES_TR = "tr";
     const LANGUAGES =
         [
             Constants::LANGUAGE_EN,
             Constants::LANGUAGES_AR,
-            Constants::LANGUAGES_FR,
+            Constants::LANGUAGES_TR,
         ];
     const STATUS_REJECTED ='Rejected';
     const STATUS_ACCEPTED ='Accepted';

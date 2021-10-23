@@ -2,6 +2,7 @@
 
 
 use App\Http\Controllers\API\Client\CountryController as ClientCountryController;
+use App\Http\Controllers\API\Client\SalonController as ClientSalonController;
 use App\Http\Controllers\API\Client\UserController as ClientUserController;
 use App\Http\Controllers\API\Dashboard\Auth\AuthController;
 use App\Http\Controllers\API\Dashboard\Auth\PasswordResetController;
@@ -55,6 +56,9 @@ Route::group([
         Route::get('userById/{user}', [ClientUserController::class, 'userById']);
 
         Route::post('user/updateInfo', [ClientUserController::class, 'updateInfo']);
+
+        //Salons
+        Route::post('createSalon', [ClientSalonController::class, 'store']);
    
     });
 });

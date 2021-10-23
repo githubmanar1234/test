@@ -9,9 +9,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Repositories\IRepositories\ICategoryRepository;
 use App\Http\Repositories\IRepositories\ISalonRepository;
 use App\Http\Repositories\IRepositories\IUserRepository;
+use App\Http\Repositories\IRepositories\IBarberRepository;
 use App\Models\Category;
 use App\Models\Salon;
+use App\Models\Barber;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use App\Helpers\ValidatorHelper;
 
 
 class SalonController extends Controller
@@ -19,48 +24,72 @@ class SalonController extends Controller
     private $userRepository;
     private $categoryRepository;
     private $salonRepository;
+    private $barberRepository;
     private $requestData;
     private $authUser;
 
     public function __construct(
         ICategoryRepository $categoryRepository,
         IUserRepository $userRepository,
-        ISalonRepository $salonRepository
+        ISalonRepository $salonRepository,
+        IBarberRepository $barberRepository
     )
     {
         $this->userRepository = $userRepository;
         $this->categoryRepository = $categoryRepository;
+        $this->barberRepository = $barberRepository;
         $this->salonRepository = $salonRepository;
         $this->requestData = Mapper::toUnderScore(\Request()->all());
         $this->authUser = Auth::guard('client')->user();
     }
 
 
+    //Create salon by user and create its barberes
     public function store(Request $request)
     {
-        //Auth ($user_id)
-        //ISAvailable and status...
-
+    
+        $user = Auth::guard('client')->user();
+    
         $data = $this->requestData;
         $validation_rules = [
             'name' => "required",
-            'lat_location' => "required",
             'city_id' => "required",
-            'salon_code' => "required",
             'type' => "required",
-            'location' => "required",
-            'long_location' => "required",
-            'phone_number' => "required",
-            'facebook_link' => "required",
-            'whatsapp_number' => "required",    
-           
+            'barber_num' => "required",
         ];
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {
 
         
-            $resource = $this->salonRepository->create($data);
-        
+            $salon_code = sprintf("%06d", mt_rand(1, 999999));
+
+            if ($this->isInviteNumberExists($salon_code)) {
+                return $this->generateInviteCode();
+            }
+
+           $data['salon_code'] = $salon_code;
+           $data['user_id'] = $user->id;
+           $data['is_available'] = 0;
+           $data['is_open'] = 0;
+
+           $resource = $this->salonRepository->create($data);
+
+           $salon_number = intval($data['barber_num']);
+
+            for($i = 0 ; $i<$salon_number ;$i++){
+
+                $barber = [];
+           
+                $barber['salon_id'] = $resource->id;
+                $barber['salon_code']= $resource->salon_code;
+
+                $password = sprintf("%06d", mt_rand(1, 999999));
+                           
+                $barber['password']= $password;
+   
+                $barber = $this->barberRepository->create($barber);
+            }
+          
             if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
             return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
         }
@@ -90,5 +119,19 @@ class SalonController extends Controller
     // }
 
 
+    function isInviteNumberExists($number)
+    {
+        $salon_code = Salon::where('salon_code', '=', $number)->first();
 
+        if ($salon_code === null )
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+  
 }
