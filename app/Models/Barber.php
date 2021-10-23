@@ -10,10 +10,11 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Translatable\HasTranslations;
 
 class Barber extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens,HasTranslations;
 
     /**
      * The attributes that are mass assignable.
@@ -33,6 +34,8 @@ class Barber extends Authenticatable
         'is_availble',
        
     ];
+
+    public $translatable = ['name'];
 
     
     public function salon()
@@ -61,24 +64,24 @@ class Barber extends Authenticatable
     //     return $this->hasMany(Service::class, 'user_id');
     // }
 
-    // public function scopeFilter($builder, $filters = null, $filterOperator = "=")
-    // {
-    //     if (isset($filters) && is_array($filters)) {
-    //         foreach ($filters as $field => $value) {
-    //             if ($value == Constants::NULL)
-    //                 $builder->whereNull($field);
-    //             elseif ($value == Constants::NOT_NULL)
-    //                 $builder->whereNotNull($field);
-    //             elseif (is_array($value))
-    //                 $builder->whereIn($field, $value);
-    //             elseif ($filterOperator == "like")
-    //                 $builder->where($field, $filterOperator, '%' . $value . '%');
-    //             else
-    //                 $builder->where($field, $value);
-    //         }
-    //     }
-    //     return $builder;
-    // }
+    public function scopeFilter($builder, $filters = null, $filterOperator = "=")
+    {
+        if (isset($filters) && is_array($filters)) {
+            foreach ($filters as $field => $value) {
+                if ($value == Constants::NULL)
+                    $builder->whereNull($field);
+                elseif ($value == Constants::NOT_NULL)
+                    $builder->whereNotNull($field);
+                elseif (is_array($value))
+                    $builder->whereIn($field, $value);
+                elseif ($filterOperator == "like")
+                    $builder->where($field, $filterOperator, '%' . $value . '%');
+                else
+                    $builder->where($field, $value);
+            }
+        }
+        return $builder;
+    }
 
 
     // const create_update_rules = [

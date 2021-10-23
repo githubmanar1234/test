@@ -5,10 +5,94 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/client/createSalon": {
+            "post": {
+                "tags": [
+                    "Client/Salons"
+                ],
+                "summary": "Store",
+                "description": "Create Salon with its barbers",
+                "operationId": "fec52c8c8d5e0e9af2661a41a069ce6a",
+                "requestBody": {
+                    "description": "Pass salon data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "city_id",
+                                    "type",
+                                    "barber_num"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "format": "title",
+                                        "example": "title1"
+                                    },
+                                    "city_id": {
+                                        "type": "integer",
+                                        "format": "city_id",
+                                        "example": "1"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "format": "type",
+                                        "example": "male"
+                                    },
+                                    "barber_num": {
+                                        "type": "integer",
+                                        "format": "barber_num",
+                                        "example": "2"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/client/getAcceptedSalons": {
+            "get": {
+                "tags": [
+                    "Client/Salons"
+                ],
+                "summary": "Get",
+                "description": "GET all accepted salons ",
+                "operationId": "f12b253155ca2218b623e7178e018bb7",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/client/getSalonsDeatails": {
+            "get": {
+                "tags": [
+                    "Client/Salons"
+                ],
+                "summary": "Get",
+                "description": "GET all salons details ",
+                "operationId": "69a08e75c1459691af27efea9a972a4d",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
         "/api/admin/auth/login": {
             "post": {
                 "tags": [
-                    "Auth"
+                    "Dashboard/Auth"
                 ],
                 "summary": "Sign in",
                 "description": "Login by email, password",
@@ -62,7 +146,7 @@
         "/api/admin/auth/logout": {
             "post": {
                 "tags": [
-                    "Auth"
+                    "Dashboard/Auth"
                 ],
                 "summary": "Logout",
                 "description": "Logout user and invalidate token",
@@ -256,6 +340,43 @@
                 "summary": "Show",
                 "description": "GET report by salon's id",
                 "operationId": "12d7b22d307481ca05642298774421d9",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/admin/getReportedPosts": {
+            "get": {
+                "tags": [
+                    "Dashboard/Reports"
+                ],
+                "summary": "Get",
+                "description": "GET all reported posts ",
+                "operationId": "cb3cf9dd4537e918ab563b6e7435a5c3",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/admin/getReportByPost/{id}": {
+            "get": {
+                "tags": [
+                    "Dashboard/Reports"
+                ],
+                "summary": "Show",
+                "description": "GET report by post's id",
+                "operationId": "1a8ad761700c9c76502ee3bbbcbefc3e",
                 "parameters": [
                     {
                         "name": "id",

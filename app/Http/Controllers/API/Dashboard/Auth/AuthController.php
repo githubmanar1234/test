@@ -19,7 +19,7 @@ use App\Http\Repositories\IRepositories\IUserRepository;
  * path="/api/admin/auth/login",
  * summary="Sign in",
  * description="Login by email, password",
- * tags={"Auth"},
+ * tags={"Dashboard/Auth"},
  * @OA\RequestBody(
  *    required=true,
  *    description="Pass user credentials",
@@ -44,7 +44,7 @@ use App\Http\Repositories\IRepositories\IUserRepository;
  * path="/api/admin/auth/logout",
  * summary="Logout",
  * description="Logout user and invalidate token",
- * tags={"Auth"},
+ * tags={"Dashboard/Auth"},
  * security={ {"bearer": {} }},
  * @OA\Response(
  *    response=200,

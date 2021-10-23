@@ -8,6 +8,7 @@ use App\Http\Controllers\API\Dashboard\Auth\AuthController;
 use App\Http\Controllers\API\Dashboard\Auth\PasswordResetController;
 use App\Http\Controllers\API\Dashboard\SettingController;
 use App\Http\Controllers\API\Dashboard\UserController;
+use App\Http\Controllers\API\Dashboard\ReportPostController;
 use App\Http\Controllers\API\Dashboard\SalonController;
 use App\Http\Controllers\API\Dashboard\CategoryController;
 use App\Http\Controllers\API\Dashboard\ServiceController;
@@ -59,6 +60,11 @@ Route::group([
 
         //Salons
         Route::post('createSalon', [ClientSalonController::class, 'store']);
+        Route::get('getAcceptedSalons', [ClientSalonController::class, 'getAcceptedSalons']);
+        Route::get('getSalonsDeatails', [ClientSalonController::class, 'getSalonsDetails']);
+        Route::get('getBarberDetails/{id}', [ClientSalonController::class, 'getBarberDetails']);
+        
+        
    
     });
 });
@@ -122,6 +128,10 @@ Route::group([
         Route::get('getReportedSalons', [ReportController::class, 'getReportedSalons']);
         Route::get('getReportBySalon/{id}', [ReportController::class, 'show']);
         Route::post('addReportForSalon', [ReportController::class, 'store']);
+
+        //posts
+        Route::get('getReportedPosts', [ReportPostController::class, 'getReportedPosts']);
+        Route::get('getReportByPost/{id}', [ReportPostController::class, 'show']);
 
         //Settings
         Route::get('getAllSettings', [SettingController::class, 'index']);

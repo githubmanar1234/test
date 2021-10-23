@@ -7,6 +7,8 @@ namespace App\Providers;
 
 use App\Http\Repositories\Eloquent\AdminRepository;
 use App\Http\Repositories\Eloquent\SalonRepository;
+use App\Http\Repositories\Eloquent\PostRepository;
+use App\Http\Repositories\Eloquent\PostReportRepository;
 use App\Http\Repositories\Eloquent\BarberRepository;
 use App\Http\Repositories\Eloquent\AdRepository;
 use App\Http\Repositories\Eloquent\CategoryRepository;
@@ -22,6 +24,8 @@ use App\Http\Repositories\Eloquent\SubserviceRepository;
 use App\Http\Repositories\Eloquent\SalonReportRepository;
 use App\Http\Repositories\Eloquent\UserRepository;
 use App\Http\Repositories\IRepositories\IAdminRepository;
+use App\Http\Repositories\IRepositories\IPostRepository;
+use App\Http\Repositories\IRepositories\IPostReportRepository;
 use App\Http\Repositories\IRepositories\ISalonRepository;
 use App\Http\Repositories\IRepositories\IAdRepository;
 use App\Http\Repositories\IRepositories\ICategoryRepository;
@@ -49,6 +53,8 @@ class RepositoryServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind(IUserRepository::class, UserRepository::class);
+        $this->app->bind(IPostReportRepository::class, PostReportRepository::class);
+        $this->app->bind(IPostRepository::class, PostRepository::class);
         $this->app->bind(IBarberRepository::class, BarberRepository::class);
         $this->app->bind(IAdminRepository::class, AdminRepository::class);
         $this->app->bind(ISettingRepository::class, SettingRepository::class);

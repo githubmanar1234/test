@@ -6,22 +6,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 //use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Translatable\HasTranslations;
 
-class Salon extends AppModel
+class Post extends AppModel
 {
     use HasFactory,HasTranslations;
     //use SoftDeletes;
 
-    protected $table = "salons";
+    protected $fillable = ['description', 'salon_id' , 'image'];
+    public $translatable = ['description'];
 
 
-    protected $fillable = ['name', 'status', 'reason','salon_code', 'city_id' , 'user_id', 'type' , 'is_open','location','lat_location','long_location','phone_number','facebook_link','whatsapp_number','is_available'];
 
-    public $translatable = ['name'];
-
-
-    public function barbers(){
-        return $this->hasMany(Barber::class,'salon_id');
+    public function postReports()
+    {
+        return $this->hasMany(PostReport::class);
     }
+
+  
 
     // public function users()
     // {
@@ -32,15 +32,10 @@ class Salon extends AppModel
     //     return $users;
     // }
 
-    public function salonReports()
-    {
-        return $this->hasMany(SalonReport::class);
-    }
-    
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_id', 'id');
-    }
+    // public function salonReport()
+    // {
+    //     return $this->hasMany(SalonReport::class);
+    // }
 
     // public function category()
     // {
@@ -55,4 +50,7 @@ class Salon extends AppModel
     //     'image' => "mimes:jpeg,jpg,png|max:2048",
 
     // ];
+
+   
+    
 }

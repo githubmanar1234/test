@@ -17,4 +17,8 @@ class Report extends AppModel
         return $this->morphTo();
     }
 
+    public function postReports()
+    {
+        return $this->hasMany(PostReport::class);
+    }
 }
