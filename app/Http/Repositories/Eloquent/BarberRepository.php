@@ -17,6 +17,13 @@ class BarberRepository extends BaseRepository implements IBarberRepository
     }
 
 
+    public function reportedBarbers()
+    {
+        $reportedBarbers = $this->model->whereHas('barberReports', function ($q)  {
+        })->orderBy('id', 'desc')->with('barberReports')->get();
+
+        return $reportedBarbers;
+    }
     /**
      * get salons who has salon Reports
      * @return [Salon]

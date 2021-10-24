@@ -11,6 +11,7 @@ use App\Http\Controllers\API\Dashboard\UserController;
 use App\Http\Controllers\API\Dashboard\ReportPostController;
 use App\Http\Controllers\API\Dashboard\SalonController;
 use App\Http\Controllers\API\Dashboard\CategoryController;
+use App\Http\Controllers\API\Dashboard\ReportBarberController;
 use App\Http\Controllers\API\Dashboard\ServiceController;
 use App\Http\Controllers\API\Dashboard\ReportController;
 use Illuminate\Support\Facades\Route;
@@ -124,14 +125,19 @@ Route::group([
         Route::post('setDisabledSalon', [SalonController::class, 'setDisabledSalon']);
         Route::post('addSalon', [SalonController::class, 'store']);
 
-        //Reports
+        //Reported Salons
         Route::get('getReportedSalons', [ReportController::class, 'getReportedSalons']);
         Route::get('getReportBySalon/{id}', [ReportController::class, 'show']);
         Route::post('addReportForSalon', [ReportController::class, 'store']);
 
-        //posts
+        //Reported Posts
         Route::get('getReportedPosts', [ReportPostController::class, 'getReportedPosts']);
         Route::get('getReportByPost/{id}', [ReportPostController::class, 'show']);
+
+        //Reported Barbers
+        Route::get('getReportedBarbers', [ReportBarberController::class, 'getReportedBarbers']);
+        Route::get('getReportByBarber/{id}', [ReportBarberController::class, 'show']);
+
 
         //Settings
         Route::get('getAllSettings', [SettingController::class, 'index']);
