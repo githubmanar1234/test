@@ -233,20 +233,24 @@ class SalonController extends Controller
     // }
 
    
-    // public function find(){
-    //     $request_data = $this->requestData;
+    public function find(){
 
-    //     $data = $this->categoryRepository->allAsQuery();
-    //     if (isset($this->requestData['title']))foreach (Constants::LANGUAGES as $LANGUAGE){
-    //         $data = $data->orWhere("title->".$LANGUAGE,'like',"%".lcfirst($request_data['title'])."%");
-    //         $data = $data->orWhere("title->".$LANGUAGE,'like',"%".ucfirst($request_data['title'])."%");
-    //     }
-    //     if (isset($this->requestData['description'])) foreach (Constants::LANGUAGES as $LANGUAGE) {
-    //         $data = $data->orWhere("description->" . $LANGUAGE, 'like', "%".$request_data['description']."%");
-    //     }
-    //     $data = $data->get();
-    //     return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS,$data);
-    // }
+        
+        $request_data = $this->requestData;
+
+        $data = $this->salonRepository->allAsQuery();
+
+        $data->Where("status", Constants::STATUS_ACCEPTED);
+        
+        if (isset($this->requestData['type'])){
+            $data->Where("type", "=" , $request_data['type']);
+        }
+
+        $data = $data ->get();
+
+        return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS,$data);
+
+    }
 
 
     function isInviteNumberExists($number)

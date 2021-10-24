@@ -89,26 +89,7 @@ class ReportBarberController extends Controller
         return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
     }
 
-     //To test just 
-     public function store(Request $request)
-     {
-         $data = $this->requestData;
-         $validation_rules = [
-             'reason' => "required",
-             'salon_id' => "required",
-             'user_id' => "required",   
-         ];
-         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
-         if ($validator->passes()) {
  
-        
-             $resource = $this->salonReportRepository->create($data);
-         
-             if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
-             return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
-         }
-         return JsonResponse::respondError($validator->errors()->all());
-     }
 
   
 }

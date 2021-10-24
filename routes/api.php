@@ -4,6 +4,7 @@
 use App\Http\Controllers\API\Client\CountryController as ClientCountryController;
 use App\Http\Controllers\API\Client\SalonController as ClientSalonController;
 use App\Http\Controllers\API\Client\UserController as ClientUserController;
+use App\Http\Controllers\API\Client\ReportController as ClientReportController;
 use App\Http\Controllers\API\Dashboard\Auth\AuthController;
 use App\Http\Controllers\API\Dashboard\Auth\PasswordResetController;
 use App\Http\Controllers\API\Dashboard\SettingController;
@@ -64,6 +65,13 @@ Route::group([
         Route::get('getAcceptedSalons', [ClientSalonController::class, 'getAcceptedSalons']);
         Route::get('getSalonsDeatails', [ClientSalonController::class, 'getSalonsDetails']);
         Route::get('getBarberDetails/{id}', [ClientSalonController::class, 'getBarberDetails']);
+        Route::get('salons/find', [ClientSalonController::class, 'find']);
+
+        //Reports
+        Route::post('reportBarber', [ClientReportController::class, 'reportBarber']);
+        Route::post('reportSalon', [ClientReportController::class, 'reportSalon']);
+        Route::post('reportPost', [ClientReportController::class, 'reportPost']);
+
         
         
    

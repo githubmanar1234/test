@@ -3,7 +3,7 @@
 namespace App\Http\Repositories\Eloquent;
 use App\Http\Repositories\IRepositories\IServiceRepository;
 use App\Http\Repositories\IRepositories\IPostReportRepository;
-use App\Models\SalonReport;
+use App\Models\PostReport;
 
 class PostReportRepository extends BaseRepository implements IPostReportRepository
 {
