@@ -180,8 +180,11 @@ class CategoryController extends Controller
         ];
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {
+            $data['order'] = 1;
+            if( $this->categoryRepository->allAsQuery()->orderBy('order', 'DESC')->first()){
+                $data['order'] = $this->categoryRepository->allAsQuery()->orderBy('order', 'DESC')->first()->order + 1;
+            }
 
-            // $data['order'] = $this->categoryRepository->allAsQuery()->orderBy('order', 'DESC')->first()->order + 1;
             $resource = $this->categoryRepository->create($data);
             if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
             return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
@@ -210,8 +213,12 @@ class CategoryController extends Controller
           
             $resource = Category::find($id);
 
+            if (!$resource) return JsonResponse::respondError(trans(JsonResponse::MSG_UPDATE_ERROR));
+            
             if (isset($data['order'])) unset($data['order']);
+
             $updated = $this->categoryRepository->update($data, $resource->id);
+
             if (!$updated) return JsonResponse::respondError(trans(JsonResponse::MSG_UPDATE_ERROR));
             return JsonResponse::respondSuccess(trans(JsonResponse::MSG_UPDATED_SUCCESSFULLY));
         }

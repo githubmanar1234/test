@@ -88,7 +88,7 @@ class SalonController extends Controller
 
         $data = $data->Where("status", '=', "pending");
 
-        $data = $data->get();
+        $data = $data->paginate(15);
   
 
         if($data){
@@ -101,7 +101,6 @@ class SalonController extends Controller
         
           
     }
-
 
 
     
@@ -163,7 +162,7 @@ class SalonController extends Controller
 
         $data = $data->Where("status", '=', "Rejected")->orWhere("status", '=', "Accepted");
 
-        $data = $data->get();
+        $data = $data->paginate(15);
 
         if($data){
             

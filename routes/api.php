@@ -105,46 +105,46 @@ Route::group([
       
         Route::resource('users', UserController::class)->only(['index', 'show', 'delete']);
       
-        Route::get('categories/find', [CategoryController::class, 'find']);
-        
-        Route::get('getAllServiceCategories', [CategoryController::class, 'index']);
-        Route::get('getServiceCategory/{id}', [CategoryController::class, 'show']);
-        Route::post('addServiceCategory', [CategoryController::class, 'store']);
-        Route::put('editServiceCategory/{id}', [CategoryController::class, 'updateCategory']);
-        Route::delete('deleteServiceCategory/{id}', [CategoryController::class, 'destroy']);
+        //ServiceCategories
+        Route::get('serviceCategories/find', [CategoryController::class, 'find']);
+        Route::get('serviceCategories', [CategoryController::class, 'index']);
+        Route::get('serviceCategories/{id}', [CategoryController::class, 'show']);
+        Route::post('serviceCategory', [CategoryController::class, 'store']);
+        Route::put('serviceCategories/{id}', [CategoryController::class, 'updateCategory']);
+        Route::delete('serviceCategories/{id}', [CategoryController::class, 'destroy']);
 
         Route::post('updateCategoriesOrder', [CategoryController::class, 'updateCategoriesOrder']);
         Route::get('getCategoriesOrder', [CategoryController::class, 'getCategoriesOrders']);
 
         //Services
-        Route::get('getAllServices', [ServiceController::class, 'index']);
-        Route::get('getService/{id}', [ServiceController::class, 'show']);
+        Route::get('services', [ServiceController::class, 'index']);
+        Route::get('service/{id}', [ServiceController::class, 'show']);
         Route::get('services/find', [ServiceController::class, 'find']);
-        Route::get('serviceOfCategory/find', [ServiceController::class, 'findByCategoryId']);
-        Route::post('addService', [ServiceController::class, 'store']);
-        Route::put('editService/{id}', [ServiceController::class, 'updateService']);
-        Route::delete('deleteService/{id}', [ServiceController::class, 'destroy']);
+        Route::get('servicesOfCategory/find', [ServiceController::class, 'findByCategoryId']);
+        Route::post('service', [ServiceController::class, 'store']);
+        Route::put('service/{id}', [ServiceController::class, 'updateService']);
+        Route::delete('service/{id}', [ServiceController::class, 'destroy']);
 
         //Salon
-        Route::get('getAcceptedAndRejectedSalons', [SalonController::class, 'getAcceptedAndRejectedSalons']);
-        Route::get('getPendingSalons', [SalonController::class, 'getPendingSalons']);
-        Route::post('setAcceptedSalon', [SalonController::class, 'setAcceptedSalon']);
-        Route::post('setRejectedSalon', [SalonController::class, 'setRejectedSalon']);
-        Route::post('setDisabledSalon', [SalonController::class, 'setDisabledSalon']);
-        Route::post('addSalon', [SalonController::class, 'store']);
+        Route::get('AcceptedRejectedSalons', [SalonController::class, 'getAcceptedAndRejectedSalons']);
+        Route::get('PendingSalons', [SalonController::class, 'getPendingSalons']);
+        Route::post('acceptSalon', [SalonController::class, 'setAcceptedSalon']);
+        Route::post('rejectSalon', [SalonController::class, 'setRejectedSalon']);
+        Route::post('disablSalon', [SalonController::class, 'setDisabledSalon']);
+        Route::post('salon', [SalonController::class, 'store']); //to test
 
         //Reported Salons
-        Route::get('getReportedSalons', [ReportController::class, 'getReportedSalons']);
-        Route::get('getReportBySalon/{id}', [ReportController::class, 'show']);
+        Route::get('reportedSalons', [ReportController::class, 'getReportedSalons']);
+        Route::get('reportBySalon/{id}', [ReportController::class, 'show']);
         Route::post('addReportForSalon', [ReportController::class, 'store']);
 
         //Reported Posts
-        Route::get('getReportedPosts', [ReportPostController::class, 'getReportedPosts']);
-        Route::get('getReportByPost/{id}', [ReportPostController::class, 'show']);
+        Route::get('reportedPosts', [ReportPostController::class, 'getReportedPosts']);
+        Route::get('reportByPost/{id}', [ReportPostController::class, 'show']);
 
         //Reported Barbers
-        Route::get('getReportedBarbers', [ReportBarberController::class, 'getReportedBarbers']);
-        Route::get('getReportByBarber/{id}', [ReportBarberController::class, 'show']);
+        Route::get('reportedBarbers', [ReportBarberController::class, 'getReportedBarbers']);
+        Route::get('reportByBarber/{id}', [ReportBarberController::class, 'show']);
 
 
         //Settings
