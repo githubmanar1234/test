@@ -71,7 +71,7 @@ Route::group([
         Route::get('barber/{id}', [ClientBarberController::class, 'getBarberDetails']);
         Route::get('barbersBySalon/{id}', [ClientBarberController::class, 'getBarbersBySalon']);
         Route::post('deactivateBarbers/{id}', [ClientBarberController::class, 'deactivateBarber']);
-        Route::get('getBarbers', [ClientBarberController::class, 'getBarbers']); //not yet
+        Route::get('getBarbers', [ClientBarberController::class, 'getBarbers']); 
 
         //Reports
         Route::post('reportBarber', [ClientReportController::class, 'reportBarber']);

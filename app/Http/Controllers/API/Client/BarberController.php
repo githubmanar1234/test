@@ -69,7 +69,7 @@ class BarberController extends Controller
     
     }
 
-    //get barbers in same city //to add city_id in barber
+    //get barbers in same city 
     public function getBarbers(){
 
         $request_data = $this->requestData;
@@ -80,9 +80,11 @@ class BarberController extends Controller
 
         if($salon){
             
-            $salon_city = $salon->city->name;
+           // $salon_city = $salon->city->name;
+           $salon_city_id = $salon->city->id;
 
-            $data = Barber::where('city' , $salon_city)->get();
+           // $data = Barber::where('city' , $salon_city)->get();
+           $data = Barber::where('city_id' ,  $salon_city_id )->get();
             
             return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
         }
