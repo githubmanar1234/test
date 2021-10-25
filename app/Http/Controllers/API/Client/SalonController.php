@@ -208,22 +208,7 @@ class SalonController extends Controller
         
     }
 
-    //get barber details
-    public function getBarberDetails($id){
-
-        $request_data = $this->requestData;
-
-        $data = $this->barberRepository->find($id);
-
-        if($data){
-
-            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
-        }
-        else{
-            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-        }
-        
-    }
+    
 
 
 

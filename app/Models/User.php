@@ -64,6 +64,11 @@ class User extends Authenticatable
         return $this->belongsTo(Country::class, "country_id", 'id');
     }
 
+    public function salon()
+    {
+        return $this->hasMany(Salon::class, 'user_id', 'id');
+    }
+
     public function images()
     {
         return $this->morphMany(Image::class, 'imageable');

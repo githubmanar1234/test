@@ -11,7 +11,7 @@ class Post extends AppModel
     use HasFactory,HasTranslations;
     //use SoftDeletes;
 
-    protected $fillable = ['description', 'salon_id' , 'image'];
+    protected $fillable = ['description', 'salon_id' , 'image','published_at'];
     public $translatable = ['description'];
 
 

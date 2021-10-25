@@ -5,6 +5,8 @@ use App\Http\Controllers\API\Client\CountryController as ClientCountryController
 use App\Http\Controllers\API\Client\SalonController as ClientSalonController;
 use App\Http\Controllers\API\Client\UserController as ClientUserController;
 use App\Http\Controllers\API\Client\ReportController as ClientReportController;
+use App\Http\Controllers\API\Client\PostController as ClientPostController;
+use App\Http\Controllers\API\Client\BarberController as ClientBarberController;
 use App\Http\Controllers\API\Dashboard\Auth\AuthController;
 use App\Http\Controllers\API\Dashboard\Auth\PasswordResetController;
 use App\Http\Controllers\API\Dashboard\SettingController;
@@ -57,22 +59,31 @@ Route::group([
         Route::get('categories/find', [ClientCategoryController::class, 'find']);
         Route::get('userInfo', [ClientUserController::class, 'userInfo']);
         Route::get('userById/{user}', [ClientUserController::class, 'userById']);
-
         Route::post('user/updateInfo', [ClientUserController::class, 'updateInfo']);
 
         //Salons
-        Route::post('createSalon', [ClientSalonController::class, 'store']);
-        Route::get('getAcceptedSalons', [ClientSalonController::class, 'getAcceptedSalons']);
-        Route::get('getSalonsDeatails', [ClientSalonController::class, 'getSalonsDetails']);
-        Route::get('getBarberDetails/{id}', [ClientSalonController::class, 'getBarberDetails']);
+        Route::post('salon', [ClientSalonController::class, 'store']);
+        Route::get('acceptedSalons', [ClientSalonController::class, 'getAcceptedSalons']);
+        Route::get('salons', [ClientSalonController::class, 'getSalonsDetails']);
         Route::get('salons/find', [ClientSalonController::class, 'find']);
+
+        //Barbers
+        Route::get('barber/{id}', [ClientBarberController::class, 'getBarberDetails']);
+        Route::get('barbersBySalon/{id}', [ClientBarberController::class, 'getBarbersBySalon']);
+        Route::post('deactivateBarbers/{id}', [ClientBarberController::class, 'deactivateBarber']);
+        Route::get('getBarbers', [ClientBarberController::class, 'getBarbers']); //not yet
 
         //Reports
         Route::post('reportBarber', [ClientReportController::class, 'reportBarber']);
         Route::post('reportSalon', [ClientReportController::class, 'reportSalon']);
         Route::post('reportPost', [ClientReportController::class, 'reportPost']);
 
-        
+        //Posts
+        Route::get('posts', [ClientPostController::class, 'index']);
+        Route::post('post', [ClientPostController::class, 'store']);
+        Route::delete('post/{id}', [ClientPostController::class, 'destroy']);
+        Route::post('post/update', [ClientPostController::class, 'update']);
+        Route::post('likePost', [ClientPostController::class, 'likePost']);
         
    
     });

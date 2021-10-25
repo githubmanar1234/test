@@ -23,6 +23,11 @@ class Salon extends AppModel
         return $this->hasMany(Barber::class,'salon_id');
     }
 
+    public function city()
+    {
+        return $this->belongsTo(City::class, "city_id", 'id');
+    }
+
     // public function users()
     // {
     //     $users = User::whereHas('salonReport', function ($q)  {
