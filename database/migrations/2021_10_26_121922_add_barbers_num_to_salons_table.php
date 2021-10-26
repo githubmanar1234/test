@@ -15,7 +15,7 @@ class AddBarbersNumToSalonsTable extends Migration
     {
         Schema::table('salons', function (Blueprint $table) {
             //
-            $table->integer('berbers_num')->after('type');
+            $table->integer('berbers_num')->default(0)->after('type');
 
         });
     }

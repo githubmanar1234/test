@@ -15,7 +15,7 @@ class AddProfileImageToSalonsTable extends Migration
     {
         Schema::table('salons', function (Blueprint $table) {
 
-            $table->string('image','255')->after('reason');
+            $table->string('image','255')->after('reason')->nullable();
 
         });
     }

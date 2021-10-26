@@ -15,8 +15,8 @@ class AddDescriptionToSalonsTable extends Migration
     {
         Schema::table('salons', function (Blueprint $table) {
             //
-            $table->string('description')->after('name');
-            $table->string('bio')->after('description');
+            $table->string('description')->after('name')->nullable();
+            $table->string('bio')->after('description')->nullable();
 
         });
     }

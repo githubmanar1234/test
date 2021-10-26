@@ -12,6 +12,7 @@ use App\Http\Repositories\IRepositories\ISalonRepository;
 use App\Http\Repositories\IRepositories\IUserRepository;
 use App\Http\Repositories\IRepositories\IBarberRepository;
 use App\Models\Category;
+use App\Models\Timing;
 use App\Models\Salon;
 use App\Models\Barber;
 use Illuminate\Support\Facades\Auth;
@@ -90,16 +91,34 @@ class SalonController extends Controller
         $validation_rules = [
             'name' => "required",
             'city_id' => "required",
-           'type' => "required",
-            //'timings' => 'required',
+            'type' => "required",
+            'days' => 'required',
+            'from' => 'required',
+            'to' => 'required',
             'location' => 'required',
             'lat_location' => 'required',
             'long_location' => 'required',
         ];
+      
+        // $sal  = new Salon();
+        // $sal->name = "asda";
+        // $sal->user_id = 1;
+        // $sal->city_id = 2;
+        // $sal->type = "";
+        // $sal->location = "";
+        // $sal->lat_location = "";
+        // $sal->long_location = "";
+
+        // $sal->salon_code = "sa";
+        // $sal->is_available = 0;   
+        // $sal->is_open = 0;
+        
+        // $sal->save();
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {
 
-        
+         
+           
             $salon_code = sprintf("%06d", mt_rand(1, 999999));
 
             if ($this->isInviteNumberExists($salon_code)) {
@@ -111,16 +130,49 @@ class SalonController extends Controller
            $data['is_available'] = 0;
            $data['is_open'] = 0;
            
-           if(!$request->hasFile('image')) {
+          
+        if(!$request->hasFile('image')) {
             return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
         }
 
-            $file = $request->file('image'); 
+           
+        $file = $request->file('image'); 
                
-            $imageUrl = FileHelper::processImage($file, 'public/salons');
-            $data['image']= $imageUrl;
+        
+        $imageUrl = FileHelper::processImage($file, 'public/salons');
+        
+        $data['image']= $imageUrl;
              
-           $resource = $this->salonRepository->create($data);
+          
+
+        $resource = $this->salonRepository->create($data);
+
+        $days = $data['days'];
+        $days = json_decode($days, true);
+        
+        $from = $data['from'];
+        $from = json_decode($from, true);
+
+        $to = $data['to'];
+        $to = json_decode($to, true);
+
+
+        if (is_array($days)) {
+            if (isset($days[0])) {
+
+                foreach ($days as $key => $day) {
+                    $timing = new Timing();
+
+                    $timing->salon_id = $resource->id;
+                    $timing->from = $from[$key];
+                    $timing->to =  $to[$key];
+                    $timing->day = $day;
+
+                    $timing->save();
+                }
+            }
+        }
+          else{return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);}
           
             if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
             return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
