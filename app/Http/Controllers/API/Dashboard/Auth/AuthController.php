@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\Dashboard\Auth;
 use App\Helpers\Mapper;
 use App\Helpers\JsonResponse;
 use App\Helpers\ResponseStatus;
+use Illuminate\Http\Request;
 use App\Helpers\ValidatorHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Repositories\IRepositories\IAdminRepository;
@@ -157,17 +158,30 @@ class AuthController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @author Samh Dev
      */
-    public function logout()
-    {
-        try {
-            $user = Auth::guard('admin')->user();
+    // public function logout()
+    // {
+    //     try {
+    //         $user = Auth::guard('admin')->user();
+    //         $user->tokens()->where('id', $user->currentAccessToken()->id)->delete();
+    //         return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS);
+    //     } catch (\Exception $ex) {
+    //         Log::debug($ex->getMessage());
+    //         return JsonResponse::respondError("exception" . JsonResponse::MSG_FAILED);
+    //     }
+
+    // }
+
+    public function logout () {
+
+        $user = Auth::guard('admin')->user();
+        $accessToken = $user->tokens()->where('id', $user->currentAccessToken()->id);
+
+         if($accessToken){
+
             $user->tokens()->where('id', $user->currentAccessToken()->id)->delete();
             return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS);
-        } catch (\Exception $ex) {
-            Log::debug($ex->getMessage());
-            return JsonResponse::respondError("exception" . JsonResponse::MSG_FAILED);
+         }
+         return JsonResponse::respondError("exception" . JsonResponse::MSG_FAILED);
         }
-
-    }
 
 }

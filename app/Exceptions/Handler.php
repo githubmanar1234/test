@@ -82,18 +82,18 @@ class Handler extends ExceptionHandler
         if ($exception instanceof ModelNotFoundException) {
             return JsonResponse::respondError(trans('responses.msg_not_found'), ResponseStatus::NOT_FOUND);
         }
-        // if ($exception instanceof GeneralException) {
-        //     Log::debug($exception->getMessage());
-        //     return JsonResponse::respondError($exception->getMessage(), ResponseStatus::BAD_REQUEST);
-        // }
+        if ($exception instanceof GeneralException) {
+            Log::debug($exception->getMessage());
+            return JsonResponse::respondError($exception->getMessage(), ResponseStatus::BAD_REQUEST);
+        }
 
-        // if ($exception instanceof AuthenticationException) {
-        //     return JsonResponse::respondError(JsonResponse::MSG_NOT_AUTHENTICATED, ResponseStatus::NOT_AUTHENTICATED);
-        // }
-        // if ($exception instanceof \Exception) {
-        //     Log::debug($exception->getMessage());
-        //     return JsonResponse::respondError($exception->getMessage(), ResponseStatus::BAD_REQUEST);
-        // }
+        if ($exception instanceof AuthenticationException) {
+            return JsonResponse::respondError(JsonResponse::MSG_NOT_AUTHENTICATED, ResponseStatus::NOT_AUTHENTICATED);
+        }
+        if ($exception instanceof \Exception) {
+            Log::debug($exception->getMessage());
+            return JsonResponse::respondError($exception->getMessage(), ResponseStatus::BAD_REQUEST);
+        }
         return parent::render($request, $exception);
     }
 }

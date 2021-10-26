@@ -98,15 +98,19 @@ class BarberController extends Controller
 
         $request_data = $this->requestData;
 
-        $data = $this->barberRepository->find($id);
+        $data = Barber::find($id);
 
         if($data){
 
             return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
         }
         else{
+            if (is_numeric($id)){
+                return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+            }
+
             return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-        }
+        }  
         
     }
 
@@ -129,7 +133,13 @@ class BarberController extends Controller
             $resource->save();
             return JsonResponse::respondSuccess(trans(JsonResponse::MSG_DELETED_SUCCESSFULLY));
         }
-        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);    
+        else{
+            if (is_numeric($id)){
+                return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+            }
+
+            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        }   
     }
   
 }

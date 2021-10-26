@@ -177,6 +177,8 @@ class CategoryController extends Controller
         $validation_rules = [
             'title' => "required|array|languages",
             'title.*' => "required",
+            'description' => "required|array|languages",
+            'description.*' => "required",
         ];
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {
@@ -213,14 +215,22 @@ class CategoryController extends Controller
           
             $resource = Category::find($id);
 
-            if (!$resource) return JsonResponse::respondError(trans(JsonResponse::MSG_UPDATE_ERROR));
-            
-            if (isset($data['order'])) unset($data['order']);
+             if($resource){
+                if (isset($data['order'])) unset($data['order']);
 
-            $updated = $this->categoryRepository->update($data, $resource->id);
-
-            if (!$updated) return JsonResponse::respondError(trans(JsonResponse::MSG_UPDATE_ERROR));
-            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_UPDATED_SUCCESSFULLY));
+                $updated = $this->categoryRepository->update($data, $resource->id);
+    
+                if (!$updated) return JsonResponse::respondError(trans(JsonResponse::MSG_UPDATE_ERROR));
+                return JsonResponse::respondSuccess(trans(JsonResponse::MSG_UPDATED_SUCCESSFULLY));
+             }
+             else{
+                if (is_numeric($id)){
+                    return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+                }
+    
+                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+            } 
+          
         }
         return JsonResponse::respondError($validator->errors()->all());
     }
@@ -230,22 +240,47 @@ class CategoryController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @author Samh Dev
      */
+
     public function show($id)
     {
         $category = Category::find($id);
-        return JsonResponse::respondSuccess(trans(JsonResponse::MSG_SUCCESS), $category);
+
+        if($category){
+            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_SUCCESS), $category);
+        }
+        else{
+            if (is_numeric($id)){
+                return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+            }
+
+            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        }  
     }
 
     /**
      * @param  $id
      * @return \Illuminate\Http\JsonResponse
      */
+   
     public function destroy($id)
     {
         $resource = Category::find($id);
 
-        $this->categoryRepository->delete($resource);
-        return JsonResponse::respondSuccess(trans(JsonResponse::MSG_DELETED_SUCCESSFULLY));
+        if($resource){
+
+            $this->categoryRepository->delete($resource);
+            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_DELETED_SUCCESSFULLY));
+        }
+
+         else{
+             
+            if (is_numeric($id)){
+                return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+            }
+
+            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        }  
+    
     }
 
     public function updateCategoriesOrder()

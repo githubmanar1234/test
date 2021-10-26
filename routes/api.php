@@ -63,8 +63,9 @@ Route::group([
 
         //Salons
         Route::post('salon', [ClientSalonController::class, 'store']);
+        Route::put('CompleteSalonInfo', [ClientSalonController::class, 'CompleteSalonInfo']); 
         Route::get('acceptedSalons', [ClientSalonController::class, 'getAcceptedSalons']);
-        Route::get('salons', [ClientSalonController::class, 'getSalonsDetails']);
+        Route::get('salons/{id}', [ClientSalonController::class, 'getSalonsDetails']);
         Route::get('salons/find', [ClientSalonController::class, 'find']);
 
         //Barbers
@@ -114,7 +115,10 @@ Route::group([
        
         Route::put('settings/updateKey', [SettingController::class, 'updateKey']);
       
-        Route::resource('users', UserController::class)->only(['index', 'show', 'delete']);
+       // Route::resource('users', UserController::class)->only(['index', 'show', 'delete']);
+        Route::delete('user/{id}', [UserController::class, 'destroy']);
+        Route::get('user/{id}', [UserController::class, 'show']);
+        Route::get('users', [UserController::class, 'index']);
       
         //ServiceCategories
         Route::get('serviceCategories/find', [CategoryController::class, 'find']);
@@ -142,7 +146,8 @@ Route::group([
         Route::post('acceptSalon', [SalonController::class, 'setAcceptedSalon']);
         Route::post('rejectSalon', [SalonController::class, 'setRejectedSalon']);
         Route::post('disablSalon', [SalonController::class, 'setDisabledSalon']);
-        Route::post('salon', [SalonController::class, 'store']); //to test
+        Route::post('salon', [SalonController::class, 'store']); 
+
 
         //Reported Salons
         Route::get('reportedSalons', [ReportController::class, 'getReportedSalons']);

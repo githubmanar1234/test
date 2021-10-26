@@ -74,7 +74,7 @@ class ReportController extends Controller
         $data = $this->requestData;
         $validation_rules = [
             'reason' => "required",
-            'barber_id' => "required",   
+            'barber_id' => "required|exists:barbers,id",   
         ];
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {

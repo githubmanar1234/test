@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\Client;
 
 use App\Helpers\Constants;
 use App\Helpers\JsonResponse;
+use App\Helpers\FileHelper;
 use App\Helpers\Mapper;
 use App\Http\Controllers\Controller;
 use App\Http\Repositories\IRepositories\ICategoryRepository;
@@ -89,8 +90,11 @@ class SalonController extends Controller
         $validation_rules = [
             'name' => "required",
             'city_id' => "required",
-            'type' => "required",
-            'barber_num' => "required",
+           'type' => "required",
+            //'timings' => 'required',
+            'location' => 'required',
+            'lat_location' => 'required',
+            'long_location' => 'required',
         ];
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {
@@ -99,31 +103,24 @@ class SalonController extends Controller
             $salon_code = sprintf("%06d", mt_rand(1, 999999));
 
             if ($this->isInviteNumberExists($salon_code)) {
-                return $this->generateInviteCode();
+                $salon_code = $this->generateInviteCode();
             }
 
            $data['salon_code'] = $salon_code;
            $data['user_id'] = $user->id;
            $data['is_available'] = 0;
            $data['is_open'] = 0;
-
-           $resource = $this->salonRepository->create($data);
-
-           $salon_number = intval($data['barber_num']);
-
-            for($i = 0 ; $i<$salon_number ;$i++){
-
-                $barber = [];
            
-                $barber['salon_id'] = $resource->id;
-                $barber['salon_code']= $resource->salon_code;
+           if(!$request->hasFile('image')) {
+            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        }
 
-                $password = sprintf("%06d", mt_rand(1, 999999));
-                           
-                $barber['password']= $password;
-   
-                $barber = $this->barberRepository->create($barber);
-            }
+            $file = $request->file('image'); 
+               
+            $imageUrl = FileHelper::processImage($file, 'public/salons');
+            $data['image']= $imageUrl;
+             
+           $resource = $this->salonRepository->create($data);
           
             if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
             return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
@@ -131,6 +128,71 @@ class SalonController extends Controller
         return JsonResponse::respondError($validator->errors()->all());
     }
 
+    public function CompleteSalonInfo(Request $request)
+    {
+    
+        $user = Auth::guard('client')->user();
+           
+        $salon_id = $user->salon->first()->id;
+        
+        $data = $this->requestData;
+
+        $validation_rules = [
+            'description' => "required",
+            'bio' => "required",
+        ];
+        $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
+        if ($validator->passes()) {
+
+            $resource = Salon::find($salon_id);
+          
+             if($resource){
+                
+              if($resource->status == Constants::STATUS_ACCEPTED ){
+
+               $berbers_num = $resource->berbers_num;
+               
+               for($i = 0 ; $i<$berbers_num ;$i++){
+            
+
+                $barber = [];
+                 
+                $barber['salon_id'] = $salon_id ;
+            
+                $barber['salon_code']= $resource->salon_code;
+
+                $password = sprintf("%06d", mt_rand(1, 999999));
+                           
+                $barber['password']= $password;
+                 
+                $barber = $this->barberRepository->create($barber);
+                
+              }
+              if (isset($data['facebook_link'])  ){
+                
+                $resource->facebook_link = $data['facebook_link'];
+               
+            }
+            if(isset($data['whatsapp_number'] )){
+
+                $resource->whatsapp_number = $data['whatsapp_number'];
+            }
+            $resource->save();
+                
+            $updated = $this->salonRepository->update($data, $resource->id);
+            if (!$updated) return JsonResponse::respondError(trans(JsonResponse::MSG_UPDATE_ERROR));
+            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_UPDATED_SUCCESSFULLY));
+             }
+             else{
+                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+             }
+            }
+            else{
+                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+            }
+        }
+        return JsonResponse::respondError($validator->errors()->all());
+    }
 
     
     /**
@@ -184,28 +246,43 @@ class SalonController extends Controller
  * )
  */
 
-    //get all salons with it's details
-    public function getSalonsDetails(){
+    //get salons with it's details by id.
+    public function getSalonsDetails($id){
 
         $request_data = $this->requestData;
 
-        $data = $this->salonRepository->allAsQuery();
-
-        $data = $data->get();
+        $data = Salon::find($id);
         
-        foreach($data as $salon){
-
-            $barbers = $salon->barbers;
-        }
-
         if($data){
 
+            $barbers = $data->barbers;
             return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
         }
+
         else{
+            if (is_numeric($id)){
+                return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+            }
+
             return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-        }
+        } 
         
+    }
+
+    public function show($id)
+    {
+        $category = Category::find($id);
+
+        if($category){
+            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_SUCCESS), $category);
+        }
+        else{
+            if (is_numeric($id)){
+                return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+            }
+
+            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        }  
     }
 
     

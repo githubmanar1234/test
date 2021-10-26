@@ -56,9 +56,21 @@ class UserController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @author Samh Dev
      */
-    public function show(User $user)
+
+    public function show($id)
     {
-        return JsonResponse::respondSuccess(trans(JsonResponse::MSG_SUCCESS), ["data" => $user]);
+        $user = User::find($id);
+
+        if($user){
+            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_SUCCESS), $user);
+        }
+        else{
+            if (is_numeric($id)){
+                return JsonResponse::respondError(JsonResponse::MSG_USER_NOT_FOUND);
+            }
+
+            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        }  
     }
     
 
@@ -67,11 +79,25 @@ class UserController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @author Samh Dev
      */
-    public
-    function destroy(User $user)
+
+    public function destroy($id)
     {
-        $resource = $user;
-        $this->userRepository->delete($resource);
-        return JsonResponse::respondSuccess(trans(JsonResponse::MSG_DELETED_SUCCESSFULLY));
+        $resource = User::find($id);
+
+        if($resource){
+
+            $this->userRepository->delete($resource);
+            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_DELETED_SUCCESSFULLY));
+        }
+
+         else{
+             
+            if (is_numeric($id)){
+                return JsonResponse::respondError(JsonResponse::MSG_USER_NOT_FOUND);
+            }
+
+            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        }  
+    
     }
 }

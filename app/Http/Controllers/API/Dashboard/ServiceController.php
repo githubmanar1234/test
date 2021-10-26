@@ -17,16 +17,7 @@ use App\Models\Service;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-
  
-
-
-
-
-
-
-
-
  
 class ServiceController extends Controller
 {
@@ -100,13 +91,29 @@ class ServiceController extends Controller
  * )
  */
 
+    // public function show($id)
+    // {
+    //     $service = Service::find($id);
+    //     if($service){
+    //         return JsonResponse::respondSuccess(trans(JsonResponse::MSG_SUCCESS), $service);
+    //     }
+    //     return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+    // }
+
     public function show($id)
     {
         $service = Service::find($id);
+
         if($service){
             return JsonResponse::respondSuccess(trans(JsonResponse::MSG_SUCCESS), $service);
         }
-        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        else{
+            if (is_numeric($id)){
+                return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+            }
+
+            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        }  
     }
 
 
@@ -174,10 +181,19 @@ class ServiceController extends Controller
         $validation_rules = [
             'title' => "required|array|languages",
             'title.*' => "required",
+            'description' => "required|array|languages",
+            'description.*' => "required",
         ];
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {
 
+            if($request->hasFile('image')) {
+                $file = $request->file('image'); 
+                   
+                    $imageUrl = FileHelper::processImage($file, 'public/services');
+                    $data['image']= $imageUrl;
+                   
+            }
             $resource = $this->serviceRepository->create($data);
             if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
             return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
@@ -216,7 +232,6 @@ class ServiceController extends Controller
             'title.*' => "required",
             'description' => "required|array|languages",
             'description.*' => "required",
-            'category_id' => "required",
         ];
 
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
@@ -224,10 +239,19 @@ class ServiceController extends Controller
           
             $resource = Service::find($id);
 
-            if (isset($data['order'])) unset($data['order']);
-            $updated = $this->serviceRepository->update($data, $resource->id);
-            if (!$updated) return JsonResponse::respondError(trans(JsonResponse::MSG_UPDATE_ERROR));
-            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_UPDATED_SUCCESSFULLY));
+            if($resource){
+                if (isset($data['order'])) unset($data['order']);
+                $updated = $this->serviceRepository->update($data, $resource->id);
+                if (!$updated) return JsonResponse::respondError(trans(JsonResponse::MSG_UPDATE_ERROR));
+                return JsonResponse::respondSuccess(trans(JsonResponse::MSG_UPDATED_SUCCESSFULLY));
+            }     
+            else{
+                if (is_numeric($id)){
+                    return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+                }
+    
+                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+            }    
         }
         return JsonResponse::respondError($validator->errors()->all());
     }
@@ -254,11 +278,22 @@ class ServiceController extends Controller
     public function destroy($id)
     {
         $resource = Service::find($id);
-        if($resource ){
+
+        if($resource){
+
             $this->serviceRepository->delete($resource);
             return JsonResponse::respondSuccess(trans(JsonResponse::MSG_DELETED_SUCCESSFULLY));
         }
-        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);    
+
+         else{
+             
+            if (is_numeric($id)){
+                return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+            }
+
+            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        }  
+    
     }
 
     /**
