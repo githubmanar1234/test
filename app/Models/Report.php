@@ -9,6 +9,9 @@ class Report extends AppModel
     use HasFactory;
     protected $fillable = ['reason','reportable_id', 'reportable_type'];
 
+
+
+
     /**
      * Get the parent imageable model (user or post).
      */

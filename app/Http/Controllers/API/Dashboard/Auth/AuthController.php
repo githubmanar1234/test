@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Helpers\ValidatorHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Repositories\IRepositories\IAdminRepository;
+use App\Http\Repositories\IRepositories\IBarberRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -64,13 +65,16 @@ use App\Http\Repositories\IRepositories\IUserRepository;
 class AuthController extends Controller
 {
     protected $adminRepository;
+    protected $barberRepository;
     protected $requestData;
 
     public function __construct(
-        IAdminRepository $adminRepository
+        IAdminRepository $adminRepository,
+        IBarberRepository $barberRepository
     )
     {
         $this->adminRepository = $adminRepository;
+        $this->barberRepository = $barberRepository;
         $this->requestData = Mapper::toUnderScore(\Request()->all());
     }
 
@@ -135,6 +139,8 @@ class AuthController extends Controller
             return JsonResponse::respondError($ex->getMessage());
         }
     }
+
+  
 
     /**
      * @return \Illuminate\Http\JsonResponse

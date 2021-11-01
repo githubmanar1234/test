@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\Client;
 
 use App\Helpers\Constants;
 use App\Helpers\JsonResponse;
+use Illuminate\Support\Facades\Hash;
 use App\Helpers\FileHelper;
 use App\Helpers\Mapper;
 use App\Http\Controllers\Controller;
@@ -101,24 +102,25 @@ class SalonController extends Controller
         ];
       
         // $sal  = new Salon();
-        // $sal->name = "asda";
-        // $sal->user_id = 1;
+        // $sal->name = "asdxxaa";
+        // //$sal->user_id = 6;
         // $sal->city_id = 2;
         // $sal->type = "";
         // $sal->location = "";
         // $sal->lat_location = "";
         // $sal->long_location = "";
 
-        // $sal->salon_code = "sa";
+        // $sal->salon_code = "sa222a";
         // $sal->is_available = 0;   
         // $sal->is_open = 0;
-        
+        // $sal->status = "Pending";
+
         // $sal->save();
+
+        // return $sal;
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {
 
-         
-           
             $salon_code = sprintf("%06d", mt_rand(1, 999999));
 
             if ($this->isInviteNumberExists($salon_code)) {
@@ -126,10 +128,9 @@ class SalonController extends Controller
             }
 
            $data['salon_code'] = $salon_code;
-           $data['user_id'] = $user->id;
            $data['is_available'] = 0;
            $data['is_open'] = 0;
-           
+  
           
         if(!$request->hasFile('image')) {
             return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
@@ -143,10 +144,10 @@ class SalonController extends Controller
         
         $data['image']= $imageUrl;
              
-          
-
         $resource = $this->salonRepository->create($data);
-
+        $user->salon_id =  $resource->id;
+        $user->save();
+        
         $days = $data['days'];
         $days = json_decode($days, true);
         
@@ -180,13 +181,14 @@ class SalonController extends Controller
         return JsonResponse::respondError($validator->errors()->all());
     }
 
+
     public function CompleteSalonInfo(Request $request)
     {
     
         $user = Auth::guard('client')->user();
            
-        $salon_id = $user->salon->first()->id;
-        
+        $salon_id = $user->salon->id;
+         
         $data = $this->requestData;
 
         $validation_rules = [
@@ -197,30 +199,32 @@ class SalonController extends Controller
         if ($validator->passes()) {
 
             $resource = Salon::find($salon_id);
-          
+             
              if($resource){
                 
               if($resource->status == Constants::STATUS_ACCEPTED ){
 
                $berbers_num = $resource->berbers_num;
                
-               for($i = 0 ; $i<$berbers_num ;$i++){
+            
+            for($i = 0 ; $i < $berbers_num ; $i++){
             
 
                 $barber = [];
-                 
+
                 $barber['salon_id'] = $salon_id ;
             
                 $barber['salon_code']= $resource->salon_code;
 
                 $password = sprintf("%06d", mt_rand(1, 999999));
                            
-                $barber['password']= $password;
-                 
-                $barber = $this->barberRepository->create($barber);
+                $barber['password']= Hash::make($password);
+                $barber['city_id'] = 2;
                 
-              }
-              if (isset($data['facebook_link'])  ){
+                $this->barberRepository->create($barber);
+                
+             }
+              if (isset($data['facebook_barberRepositorylink'])  ){
                 
                 $resource->facebook_link = $data['facebook_link'];
                
@@ -230,7 +234,7 @@ class SalonController extends Controller
                 $resource->whatsapp_number = $data['whatsapp_number'];
             }
             $resource->save();
-                
+            
             $updated = $this->salonRepository->update($data, $resource->id);
             if (!$updated) return JsonResponse::respondError(trans(JsonResponse::MSG_UPDATE_ERROR));
             return JsonResponse::respondSuccess(trans(JsonResponse::MSG_UPDATED_SUCCESSFULLY));
@@ -265,6 +269,7 @@ class SalonController extends Controller
     //get all accepted salons
     public function getAcceptedSalons(){
 
+     
         $request_data = $this->requestData;
 
         $data = $this->salonRepository->allAsQuery();
@@ -298,27 +303,22 @@ class SalonController extends Controller
  * )
  */
 
-    //get salons with it's details by id.
-    public function getSalonsDetails($id){
+    //get my salon
+    public function getMySalon(){
+
+        $salon_id = Auth::guard('client')->user()->salon->id;
 
         $request_data = $this->requestData;
 
-        $data = Salon::find($id);
-        
+        $data = Salon::where('id' ,$salon_id)->where('status' , Constants::STATUS_ACCEPTED)->first();
+       
         if($data){
 
             $barbers = $data->barbers;
             return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
         }
 
-        else{
-            if (is_numeric($id)){
-                return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
-            }
-
-            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-        } 
-        
+           return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);  
     }
 
     public function show($id)
@@ -380,6 +380,6 @@ class SalonController extends Controller
             return true;
         }
     }
-
+    
   
 }

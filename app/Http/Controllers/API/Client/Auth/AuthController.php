@@ -21,6 +21,7 @@ use Illuminate\Validation\Rule;
 use Kreait\Firebase\Exception\Messaging\InvalidMessage;
 use Kreait\Firebase\Factory;
 
+use App\Http\Repositories\IRepositories\IBarberRepository;
 class AuthController extends Controller
 {
     protected $userRepository;
@@ -30,10 +31,14 @@ class AuthController extends Controller
     protected $messaging;
 
     public function __construct(
-        IUserRepository $userRepository
+        IUserRepository $userRepository,
+        IBarberRepository $barberRepository
+
     )
     {
         $this->userRepository = $userRepository;
+        $this->barberRepository = $barberRepository;
+
         $this->requestData = Mapper::toUnderScore(\Request()->all());
         $this->factory = (new Factory)->withServiceAccount(base_path("sihhatler-olsun-firebase-adminsdk-h9gs0-f3ae80cb6e.json"));
     }
@@ -72,6 +77,87 @@ class AuthController extends Controller
         }
 
     }
+
+    public function loginBarber()
+    {
+        try {
+            $rules = [
+                'salon_code' => 'required',
+                'password' => 'required'
+            ];
+
+            $validator = Validator::make($this->requestData, $rules, ValidatorHelper::messages());
+            if ($validator->passes()) {
+
+                $user = $this->barberRepository->findBy('salon_code', $this->requestData['salon_code']);
+                if (!$user) {
+                    return JsonResponse::respondError(JsonResponse::MSG_LOGIN_FAILED, ResponseStatus::VALIDATION_ERROR);
+                }
+                $barber = $user->where('password' , $this->requestData['password'])->first();
+                
+                if (!$barber) {
+                    return JsonResponse::respondError(JsonResponse::MSG_LOGIN_FAILED, ResponseStatus::VALIDATION_ERROR);
+                }
+                $token = $user->createToken("barber")->plainTextToken;
+                $user->access_token = $token;
+                return JsonResponse::respondSuccess(trans(JsonResponse::MSG_LOGIN_SUCCESSFULLY), $user, 200);
+            }
+            return JsonResponse::respondError($validator->errors()->all(), ResponseStatus::VALIDATION_ERROR);
+        } catch (\Exception $ex) {
+            Log::info("exception" . $ex->getMessage());
+            return JsonResponse::respondError($ex->getMessage());
+        }
+    }
+
+    
+    public function logoutBarber()
+    {
+        try {
+            $user = Auth::guard('barber')->user();
+            if($user){
+                $user->tokens()->where('id', $user->currentAccessToken()->id)->delete();
+            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS);
+            }
+            else{
+               
+               return JsonResponse::respondError("You are not login" );
+            }
+            
+        } catch (\Exception $ex) {
+            Log::debug($ex->getMessage());
+            return JsonResponse::respondError("exception" . JsonResponse::MSG_FAILED);
+        }
+
+    }
+
+    public function loginSalon()
+    {
+        try {
+            $rules = [
+                'salon_code' => 'required',
+                'password' => 'required'
+            ];
+
+            $validator = Validator::make($this->requestData, $rules, ValidatorHelper::messages());
+            if ($validator->passes()) {
+                //$user = User::where('email', $request->email)->first();
+                $salon = $this->salonRepository->findBy('salon_code', $this->requestData['salon_code']);
+                $password = $salon->where('password' , $this->requestData['password'])->get();
+                
+                if (!$salon || !$password) {
+                    return JsonResponse::respondError(JsonResponse::MSG_LOGIN_FAILED, ResponseStatus::VALIDATION_ERROR);
+                }
+                $token = $salon->createToken("barber")->plainTextToken;
+                $user->access_token = $token;
+                return JsonResponse::respondSuccess(trans(JsonResponse::MSG_LOGIN_SUCCESSFULLY), $salon, 200);
+            }
+            return JsonResponse::respondError($validator->errors()->all(), ResponseStatus::VALIDATION_ERROR);
+        } catch (\Exception $ex) {
+            Log::info("exception" . $ex->getMessage());
+            return JsonResponse::respondError($ex->getMessage());
+        }
+    }
+
 
     /**
      * @return \Illuminate\Http\JsonResponse

@@ -14,6 +14,13 @@ class BarberReport extends AppModel
     protected $fillable = ['reason', 'barber_id' , 'user_id'];
     public $translatable = ['reason'];
 
+    protected $with = ['user'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, "user_id", 'id');
+    }
+    
 
     // public function users()
     // {

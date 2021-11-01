@@ -64,15 +64,16 @@ class User extends Authenticatable
         return $this->belongsTo(Country::class, "country_id", 'id');
     }
 
+    // salon id
     public function salon()
     {
-        return $this->hasMany(Salon::class, 'user_id', 'id');
+        return $this->belongsTo(Salon::class, 'salon_id', 'id');
     }
 
-    public function images()
-    {
-        return $this->morphMany(Image::class, 'imageable');
-    }
+    // public function images()
+    // {
+    //     return $this->morphMany(Image::class, 'imageable');
+    // }
 
     public function orders()
     {
@@ -113,10 +114,10 @@ class User extends Authenticatable
         'lang' => 'required'
     ];
 
-    // public function getWorkExperienceAttribute()
-    // {
-    //     return $categoriesIds = json_decode($this->attributes['work_experience']);
-    // }
+    public function getProfileImageAttribute()
+    {
+        return url($this->attributes['profile_image']) ;
+    }
 
     // public function getWorkExperienceTitlesAttribute()
     // {

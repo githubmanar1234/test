@@ -32,7 +32,9 @@ class Barber extends Authenticatable
         'whatsapp_number',
         'status',
         'is_availble',
-       
+        'city_id',
+
+        
     ];
 
     public $translatable = ['name'];

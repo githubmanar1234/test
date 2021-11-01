@@ -11,6 +11,7 @@ use App\Http\Repositories\IRepositories\ICardRepository;
 use App\Http\Repositories\IRepositories\ISettingRepository;
 use App\Models\Card;
 use App\Models\CardRequest;
+use Illuminate\Http\Request;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -94,6 +95,49 @@ class SettingController extends Controller
         else
             return JsonResponse::respondError(JsonResponse::CANNOT_UPDATE_SETTING_DURING_ACTIVE_POLL);
     }
+
+    public function updateSetting(Request $request, $id) 
+    {
+
+            $data = $this->requestData;
+     
+            $resource = Setting::find($id);
+
+             if($resource){
+
+                if (isset($data['key'])  ){
+                
+                    $resource->key = $data['key'];
+                   
+                }
+                if(isset($data['value'] )){
+    
+                    $resource->value = $data['value'];
+                }
+                if(isset($data['default'] )){
+    
+                    $resource->default = $data['default'];
+                }
+                if(isset($data['description'] )){
+    
+                    $resource->description = $data['description'];
+                }
+                $resource->save();
+            
+                $updated = $this->settingRepository->update($data, $resource->id);
+    
+                if (!$updated) return JsonResponse::respondError(trans(JsonResponse::MSG_UPDATE_ERROR));
+                return JsonResponse::respondSuccess(trans(JsonResponse::MSG_UPDATED_SUCCESSFULLY));
+             }
+             else{
+                if (is_numeric($id)){
+                    return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+                }
+    
+                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+            } 
+    }
+    
 
     /**
      * @param Setting $setting

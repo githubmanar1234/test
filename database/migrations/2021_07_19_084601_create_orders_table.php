@@ -22,7 +22,7 @@ class CreateOrdersTable extends Migration
 
             $table->string('order_number')->unique()->nullable();
 
-            $table->string('status')->default(\App\Helpers\Constants::STATUS_UNDER_REVIEW);
+            $table->string('status')->default(\App\Helpers\Constants::STATUS_PENDING);
 
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();

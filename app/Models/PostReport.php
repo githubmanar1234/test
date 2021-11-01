@@ -15,6 +15,13 @@ class PostReport extends AppModel
     public $translatable = ['reason'];
 
 
+    protected $with = ['user'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, "user_id", 'id');
+    }
+    
     // public function users()
     // {
     //     $users = User::whereHas('salonReport', function ($q)  {

@@ -2,6 +2,7 @@
 
 use App\Models\Admin;
 use App\Models\User;
+use App\Models\Barber;
 
 return [
 
@@ -58,6 +59,11 @@ return [
             'driver' => 'sanctum',
             'provider' => 'clients',
             'hash' => false,
+        ],
+        'barber' => [
+            'driver' => 'sanctum',
+            'provider' => 'barbers',
+            'hash' => false,
         ]
     ],
 
@@ -95,6 +101,10 @@ return [
         'clients' => [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
+        ],
+        'barbers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Barber::class,
         ],
     ],
 

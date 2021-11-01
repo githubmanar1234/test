@@ -67,29 +67,34 @@ class PostController extends Controller
     public function store(Request $request)
     {
     
-        $user = Auth::guard('client')->user();
-    
         $data = $this->requestData;
 
         $validation_rules = [
             'description' => "required",
-            'salon_id' => "required",
         ];
 
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
 
         if ($validator->passes()) {
 
+            $user = Auth::guard('client')->user();
+    
+        $salon = $user->salon;
+
+        if($salon){
+            $salon_id = $salon->first()->id;
+        }
+        else{
+            return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+        }
+
             if(!$request->hasFile('images')) {
                 return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
             }
 
-            $salon_id = $data['salon_id'];
-           
-            $resource = Salon::find($salon_id);
-            if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
-
             $data['published_at'] = Carbon::now();
+            $data['salon_id'] = $salon_id;
+            $data['description'] = $this->requestData['description'];
 
             $resource = $this->postRepository->create($data);
 
@@ -122,7 +127,7 @@ class PostController extends Controller
 
         $user = Auth::guard('client')->user();
            
-        $salon_id = $user->salon->first()->id;
+        $salon_id = $user->salon->id;
           
         $data = $this->requestData;
 
@@ -180,7 +185,6 @@ class PostController extends Controller
     }
   
 
-
     public function likePost(Request $request)
     {
     
@@ -219,17 +223,30 @@ class PostController extends Controller
 
         $user = Auth::guard('client')->user();
 
-        $salon_id = $user->salon->first()->id;
+        $salon_id = $user->salon->id;
 
         $resource = Post::find($id);
-        $resource->where('salon_id' , $salon_id);
 
-        if($resource ){
+        if($resource){
+        
+            $resource->where('salon_id' , $salon_id);
 
-            $this->postRepository->delete($resource);
-            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_DELETED_SUCCESSFULLY));
+            if($resource ){
+
+              $this->postRepository->delete($resource);
+              return JsonResponse::respondSuccess(trans(JsonResponse::MSG_DELETED_SUCCESSFULLY));
+             }
+             return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST); 
         }
-        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);    
+            
+        else{
+            if (is_numeric($id)){
+                return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+            }
+
+            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        }  
+           
     }
   
 }

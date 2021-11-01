@@ -162,7 +162,9 @@ class CategoryController extends Controller
             $data = $data->orWhere("description->" . $LANGUAGE, 'like', "%".$request_data['description']."%");
         }
 
+        
         $data = $data->get();
+        return $data;
         return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
     }
 

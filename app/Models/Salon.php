@@ -15,7 +15,7 @@ class Salon extends AppModel
 
 
     protected $fillable = ['name', 'status', 'description','bio','reason','salon_code','berbers_num', 'city_id' 
-    , 'user_id', 'type' ,'image', 'is_open','location','lat_location','long_location','phone_number',
+    , 'type' ,'image', 'is_open','location','lat_location','long_location','phone_number',
     'facebook_link','whatsapp_number','is_available'];
 
     public $translatable = ['name'];
@@ -44,6 +44,7 @@ class Salon extends AppModel
         return $this->hasMany(SalonReport::class);
     }
     
+    //not used yet
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');

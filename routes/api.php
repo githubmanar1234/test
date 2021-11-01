@@ -18,6 +18,8 @@ use App\Http\Controllers\API\Dashboard\ReportBarberController;
 use App\Http\Controllers\API\Dashboard\ServiceController;
 use App\Http\Controllers\API\Dashboard\ReportController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\CheckSalon;
+use App\Models\Salon;
 use \App\Http\Controllers\API\Client\Auth\AuthController as ClientAuthController;
 use \App\Http\Controllers\API\Client\CategoryController as ClientCategoryController;
 
@@ -32,6 +34,16 @@ use \App\Http\Controllers\API\Client\CategoryController as ClientCategoryControl
 |
 */
 
+//To clear table in database
+Route::get('/userDeletAll',function(){
+    Salon::query()->delete();
+});
+
+Route::group([
+    "prefix" => "barber"
+], function () {
+Route::put('CompleteBarberInfo', [ClientBarberController::class, 'CompleteBarberInfo']); 
+});
 
 // client routes
 Route::middleware('auth:client')->get('getUser', [ClientAuthController::class, "getUser"]);
@@ -41,6 +53,9 @@ Route::group([
 
     Route::group(["prefix" => "auth"], function () {
         Route::post('login', [ClientAuthController::class, "login"]);
+        Route::post('loginBarber', [ClientAuthController::class, "loginBarber"]);
+        Route::post('logoutBarber', [ClientAuthController::class, 'logoutBarber']);
+
         Route::post('register', [ClientAuthController::class, "register"]);
         Route::group(['middleware' => 'auth:client'], function () {
             Route::get('getUser', [ClientAuthController::class, 'getUser']);
@@ -50,6 +65,8 @@ Route::group([
     Route::resource('countries', ClientCountryController::class)->only(['index']);
     Route::get('cities', [ClientCountryController::class, 'cities']);
 
+    Route::get('salons/test', [ClientSalonController::class, 'test']);
+
     Route::group(['middleware' => ['auth:client']], function () {
 //        Route::get('cities', function (){
 //            return \App\Helpers\JsonResponse::respondSuccess(\App\Helpers\JsonResponse::MSG_SUCCESS, \App\Models\City::all()->pluck('name','id'));
@@ -57,19 +74,24 @@ Route::group([
 
         Route::get('categories', [ClientCategoryController::class, 'categories']);
         Route::get('categories/find', [ClientCategoryController::class, 'find']);
+
+        //users
         Route::get('userInfo', [ClientUserController::class, 'userInfo']);
-        Route::get('userById/{user}', [ClientUserController::class, 'userById']);
+        Route::get('user/{id}', [ClientUserController::class, 'userById']);
         Route::post('user/updateInfo', [ClientUserController::class, 'updateInfo']);
+        //Route::put('user/updateInfo', [ClientUserController::class, 'updateInfo']);
 
         //Salons
         Route::post('salon', [ClientSalonController::class, 'store']);
         Route::put('CompleteSalonInfo', [ClientSalonController::class, 'CompleteSalonInfo']); 
-        Route::get('acceptedSalons', [ClientSalonController::class, 'getAcceptedSalons']);
-        Route::get('salons/{id}', [ClientSalonController::class, 'getSalonsDetails']);
+        Route::get('acceptedSalons', [ClientSalonController::class, 'getAcceptedSalons'])->middleware(['salon']);
+        Route::get('salon', [ClientSalonController::class, 'getMySalon']);
         Route::get('salons/find', [ClientSalonController::class, 'find']);
 
         //Barbers
         Route::get('barber/{id}', [ClientBarberController::class, 'getBarberDetails']);
+        Route::post('barber', [ClientBarberController::class, 'store'])->middleware(['salon']);
+        
         Route::get('barbersBySalon/{id}', [ClientBarberController::class, 'getBarbersBySalon']);
         Route::post('deactivateBarbers/{id}', [ClientBarberController::class, 'deactivateBarber']);
         Route::get('getBarbers', [ClientBarberController::class, 'getBarbers']); 
@@ -86,7 +108,6 @@ Route::group([
         Route::post('post/update', [ClientPostController::class, 'update']);
         Route::post('likePost', [ClientPostController::class, 'likePost']);
         
-   
     });
 });
 
@@ -111,9 +132,14 @@ Route::group([
             return \Illuminate\Support\Facades\Cache::flush();
         });
        
+        
+
+        //Settings
         Route::resource('settings', SettingController::class)->only(['index', 'show']);
-       
-        Route::put('settings/updateKey', [SettingController::class, 'updateKey']);
+        Route::put('settings/{id}', [SettingController::class, 'updateSetting']);
+       // Route::put('settings/updateKey', [SettingController::class, 'updateKey']);
+        
+        //Route::get('getAllSettings', [SettingController::class, 'index']);
       
        // Route::resource('users', UserController::class)->only(['index', 'show', 'delete']);
         Route::delete('user/{id}', [UserController::class, 'destroy']);
@@ -143,10 +169,12 @@ Route::group([
         //Salon
         Route::get('AcceptedRejectedSalons', [SalonController::class, 'getAcceptedAndRejectedSalons']);
         Route::get('PendingSalons', [SalonController::class, 'getPendingSalons']);
+        Route::post('city', [SalonController::class, 'storeCity']);
         Route::post('acceptSalon', [SalonController::class, 'setAcceptedSalon']);
         Route::post('rejectSalon', [SalonController::class, 'setRejectedSalon']);
         Route::post('disablSalon', [SalonController::class, 'setDisabledSalon']);
         Route::post('salon', [SalonController::class, 'store']); 
+        Route::delete('salon/{id}', [SalonController::class, 'destroy']);
 
 
         //Reported Salons
@@ -163,8 +191,7 @@ Route::group([
         Route::get('reportByBarber/{id}', [ReportBarberController::class, 'show']);
 
 
-        //Settings
-        Route::get('getAllSettings', [SettingController::class, 'index']);
+        
 
 
     });

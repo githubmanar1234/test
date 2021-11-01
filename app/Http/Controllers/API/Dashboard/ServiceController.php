@@ -183,6 +183,7 @@ class ServiceController extends Controller
             'title.*' => "required",
             'description' => "required|array|languages",
             'description.*' => "required",
+            'category_id' => "required|exists:categories,id",
         ];
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {
@@ -194,6 +195,7 @@ class ServiceController extends Controller
                     $data['image']= $imageUrl;
                    
             }
+            
             $resource = $this->serviceRepository->create($data);
             if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
             return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
@@ -232,6 +234,7 @@ class ServiceController extends Controller
             'title.*' => "required",
             'description' => "required|array|languages",
             'description.*' => "required",
+            'category_id' => "required",
         ];
 
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
@@ -319,14 +322,20 @@ class ServiceController extends Controller
         $request_data = $this->requestData;
 
         $data = $this->serviceRepository->allAsQuery();
+
         if (isset($this->requestData['category_id'])) {
+
             $data = $data->where("category_id" , '=' , $request_data['category_id']);
+            
+            if($data){
+
+                $data = $data->get();
+                return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+            }
+      
+           
         }
-       
-        $data = $data->get();
-        return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
-
     }
-
+       
 
 }

@@ -9,31 +9,23 @@ use App\Helpers\FileHelper;
 use App\Helpers\JsonResponse;
 use App\Helpers\Mapper;
 use App\Models\Category;
+use App\Models\Country;
 use App\Models\Salon;
 use App\Helpers\ValidatorHelper;
 use App\Http\Repositories\IRepositories\IServiceRepository;
 use App\Http\Repositories\IRepositories\ISalonRepository;
 use App\Http\Repositories\IRepositories\ICategoryRepository;
 use App\Http\Repositories\IRepositories\IUserRepository;
+use App\Http\Repositories\IRepositories\ICityRepository;
 use App\Models\Service;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-
- 
-
-
-
-
-
-
-
-
-
 class SalonController extends Controller
 {
     private $userRepository;
+    private $cityRepository;
     private $serviceRepository;
     private $categoryRepository;
     private $salonRepository;
@@ -42,12 +34,14 @@ class SalonController extends Controller
 
     public function __construct(
         IServiceRepository $serviceRepository,
+        ICityRepository $cityRepository,
         ICategoryRepository $categoryRepository,
         ISalonRepository $salonRepository,
         IUserRepository $userRepository
     )
     {
         $this->salonRepository = $salonRepository;
+        $this->cityRepository = $cityRepository;
         $this->userRepository = $userRepository;
         $this->serviceRepository = $serviceRepository;
         $this->categoryRepository = $categoryRepository;
@@ -86,7 +80,7 @@ class SalonController extends Controller
 
         $data = $this->salonRepository->allAsQuery();
 
-        $data = $data->Where("status", '=', "pending");
+        $data = $data->Where("status", '=', "Pending");
 
         $data = $data->paginate(15);
   
@@ -341,6 +335,51 @@ class SalonController extends Controller
              else{
                 return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
               }
+        }
+        return JsonResponse::respondError($validator->errors()->all());
+    }
+
+
+    public function destroy($id)
+    {
+        $resource = Salon::find($id);
+      
+        if($resource){
+
+            $this->salonRepository->delete($resource);
+            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_DELETED_SUCCESSFULLY));
+        }
+
+         else{
+             
+            if (is_numeric($id)){
+                return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+            }
+
+            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        }  
+    
+    }
+
+    //move it to CityController
+    public function storeCity(Request $request)
+    {
+        $data = $this->requestData;
+        $validation_rules = [
+            'name' => "required",
+            'country_id' => "required",  
+        ];
+        $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
+        if ($validator->passes()) {
+
+            $country = Country::find($data['country_id']);
+             if($country){
+                $resource = $this->cityRepository->create($data);
+        
+                if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
+                return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
+             }
+             return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
         }
         return JsonResponse::respondError($validator->errors()->all());
     }
