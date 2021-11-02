@@ -87,7 +87,6 @@ class UserController extends Controller
         $data = $this->requestData;
         $validation_rules = [
             'yob' => 'date',
-            // 'email' => 'email|nullable',
             'country_id' => 'exists:countries,id',
             'profile_image' => 'mimes:jpg,jpeg,png,jpg|max:2048|nullable',
         ];
@@ -97,36 +96,11 @@ class UserController extends Controller
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {
 
-            $userData['name'] = isset($data['name']);
-            $userData['yob'] = isset($data['yob']);
-            // $userData['phone'] = isset($data['phone']);
-            $userData['password'] = isset($data['password']);
-            $userData['description'] = isset($data['description']);
-            $userData['country_id'] =isset($data['country_id']);
-            // $userData['email'] = isset($data['email']) ? $data['email'] : null;
-            $userData['profile_image'] = isset($data['profile_image']) ? $data['profile_image'] : $authUser->profile_image;
-
-            $profile_image = $data['profile_image'];
-
             $user = \App\Models\User::find($authUser->id);
 
-            $user->name = $userData['name'];
-            // $user->yob = $userData['yob'];
-            // $user->phone = $userData['phone'];
-            $user->password = $userData['password'];
-            $user->description = $userData['description'];
-            $user->country_id = $userData['country_id'];
-            // $user->email = $userData['email'];
-
-            // if (isset($profile_image)) {
-            //     $userData['profile_image'] = FileHelper::processImage($profile_image, 'public/images/users/profile');
-            // } 
-            // else {
-            //     if (File::exists(public_path($authUser->profile_image))) {
-            //         File::delete(public_path($authUser->profile_image));
-            //     }
-            //     $userData['profile_image'] = null;
-            // }
+            $user->name = isset($data['name']) ? $data['name'] : $user->name;
+            $user->description = isset($data['description']) ? $data['description'] : $user->description;
+            $user->country_id = isset($data['country_id']) ? $data['country_id'] : $user->country_id;
 
             if($request->hasFile('profileImage')) {
                 $file = $request->file('profileImage'); 
@@ -139,8 +113,6 @@ class UserController extends Controller
             }
 
              $user->save();
-             //$this->userRepository->update($user, $authUser->id);
-            //  $this->userRepository->update($user, $resource->id);
              return JsonResponse::respondSuccess(JsonResponse::MSG_UPDATED_SUCCESSFULLY);
         } else {
             return JsonResponse::respondError($validator->errors()->all());
