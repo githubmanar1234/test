@@ -86,81 +86,69 @@ class UserController extends Controller
 
         $data = $this->requestData;
         $validation_rules = [
-            'name' => 'required',
-            'yob' => 'required|date',
-            'email' => 'email|nullable',
-            'country_id' => 'required|exists:countries,id',
+            'yob' => 'date',
+            // 'email' => 'email|nullable',
+            'country_id' => 'exists:countries,id',
             'profile_image' => 'mimes:jpg,jpeg,png,jpg|max:2048|nullable',
-           // 'lang' => "required|" . Rule::in(Constants::LANGUAGES)
         ];
 
         $data['profile_image'] = $request->file('profileImage');
         
-        //$data['images'] = $request->file('images');
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {
 
-            $userData['name'] = $data['name'];
-            $userData['yob'] = $data['yob'];
-            $userData['phone'] = isset($data['phone']);
+            $userData['name'] = isset($data['name']);
+            $userData['yob'] = isset($data['yob']);
+            // $userData['phone'] = isset($data['phone']);
             $userData['password'] = isset($data['password']);
             $userData['description'] = isset($data['description']);
-            //$userData['lang'] = $data['lang'];
-            // $userData['work_experience'] = $data['work_experience'];
-            $userData['country_id'] = $data['country_id'];
-            $userData['email'] = isset($data['email']) ? $data['email'] : null;
+            $userData['country_id'] =isset($data['country_id']);
+            // $userData['email'] = isset($data['email']) ? $data['email'] : null;
             $userData['profile_image'] = isset($data['profile_image']) ? $data['profile_image'] : $authUser->profile_image;
-            //$userData['location'] = isset($data['location']) ? $data['location'] : null;
-           //$userData['whatsapp_number'] = isset($data['whatsapp_number']) ? $data['whatsapp_number'] : null;
-           // $userData['skills'] = isset($data['skills']) ? $data['skills'] : null;
+
             $profile_image = $data['profile_image'];
+
             $user = \App\Models\User::find($authUser->id);
+
             $user->name = $userData['name'];
-            $user->yob = $userData['yob'];
-            $user->phone = $userData['phone'];
+            // $user->yob = $userData['yob'];
+            // $user->phone = $userData['phone'];
             $user->password = $userData['password'];
             $user->description = $userData['description'];
-            //$user->lang = $userData['lang'];
-            // $user->work_experience = $userData['work_experience'];
             $user->country_id = $userData['country_id'];
-            $user->email = $userData['email'];
-            //$user->location = $userData['location'];
-            //$user->whatsapp_number = $userData['whatsapp_number'];
-            //$user->skills = $userData['skills'];
-            if (isset($profile_image)) {
-                $userData['profile_image'] = FileHelper::processImage($profile_image, 'public/images/users/profile');
-            } 
-            else {
-                if (File::exists(public_path($authUser->profile_image))) {
-                    File::delete(public_path($authUser->profile_image));
-                }
-                $userData['profile_image'] = null;
-            }
-            $user->profile_image = $userData['profile_image'];
-           // $images = $data['images'];
-            // foreach ($authUser->images as $image) {
+            // $user->email = $userData['email'];
 
-            //     if (File::exists(public_path($image->path))) {
-            //         File::delete(public_path($image->path));
+            // if (isset($profile_image)) {
+            //     $userData['profile_image'] = FileHelper::processImage($profile_image, 'public/images/users/profile');
+            // } 
+            // else {
+            //     if (File::exists(public_path($authUser->profile_image))) {
+            //         File::delete(public_path($authUser->profile_image));
             //     }
-            //     $image->delete();
+            //     $userData['profile_image'] = null;
             // }
-            // if ($images) {
-            //     foreach ($images as $image) {
-            //         $imageUrl = FileHelper::processImage($image, 'public/images/users');
-            //         $imageItem = new Image;
-            //         $imageItem->path = $imageUrl;
-            //         $authUser->images()->save($imageItem);
-            //     }
-            // }
+
+            if($request->hasFile('profileImage')) {
+                $file = $request->file('profileImage'); 
+               
+                $imageUrl = FileHelper::processImage($file, 'public/salons');
+                
+                $userData['profile_image']= $imageUrl;
+                $user->profile_image =  $imageUrl;
+
+            }
+
              $user->save();
              //$this->userRepository->update($user, $authUser->id);
+            //  $this->userRepository->update($user, $resource->id);
              return JsonResponse::respondSuccess(JsonResponse::MSG_UPDATED_SUCCESSFULLY);
         } else {
             return JsonResponse::respondError($validator->errors()->all());
         }
 
     }
+
+    
 
 
 }

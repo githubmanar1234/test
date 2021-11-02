@@ -210,7 +210,7 @@ class BarberController extends Controller
             
             $resource->is_availble = 0;
             $resource->save();
-            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_DELETED_SUCCESSFULLY));
+            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_SUCCESS));
         }
         else{
             if (is_numeric($id)){

@@ -20,11 +20,13 @@ use App\Http\Repositories\IRepositories\IUserRepository;
 use Illuminate\Validation\Rule;
 use Kreait\Firebase\Exception\Messaging\InvalidMessage;
 use Kreait\Firebase\Factory;
-
+use App\Http\Repositories\IRepositories\ISalonRepository;
 use App\Http\Repositories\IRepositories\IBarberRepository;
+
 class AuthController extends Controller
 {
     protected $userRepository;
+    protected $salonRepository;
     protected $authMethodRepository;
     protected $requestData;
     protected $factory;
@@ -32,12 +34,14 @@ class AuthController extends Controller
 
     public function __construct(
         IUserRepository $userRepository,
+        ISalonRepository $salonRepository,
         IBarberRepository $barberRepository
 
     )
     {
         $this->userRepository = $userRepository;
         $this->barberRepository = $barberRepository;
+        $this->salonRepository = $salonRepository;
 
         $this->requestData = Mapper::toUnderScore(\Request()->all());
         $this->factory = (new Factory)->withServiceAccount(base_path("sihhatler-olsun-firebase-adminsdk-h9gs0-f3ae80cb6e.json"));
@@ -143,7 +147,7 @@ class AuthController extends Controller
                 //$user = User::where('email', $request->email)->first();
                 $salon = $this->salonRepository->findBy('salon_code', $this->requestData['salon_code']);
                 $password = $salon->where('password' , $this->requestData['password'])->get();
-                
+               
                 if (!$salon || !$password) {
                     return JsonResponse::respondError(JsonResponse::MSG_LOGIN_FAILED, ResponseStatus::VALIDATION_ERROR);
                 }
@@ -156,6 +160,27 @@ class AuthController extends Controller
             Log::info("exception" . $ex->getMessage());
             return JsonResponse::respondError($ex->getMessage());
         }
+    }
+
+    //not yet
+    public function logoutSalon()
+    {
+        try {
+            $user = Auth::guard('salon')->user();
+            if($user){
+                $user->tokens()->where('id', $user->currentAccessToken()->id)->delete();
+            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS);
+            }
+            else{
+               
+               return JsonResponse::respondError("You are not login" );
+            }
+            
+        } catch (\Exception $ex) {
+            Log::debug($ex->getMessage());
+            return JsonResponse::respondError("exception" . JsonResponse::MSG_FAILED);
+        }
+
     }
 
 

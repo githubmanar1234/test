@@ -361,27 +361,5 @@ class SalonController extends Controller
     
     }
 
-    //move it to CityController
-    public function storeCity(Request $request)
-    {
-        $data = $this->requestData;
-        $validation_rules = [
-            'name' => "required",
-            'country_id' => "required",  
-        ];
-        $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
-        if ($validator->passes()) {
-
-            $country = Country::find($data['country_id']);
-             if($country){
-                $resource = $this->cityRepository->create($data);
-        
-                if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
-                return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
-             }
-             return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-        }
-        return JsonResponse::respondError($validator->errors()->all());
-    }
   
 }

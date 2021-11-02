@@ -60,9 +60,15 @@ return [
             'provider' => 'clients',
             'hash' => false,
         ],
+        
         'barber' => [
             'driver' => 'sanctum',
             'provider' => 'barbers',
+            'hash' => false,
+        ],
+        'salon' => [
+            'driver' => 'sanctum',
+            'provider' => 'salons',
             'hash' => false,
         ]
     ],
@@ -105,6 +111,10 @@ return [
         'barbers' => [
             'driver' => 'eloquent',
             'model' => App\Models\Barber::class,
+        ],
+        'salons' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Salon::class,
         ],
     ],
 

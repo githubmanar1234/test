@@ -58,32 +58,8 @@ class SalonController extends Controller
     }
 
 
-         /**
- * @OA\Post(
- * path="/api/client/createSalon",
- * summary="Store",
- * description="Create Salon with its barbers",
- * tags={"Client/Salons"},
- * @OA\RequestBody(
- *    required=true,
- *    description="Pass salon data",
- *    @OA\JsonContent(
- *       required={"name","city_id" , "type" , "barber_num"},
- *       @OA\Property(property="title", type="string", format="title", example="title1"),
- *       @OA\Property(property="city_id", type="integer", format="city_id", example="1"),
- *       @OA\Property(property="type", type="string", format="type", example="male"),
- *       @OA\Property(property="barber_num", type="integer", format="barber_num", example="2"),
- *    ),
- * ),
-*   @OA\Response(
- *     response=200,
- *     description="Success",
- *  ),
- * )
- */
-
-    //Create salon by user and create its barberes //TODO what required
-    public function store(Request $request)
+    //Create salon by user 
+    public function RegisterSalon(Request $request)
     {
     
         $user = Auth::guard('client')->user();
@@ -204,40 +180,40 @@ class SalonController extends Controller
                 
               if($resource->status == Constants::STATUS_ACCEPTED ){
 
-               $berbers_num = $resource->berbers_num;
-               
-            
-            for($i = 0 ; $i < $berbers_num ; $i++){
-            
-
-                $barber = [];
-
-                $barber['salon_id'] = $salon_id ;
-            
-                $barber['salon_code']= $resource->salon_code;
-
-                $password = sprintf("%06d", mt_rand(1, 999999));
-                           
-                $barber['password']= Hash::make($password);
-                $barber['city_id'] = 2;
+                $berbers_num = $resource->berbers_num;
                 
-                $this->barberRepository->create($barber);
                 
-             }
-              if (isset($data['facebook_barberRepositorylink'])  ){
+                for($i = 0 ; $i < $berbers_num ; $i++){
                 
-                $resource->facebook_link = $data['facebook_link'];
-               
-            }
-            if(isset($data['whatsapp_number'] )){
 
-                $resource->whatsapp_number = $data['whatsapp_number'];
-            }
-            $resource->save();
-            
-            $updated = $this->salonRepository->update($data, $resource->id);
-            if (!$updated) return JsonResponse::respondError(trans(JsonResponse::MSG_UPDATE_ERROR));
-            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_UPDATED_SUCCESSFULLY));
+                    $barber = [];
+
+                    $barber['salon_id'] = $salon_id ;
+                
+                    $barber['salon_code']= $resource->salon_code;
+
+                    $password = sprintf("%06d", mt_rand(1, 999999));
+                            
+                    $barber['password']= Hash::make($password);
+                    $barber['city_id'] = 2;
+                    
+                    $this->barberRepository->create($barber);
+                    
+                }
+                if (isset($data['facebook_barberRepositorylink'])  ){
+                    
+                    $resource->facebook_link = $data['facebook_link'];
+                
+                }
+                if(isset($data['whatsapp_number'] )){
+
+                    $resource->whatsapp_number = $data['whatsapp_number'];
+                }
+                $resource->save();
+                
+                $updated = $this->salonRepository->update($data, $resource->id);
+                    if (!$updated) return JsonResponse::respondError(trans(JsonResponse::MSG_UPDATE_ERROR));
+                    return JsonResponse::respondSuccess(trans(JsonResponse::MSG_UPDATED_SUCCESSFULLY));
              }
              else{
                 return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
@@ -307,7 +283,7 @@ class SalonController extends Controller
     public function getMySalon(){
 
         $salon_id = Auth::guard('client')->user()->salon->id;
-
+        
         $request_data = $this->requestData;
 
         $data = Salon::where('id' ,$salon_id)->where('status' , Constants::STATUS_ACCEPTED)->first();

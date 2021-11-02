@@ -11,6 +11,7 @@ use App\Http\Controllers\API\Dashboard\Auth\AuthController;
 use App\Http\Controllers\API\Dashboard\Auth\PasswordResetController;
 use App\Http\Controllers\API\Dashboard\SettingController;
 use App\Http\Controllers\API\Dashboard\UserController;
+use App\Http\Controllers\API\Dashboard\CityController;
 use App\Http\Controllers\API\Dashboard\ReportPostController;
 use App\Http\Controllers\API\Dashboard\SalonController;
 use App\Http\Controllers\API\Dashboard\CategoryController;
@@ -54,6 +55,7 @@ Route::group([
     Route::group(["prefix" => "auth"], function () {
         Route::post('login', [ClientAuthController::class, "login"]);
         Route::post('loginBarber', [ClientAuthController::class, "loginBarber"]);
+        Route::post('loginSalon', [ClientAuthController::class, "loginSalon"]);
         Route::post('logoutBarber', [ClientAuthController::class, 'logoutBarber']);
 
         Route::post('register', [ClientAuthController::class, "register"]);
@@ -82,7 +84,7 @@ Route::group([
         //Route::put('user/updateInfo', [ClientUserController::class, 'updateInfo']);
 
         //Salons
-        Route::post('salon', [ClientSalonController::class, 'store']);
+        Route::post('salon', [ClientSalonController::class, 'RegisterSalon']);
         Route::put('CompleteSalonInfo', [ClientSalonController::class, 'CompleteSalonInfo']); 
         Route::get('acceptedSalons', [ClientSalonController::class, 'getAcceptedSalons'])->middleware(['salon']);
         Route::get('salon', [ClientSalonController::class, 'getMySalon']);
@@ -169,12 +171,14 @@ Route::group([
         //Salon
         Route::get('AcceptedRejectedSalons', [SalonController::class, 'getAcceptedAndRejectedSalons']);
         Route::get('PendingSalons', [SalonController::class, 'getPendingSalons']);
-        Route::post('city', [SalonController::class, 'storeCity']);
         Route::post('acceptSalon', [SalonController::class, 'setAcceptedSalon']);
         Route::post('rejectSalon', [SalonController::class, 'setRejectedSalon']);
         Route::post('disablSalon', [SalonController::class, 'setDisabledSalon']);
         Route::post('salon', [SalonController::class, 'store']); 
         Route::delete('salon/{id}', [SalonController::class, 'destroy']);
+
+        //City
+        Route::post('city', [CityController::class, 'storeCity']);
 
 
         //Reported Salons

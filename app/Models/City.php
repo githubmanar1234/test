@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class City extends AppModel
 {
     use HasFactory;
-    protected $table = "cities";
+    //protected $table = "cities";
     protected $fillable = ['name','country_id'];
 
     public function country(){
