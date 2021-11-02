@@ -22,6 +22,7 @@ class Salon extends AppModel
 
 
     public function barbers(){
+        
         return $this->hasMany(Barber::class,'salon_id');
     }
 

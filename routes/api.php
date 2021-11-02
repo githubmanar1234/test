@@ -7,6 +7,7 @@ use App\Http\Controllers\API\Client\UserController as ClientUserController;
 use App\Http\Controllers\API\Client\ReportController as ClientReportController;
 use App\Http\Controllers\API\Client\PostController as ClientPostController;
 use App\Http\Controllers\API\Client\BarberController as ClientBarberController;
+use App\Http\Controllers\API\Client\ServiceController as ClientServiceController;
 use App\Http\Controllers\API\Dashboard\Auth\AuthController;
 use App\Http\Controllers\API\Dashboard\Auth\PasswordResetController;
 use App\Http\Controllers\API\Dashboard\SettingController;
@@ -43,7 +44,8 @@ Route::get('/userDeletAll',function(){
 Route::group([
     "prefix" => "barber"
 ], function () {
-Route::put('CompleteBarberInfo', [ClientBarberController::class, 'CompleteBarberInfo']); 
+Route::post('CompleteBarberInfo', [ClientBarberController::class, 'CompleteBarberInfo']); 
+Route::post('addServicesByBarber', [ClientServiceController::class, 'addServicesByBarber']);
 });
 
 // client routes
@@ -84,7 +86,7 @@ Route::group([
         //Route::put('user/updateInfo', [ClientUserController::class, 'updateInfo']);
 
         //Salons
-        Route::post('salon', [ClientSalonController::class, 'RegisterSalon']);
+        Route::post('salon', [ClientSalonController::class, 'RegisterSalon'])->middleware(['salon']);
         Route::put('CompleteSalonInfo', [ClientSalonController::class, 'CompleteSalonInfo']); 
         Route::get('acceptedSalons', [ClientSalonController::class, 'getAcceptedSalons'])->middleware(['salon']);
         Route::get('salon', [ClientSalonController::class, 'getMySalon']);

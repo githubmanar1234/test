@@ -63,96 +63,152 @@ class SalonController extends Controller
     {
     
         $user = Auth::guard('client')->user();
-    
+
+        $salon = Auth::guard('client')->user()->salon;
+        
         $data = $this->requestData;
+
+        if(!$salon){
+            
+                $validation_rules = [
+                    'name' => "required",
+                    'city_id' => "required",
+                    'type' => "required",
+                    'berbers_num' => "required",
+                    'days' => 'required',
+                    'from' => 'required',
+                    'to' => 'required',
+                    'location' => 'required|numeric',
+                    'lat_location' => 'required|numeric',
+                    'long_location' => 'required|numeric',
+                ];
+            
+                $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
+                if ($validator->passes()) {
+        
+                    $salon_code = sprintf("%06d", mt_rand(1, 999999));
+        
+                    if ($this->isInviteNumberExists($salon_code)) {
+                        $salon_code = $this->generateInviteCode();
+                    }
+        
+                    $data['salon_code'] = $salon_code;
+                    $data['is_available'] = 0;
+                    $data['is_open'] = 0;
+            
+                    
+                    if(!$request->hasFile('image')) {
+                         return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                    }
+            
+                    $file = $request->file('image'); 
+                    
+                    $imageUrl = FileHelper::processImage($file, 'public/salons');
+                    
+                    $data['image']= $imageUrl;
+                        
+                    $resource = $this->salonRepository->create($data);
+                    $user->salon_id =  $resource->id;
+                    $user->save();
+                
+                    $days = $data['days'];
+                    $days = json_decode($days, true);
+                    
+                    $from = $data['from'];
+                    $from = json_decode($from, true);
+            
+                    $to = $data['to'];
+                    $to = json_decode($to, true);
+        
+                    if (is_array($days)) {
+                        if (isset($days[0])) {
+            
+                            foreach ($days as $key => $day) {
+                                $timing = new Timing();
+            
+                                $timing->salon_id = $resource->id;
+                                $timing->from = $from[$key];
+                                $timing->to =  $to[$key];
+                                $timing->day = $day;
+            
+                                $timing->save();
+                            }
+                        }
+                    }
+                    else{return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);}
+                
+                    if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
+                    return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
+            }
+            return JsonResponse::respondError($validator->errors()->all());
+        }
+
         $validation_rules = [
-            'name' => "required",
-            'city_id' => "required",
-            'type' => "required",
-            'days' => 'required',
-            'from' => 'required',
-            'to' => 'required',
-            'location' => 'required',
-            'lat_location' => 'required',
-            'long_location' => 'required',
+            'city_id' => "exists:cities,id",
+            'location' => 'numeric',
+            'lat_location' => 'numeric',
+            'long_location' => 'numeric',
         ];
       
-        // $sal  = new Salon();
-        // $sal->name = "asdxxaa";
-        // //$sal->user_id = 6;
-        // $sal->city_id = 2;
-        // $sal->type = "";
-        // $sal->location = "";
-        // $sal->lat_location = "";
-        // $sal->long_location = "";
-
-        // $sal->salon_code = "sa222a";
-        // $sal->is_available = 0;   
-        // $sal->is_open = 0;
-        // $sal->status = "Pending";
-
-        // $sal->save();
-
-        // return $sal;
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {
 
-            $salon_code = sprintf("%06d", mt_rand(1, 999999));
+            $salon->name = isset($data['name']) ? $data['name'] : $salon->name;
+            $salon->berbers_num = isset($data['berbers_num']) ? $data['berbers_num'] : $salon->berbers_num;
 
-            if ($this->isInviteNumberExists($salon_code)) {
-                $salon_code = $this->generateInviteCode();
+            $salon->city_id = isset($data['city_id']) ? $data['city_id'] : $salon->city_id;
+            $salon->type = isset($data['type']) ? $data['type'] : $salon->type;
+
+            $salon->location = isset($data['location']) ? $data['location'] : $salon->location;
+            $salon->lat_location = isset($data['lat_location']) ? $data['lat_location'] : $salon->lat_location;
+            $salon->long_location = isset($data['long_location']) ? $data['long_location'] : $salon->long_location;        
+            
+            if($request->hasFile('image')) {
+                $file = $request->file('image'); 
+            
+                $imageUrl = FileHelper::processImage($file, 'public/salons');
+                
+                $salon['image']= $imageUrl;
+                $salon->image =  $imageUrl;
+
             }
-
-           $data['salon_code'] = $salon_code;
-           $data['is_available'] = 0;
-           $data['is_open'] = 0;
-  
-          
-        if(!$request->hasFile('image')) {
-            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-        }
-
-           
-        $file = $request->file('image'); 
-               
         
-        $imageUrl = FileHelper::processImage($file, 'public/salons');
-        
-        $data['image']= $imageUrl;
-             
-        $resource = $this->salonRepository->create($data);
-        $user->salon_id =  $resource->id;
-        $user->save();
-        
-        $days = $data['days'];
-        $days = json_decode($days, true);
-        
-        $from = $data['from'];
-        $from = json_decode($from, true);
+            $days = $data['days'];
+            $days = json_decode($days, true);
+            
+            $from = $data['from'];
+            $from = json_decode($from, true);
 
-        $to = $data['to'];
-        $to = json_decode($to, true);
+            $to = $data['to'];
+            $to = json_decode($to, true);
 
+            if (is_array($days)) {
+                if(count($days) == count($to) && count($days) == count($from) ){ 
+                    if (isset($days[0])) {
+                        
+                        foreach ($days as $key => $day) {
 
-        if (is_array($days)) {
-            if (isset($days[0])) {
+                            Timing::where('salon_id' , $salon->id)->delete();
 
-                foreach ($days as $key => $day) {
-                    $timing = new Timing();
+                            $timing = new Timing();
 
-                    $timing->salon_id = $resource->id;
-                    $timing->from = $from[$key];
-                    $timing->to =  $to[$key];
-                    $timing->day = $day;
+                            $timing->salon_id = $salon->id;
+                            $timing->from = $from[$key];
+                            $timing->to =  $to[$key];
+                            $timing->day = $day;
 
-                    $timing->save();
+                            $timing->save();
+                        }
+                    }
                 }
+                else{
+                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                    }
+            
             }
-        }
-          else{return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);}
-          
-            if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
-            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
+            
+            $salon->save();
+            return JsonResponse::respondSuccess(JsonResponse::MSG_UPDATED_SUCCESSFULLY);
         }
         return JsonResponse::respondError($validator->errors()->all());
     }

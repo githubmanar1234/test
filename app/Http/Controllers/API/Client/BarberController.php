@@ -17,6 +17,7 @@ use App\Http\Repositories\IRepositories\IBarberRepository;
 use App\Models\Category;
 use App\Models\Salon;
 use App\Models\Barber;
+use App\Models\BarberImage;
 use App\Models\Post;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -24,6 +25,7 @@ use Carbon\Carbon;
 use Image;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\ValidatorHelper;
+use App\Helpers\FileHelper;
 
 
 class BarberController extends Controller
@@ -89,6 +91,7 @@ class BarberController extends Controller
         return JsonResponse::respondError($validator->errors()->all());
     }
 
+
     public function CompleteBarberInfo(Request $request)
     {
 
@@ -121,7 +124,19 @@ class BarberController extends Controller
                 $resource->whatsapp_number = $data['whatsapp_number'];
             }
             $resource->save();
-            
+
+            $files = $request->file('images'); 
+             
+            foreach ($files as $file) {      
+                BarberImage::where('barber_id' ,$resource->id)->delete();
+                $imageUrl = FileHelper::processImage($file, 'public/barbers');
+                $barberImage = new BarberImage();
+                $barberImage->image = $imageUrl;
+                $barberImage->barber_id  = $resource->id;
+                $barberImage->save();
+               
+            }
+
             $updated = $this->barberRepository->update($data, $resource->id);
             if (!$updated) return JsonResponse::respondError(trans(JsonResponse::MSG_UPDATE_ERROR));
             return JsonResponse::respondSuccess(trans(JsonResponse::MSG_UPDATED_SUCCESSFULLY));
@@ -137,15 +152,12 @@ class BarberController extends Controller
     //get barbers by salon's id
     public function getBarbersBySalon($id){
 
-        $request_data = $this->requestData;
-
         $salon = $this->salonRepository->find($id);
 
         $data = $salon->barbers;
-        
+  
         return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
-        
-    
+   
     }
 
     //get barbers in same city 
@@ -154,11 +166,12 @@ class BarberController extends Controller
         $request_data = $this->requestData;
 
         $user = Auth::guard('client')->user();
-
+        
         $salon = $user->salon;
 
         if($salon){
             
+            //$images = $user->images;
            // $salon_city = $salon->city->name;
            $salon_city_id = $salon->city->id;
 

@@ -39,6 +39,12 @@ class Barber extends Authenticatable
 
     public $translatable = ['name'];
 
+    protected $with = ['images'];
+
+    public function images(){
+
+        return $this->hasMany(BarberImage::class,'barber_id');
+    }
     
     public function salon()
     {
