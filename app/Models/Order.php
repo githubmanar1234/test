@@ -16,31 +16,41 @@ class Order extends AppModel
 
      protected $hidden = ['updatedAt', 'createdAt','deletedAt' ];
 
-     protected $with = ['services'];
+     protected $with = ['orderServices','user' , 'barber'];
 
-     public function services(){
+
+     public function orderServices(){
 
         return $this->hasMany(OrderService::class,'order_id');
     }
 
-    //public $translatable = ['reason'];
+    public function totalDuration(){
 
-    // protected $with = ['user'];
+        $duration = 0;
 
-    // public function user()
-    // {
-    //     return $this->belongsTo(User::class, "user_id", 'id');
-    // }
+        if($this->orderServices){
+
+            foreach($this->orderServices as $orderService)
+            {
+               $duration += $orderService->barberService->duration;
+            }
+            
+        }
+        
+        return $duration;
+
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, "user_id", 'id');
+    }
     
 
-    // public function users()
-    // {
-    //     $users = User::whereHas('salonReport', function ($q)  {
-    //         $q->where('salon_id', $this->id );
-    //     })->orderBy('id', 'desc')->get();
-
-    //     return $users;
-    // }
+    public function barber()
+    {
+        return $this->belongsTo(Barber::class, "barber_id", 'id');
+    }
 
     // public function salonReport()
     // {

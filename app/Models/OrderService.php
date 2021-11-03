@@ -11,12 +11,17 @@ class OrderService extends Authenticatable
 {
     use HasFactory, HasApiTokens;
     
-    protected $fillable = ['order_id ', 'service_id'];
+    protected $fillable = ['order_id ', 'bareber_services_id '];
 
    // protected $hidden =['password'];
 
-    
-   
+   protected $with = ['barberService'];
+
+   public function barberService()
+    {
+        return $this->belongsTo(BarberService::class, "bareber_services_id", 'id');
+    }
+
     protected function serializeDate(\DateTimeInterface $date) : string
     {
         return $date->toDateTimeString();
