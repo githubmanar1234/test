@@ -8,11 +8,13 @@ use App\Http\Controllers\API\Client\ReportController as ClientReportController;
 use App\Http\Controllers\API\Client\PostController as ClientPostController;
 use App\Http\Controllers\API\Client\BarberController as ClientBarberController;
 use App\Http\Controllers\API\Client\ServiceController as ClientServiceController;
+use App\Http\Controllers\API\Client\OrderController as ClientOrderController;
 use App\Http\Controllers\API\Dashboard\Auth\AuthController;
 use App\Http\Controllers\API\Dashboard\Auth\PasswordResetController;
 use App\Http\Controllers\API\Dashboard\SettingController;
 use App\Http\Controllers\API\Dashboard\UserController;
 use App\Http\Controllers\API\Dashboard\CityController;
+use App\Http\Controllers\API\Dashboard\OrderController;
 use App\Http\Controllers\API\Dashboard\ReportPostController;
 use App\Http\Controllers\API\Dashboard\SalonController;
 use App\Http\Controllers\API\Dashboard\CategoryController;
@@ -44,8 +46,12 @@ Route::get('/userDeletAll',function(){
 Route::group([
     "prefix" => "barber"
 ], function () {
-Route::post('CompleteBarberInfo', [ClientBarberController::class, 'CompleteBarberInfo']); 
-Route::post('addServicesByBarber', [ClientServiceController::class, 'addServicesByBarber']);
+    Route::post('CompleteBarberInfo', [ClientBarberController::class, 'CompleteBarberInfo']); 
+    Route::post('addServicesByBarber', [ClientServiceController::class, 'addServicesByBarber']);
+    Route::get('orders', [ClientOrderController::class, 'getOrders']);
+    Route::post('acceptOrder', [ClientOrderController::class, 'setAcceptedOrder']);
+    Route::post('setRejectedOrder', [ClientOrderController::class, 'setRejectedOrder']);
+
 });
 
 // client routes
@@ -115,6 +121,8 @@ Route::group([
         Route::delete('post/{id}', [ClientPostController::class, 'destroy'])->middleware(['salon']);
         Route::post('post/update', [ClientPostController::class, 'update'])->middleware(['salon']);
         Route::post('likePost', [ClientPostController::class, 'likePost']);
+
+      
         
     });
 });
@@ -199,6 +207,10 @@ Route::group([
         //Reported Barbers
         Route::get('reportedBarbers', [ReportBarberController::class, 'getReportedBarbers']);
         Route::get('reportByBarber/{id}', [ReportBarberController::class, 'show']);
+
+        //Orders
+        Route::get('orders', [OrderController::class, 'getOrders']);
+
 
 
         

@@ -27,7 +27,9 @@ use App\Http\Repositories\Eloquent\PostLikeRepository;
 use App\Http\Repositories\Eloquent\SubserviceRepository;
 use App\Http\Repositories\Eloquent\SalonReportRepository;
 use App\Http\Repositories\Eloquent\UserRepository;
+use App\Http\Repositories\Eloquent\OrderRepository;
 use App\Http\Repositories\IRepositories\IAdminRepository;
+use App\Http\Repositories\IRepositories\IOrderRepository;
 use App\Http\Repositories\IRepositories\IBarberReportRepository;
 use App\Http\Repositories\IRepositories\IBarberServiceRepository;
 use App\Http\Repositories\IRepositories\IPostRepository;
@@ -62,6 +64,7 @@ class RepositoryServiceProvider extends ServiceProvider
     {
         $this->app->bind(IUserRepository::class, UserRepository::class);
         $this->app->bind(IBarberServiceRepository::class, BarberServiceRepository::class);
+        $this->app->bind(IOrderRepository::class, OrderRepository::class);
         $this->app->bind(IPostImageRepository::class, PostImageRepository::class);
         $this->app->bind(IPostLikeRepository::class, PostLikeRepository::class);
         $this->app->bind(IPostReportRepository::class, PostReportRepository::class);
