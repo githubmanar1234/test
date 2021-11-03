@@ -17,7 +17,9 @@ use App\Http\Repositories\IRepositories\IPostReportRepository;
 use App\Http\Repositories\IRepositories\IBarberServiceRepository;
 use App\Models\Category;
 use App\Models\Salon;
+use App\Models\BarberService;
 use App\Models\Barber;
+use App\Models\Service;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -62,6 +64,32 @@ class ServiceController extends Controller
         });
     }
 
+    public function index()
+    {
+        $data = $this->serviceRepository->all();
+      
+        if (!$data) return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+    }
+
+    
+    public function show($id)
+    {
+        $service = Service::find($id);
+
+        if($service){
+            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_SUCCESS), $service);
+        }
+        else{
+            if (is_numeric($id)){
+                return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+            }
+
+            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        }  
+    }
+
+
     
     public function addServicesByBarber(Request $request)
     {
@@ -77,6 +105,7 @@ class ServiceController extends Controller
         if ($validator->passes()) {
 
                  $data['barber_id'] = $user->id;
+                 BarberService::where('barber_id' , $user->id )->delete();
                  $resource = $this->barberServicesRepository->create($data);
                 
                  if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);

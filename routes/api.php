@@ -78,6 +78,10 @@ Route::group([
 
         Route::get('categories', [ClientCategoryController::class, 'categories']);
         Route::get('categories/find', [ClientCategoryController::class, 'find']);
+        
+        //services
+        Route::get('services', [ClientServiceController::class, 'index']);
+        Route::get('service/{id}', [ClientServiceController::class, 'show']);
 
         //users
         Route::get('userInfo', [ClientUserController::class, 'userInfo']);
@@ -87,17 +91,17 @@ Route::group([
 
         //Salons
         Route::post('salon', [ClientSalonController::class, 'RegisterSalon'])->middleware(['salon']);
-        Route::put('CompleteSalonInfo', [ClientSalonController::class, 'CompleteSalonInfo']); 
-        Route::get('acceptedSalons', [ClientSalonController::class, 'getAcceptedSalons'])->middleware(['salon']);
-        Route::get('salon', [ClientSalonController::class, 'getMySalon']);
+        Route::put('CompleteSalonInfo', [ClientSalonController::class, 'CompleteSalonInfo'])->middleware(['salon']); 
+        Route::get('acceptedSalons', [ClientSalonController::class, 'getAcceptedSalons']);
+        Route::get('salon', [ClientSalonController::class, 'getMySalon'])->middleware(['salon']);
         Route::get('salons/find', [ClientSalonController::class, 'find']);
 
         //Barbers
         Route::get('barber/{id}', [ClientBarberController::class, 'getBarberDetails']);
         Route::post('barber', [ClientBarberController::class, 'store'])->middleware(['salon']);
         
-        Route::get('barbersBySalon/{id}', [ClientBarberController::class, 'getBarbersBySalon']);
-        Route::post('deactivateBarbers/{id}', [ClientBarberController::class, 'deactivateBarber']);
+        Route::get('barbersBySalon/{id}', [ClientBarberController::class, 'getBarbersBySalon'])->middleware(['salon']);
+        Route::post('deactivateBarbers/{id}', [ClientBarberController::class, 'deactivateBarber'])->middleware(['salon']);
         Route::get('getBarbers', [ClientBarberController::class, 'getBarbers']); 
 
         //Reports
@@ -107,9 +111,9 @@ Route::group([
 
         //Posts
         Route::get('posts', [ClientPostController::class, 'index']);
-        Route::post('post', [ClientPostController::class, 'store']);
-        Route::delete('post/{id}', [ClientPostController::class, 'destroy']);
-        Route::post('post/update', [ClientPostController::class, 'update']);
+        Route::post('post', [ClientPostController::class, 'store'])->middleware(['salon']);
+        Route::delete('post/{id}', [ClientPostController::class, 'destroy'])->middleware(['salon']);
+        Route::post('post/update', [ClientPostController::class, 'update'])->middleware(['salon']);
         Route::post('likePost', [ClientPostController::class, 'likePost']);
         
     });

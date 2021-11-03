@@ -94,6 +94,7 @@ class AuthController extends Controller
             if ($validator->passes()) {
 
                 $user = $this->barberRepository->findBy('salon_code', $this->requestData['salon_code']);
+                
                 if (!$user) {
                     return JsonResponse::respondError(JsonResponse::MSG_LOGIN_FAILED, ResponseStatus::VALIDATION_ERROR);
                 }
@@ -199,6 +200,7 @@ class AuthController extends Controller
             'password' => 'required|confirmed|min:6',
             'country_id' => 'required|exists:countries,id',
             'fcm_token' => 'required',
+            'role' => 'required',
         ];
         if (isset($data['yob']))
             $validation_rules['yob'] = 'date';
