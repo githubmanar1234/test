@@ -51,6 +51,9 @@ Route::group([
     Route::get('orders', [ClientOrderController::class, 'getOrders']);
     Route::post('acceptOrder', [ClientOrderController::class, 'setAcceptedOrder']);
     Route::post('setRejectedOrder', [ClientOrderController::class, 'setRejectedOrder']);
+    Route::post('setCompletedOrder', [ClientOrderController::class, 'setCompletedOrder']);
+    Route::post('setInCompletedOrder', [ClientOrderController::class, 'setInCompletedOrder']);
+    Route::get('user/{id}', [ClientOrderController::class, 'profileUser']);
 
 });
 

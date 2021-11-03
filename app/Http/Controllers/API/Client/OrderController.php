@@ -18,6 +18,7 @@ use App\Http\Repositories\IRepositories\IOrderRepository;
 use App\Models\Category;
 use App\Models\Salon;
 use App\Models\Barber;
+use App\Models\User;
 use App\Models\BarberImage;
 use App\Models\Post;
 use App\Models\Order;
@@ -108,9 +109,9 @@ class OrderController extends Controller
               }
         }
         return JsonResponse::respondError($validator->errors()->all());
-    }
+        }
 
-    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
+        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
     
     }
 
@@ -152,13 +153,116 @@ class OrderController extends Controller
               }
         }
         return JsonResponse::respondError($validator->errors()->all());
+        }
+
+        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
+
     }
 
-    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
+    //complete order by barber.
+    public function setCompletedOrder(Request $request)
+    {
+
+        if($this->authUser){
+        $request_data = $this->requestData;
+        $validation_rules = [
+            'order_id' => "required",
+        ];
+
+        $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
+        if ($validator->passes()) {
+
+           // $data = $this->orderRepository->allAsQuery();
+            $data =  Order::all();
+            
+            $data = $data->find($request_data['order_id']);
+
+            if($data){
+
+                if($data->status == Constants::ORDER_STATUS_ACCEPTED){
+    
+                    $data->status = Constants::ORDER_STATUS_COMPLETED;                   
+                    $data->save();
+                    return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+                }  
+                else{
+                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                    } 
+            }
+             else{
+                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+              }
+        }
+        return JsonResponse::respondError($validator->errors()->all());
+        }
+
+        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
 
     }
+
+     //incomplete order by barber.
+     public function setInCompletedOrder(Request $request)
+     {
+ 
+         if($this->authUser){
+         $request_data = $this->requestData;
+         $validation_rules = [
+             'order_id' => "required",
+         ];
+ 
+         $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
+         if ($validator->passes()) {
+ 
+            // $data = $this->orderRepository->allAsQuery();
+             $data =  Order::all();
+             
+             $data = $data->find($request_data['order_id']);
+ 
+             if($data){
+ 
+                 if($data->status == Constants::ORDER_STATUS_ACCEPTED){
+     
+                     $data->status = Constants::ORDER_STATUS_INCOMPLETED;                   
+                     $data->save();
+                     return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+                 }  
+                 else{
+                     return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                     } 
+             }
+              else{
+                 return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+               }
+         }
+         return JsonResponse::respondError($validator->errors()->all());
+         }
+ 
+         return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
+ 
+     }
     
 
-     
+     public function profileUser($id)
+    {
+        
+        if($this->authUser){
+        
+            $data = Order::where('user_id' ,$id)->where('barber_id' ,$this->authUser->id )
+            ->where('status' ,Constants::ORDER_STATUS_ACCEPTED )->first();
+            
+            if($data){
 
+                unset($user->created_at);
+                unset($user->updated_at);
+                return JsonResponse::respondSuccess(trans(JsonResponse::MSG_SUCCESS), $data);
+            }
+            else{
+                if (is_numeric($id)){
+                    return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+                }
+
+                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+            }  
+        }
+    }
 }
