@@ -241,7 +241,7 @@ class OrderController extends Controller
  
      }
     
-
+    //view user profile by his barber.
      public function profileUser($id)
     {
         
@@ -265,4 +265,108 @@ class OrderController extends Controller
             }  
         }
     }
+
+    //get orders for users
+    public function getOrdersUser(){
+
+        $request_data = $this->requestData;
+
+        $user = Auth::guard('client')->user();
+       
+        if($user){
+
+            $data = Order::where('user_id' , $user->id)->get();
+            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+        }
+
+        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
+    }
+
+    //rate order by user.
+    public function rateOrders(Request $request)
+    {
+        $request_data = $this->requestData;
+        
+        $user = Auth::guard('client')->user();
+       
+        if($user){
+
+        $request_data = $this->requestData;
+        $validation_rules = [
+            'order_id' => "required",
+            'rate' => "required|numeric",
+        ];
+
+        $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
+        if ($validator->passes()) {
+
+            $data =  Order::where('id' , $request_data['order_id'])->where('user_id' , $user->id)->first();
+            
+            if($data){
+
+                if($data->status == Constants::ORDER_STATUS_ACCEPTED){
+    
+                    $data->rate = $request_data['rate'];                   
+                    $data->save();
+                    return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+                }  
+                else{
+                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                    } 
+            }
+             else{
+                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+              }
+        }
+        return JsonResponse::respondError($validator->errors()->all());
+        }
+
+        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
+
+    }
+
+     //write review for order by user.
+     public function writeReviewForOrder(Request $request)
+     {
+         $request_data = $this->requestData;
+         
+         $user = Auth::guard('client')->user();
+        
+         if($user){
+ 
+         $request_data = $this->requestData;
+         $validation_rules = [
+             'order_id' => "required",
+             'notes' => "required",
+         ];
+ 
+         $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
+         if ($validator->passes()) {
+ 
+             $data =  Order::where('id' , $request_data['order_id'])->where('user_id' , $user->id)->first();
+             
+             if($data){
+ 
+                 if($data->status == Constants::ORDER_STATUS_COMPLETED){
+     
+                     $data->notes = $request_data['notes'];                   
+                     $data->save();
+                     return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+                 }  
+                 else{
+                     return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                     } 
+             }
+              else{
+                 return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+               }
+         }
+         return JsonResponse::respondError($validator->errors()->all());
+         }
+ 
+         return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
+ 
+     }
+
+   
 }

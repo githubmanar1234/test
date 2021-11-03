@@ -54,6 +54,7 @@ Route::group([
     Route::post('setCompletedOrder', [ClientOrderController::class, 'setCompletedOrder']);
     Route::post('setInCompletedOrder', [ClientOrderController::class, 'setInCompletedOrder']);
     Route::get('user/{id}', [ClientOrderController::class, 'profileUser']);
+   
 
 });
 
@@ -124,6 +125,11 @@ Route::group([
         Route::delete('post/{id}', [ClientPostController::class, 'destroy'])->middleware(['salon']);
         Route::post('post/update', [ClientPostController::class, 'update'])->middleware(['salon']);
         Route::post('likePost', [ClientPostController::class, 'likePost']);
+
+        //Orders
+        Route::get('orders/user', [ClientOrderController::class, 'getOrdersUser']);
+        Route::post('rate', [ClientOrderController::class, 'rateOrders']);
+        Route::post('review', [ClientOrderController::class, 'writeReviewForOrder']);
 
       
         
