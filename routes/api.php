@@ -3,6 +3,7 @@
 
 use App\Http\Controllers\API\Client\CountryController as ClientCountryController;
 use App\Http\Controllers\API\Client\SalonController as ClientSalonController;
+use App\Http\Controllers\API\Client\AppointmentController;
 use App\Http\Controllers\API\Client\UserController as ClientUserController;
 use App\Http\Controllers\API\Client\ReportController as ClientReportController;
 use App\Http\Controllers\API\Client\PostController as ClientPostController;
@@ -134,6 +135,7 @@ Route::group([
         Route::post('rate', [ClientOrderController::class, 'rateOrders']);
         Route::post('review', [ClientOrderController::class, 'writeReviewForOrder']);
         Route::get('order/{id}', [ClientOrderController::class, 'show']);
+        Route::post('appointment', [AppointmentController::class, 'setAppointment']);
 
       
         
