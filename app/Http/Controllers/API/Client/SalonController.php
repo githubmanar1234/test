@@ -238,24 +238,27 @@ class SalonController extends Controller
 
                 $berbers_num = $resource->berbers_num;
                 
-                
-                for($i = 0 ; $i < $berbers_num ; $i++){
+                if (count($resource->berbers) == 0 ){
+                    for($i = 0 ; $i < $berbers_num ; $i++){
                 
 
-                    $barber = [];
-
-                    $barber['salon_id'] = $salon_id ;
-                
-                    $barber['salon_code']= $resource->salon_code;
-
-                    $password = sprintf("%06d", mt_rand(1, 999999));
-                            
-                    $barber['password']= $password;
-                    $barber['city_id'] = 2;
+                        $barber = [];
+    
+                        $barber['salon_id'] = $salon_id ;
                     
-                    $this->barberRepository->create($barber);
-                    
+                        $barber['salon_code']= $resource->salon_code;
+    
+                        $password = sprintf("%06d", mt_rand(1, 999999));
+                                
+                        $barber['password']= $password;
+                        $barber['city_id'] = 2;
+                        
+                        $this->barberRepository->create($barber);
+                        
+                    }
                 }
+              
+
                 if (isset($data['facebook_barberRepositorylink'])  ){
                     
                     $resource->facebook_link = $data['facebook_link'];
