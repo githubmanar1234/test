@@ -32,7 +32,9 @@ class Order extends AppModel
 
             foreach($this->orderServices as $orderService)
             {
-               $duration += $orderService->barberService->duration;
+                if($orderService->barberService){
+                   $duration += $orderService->barberService->duration;
+                }
             }
             
         }

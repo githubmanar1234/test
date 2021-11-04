@@ -53,25 +53,46 @@ class OrderController extends Controller
     }
 
 
-    //get daily orders for barbers
+    //get daily orders for barbers //time line
     public function getOrders(){
 
         $request_data = $this->requestData;
 
          $user = Auth::guard('barber')->user();
-        //$name = Auth::guard('barber')->user()->name;
-        
-        
+
         if($this->authUser){
 
             $data = Order::where('barber_id' , $user->id )->where('status' , Constants::ORDER_STATUS_ACCEPTED)
             ->orWhere('status' , Constants::ORDER_STATUS_COMPLETED)->get();
-            $data['barber'] = $user;
-           // $data['barberName'] = $name;
+
+
             return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
         }
+     
 
         return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
+    }
+
+    //get order by id
+    public function show($id)
+    {
+        $order = Order::find($id);
+
+        $data = [];
+         
+        if($order){
+             
+            $data['duration'] =  $order->totalDuration();
+            $data['order'] =  $order;
+            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_SUCCESS), $data);
+        }
+        else{
+            if (is_numeric($id)){
+                return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+            }
+
+            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        }  
     }
 
     //accept order by barber.
@@ -252,8 +273,6 @@ class OrderController extends Controller
             
             if($data){
 
-                unset($user->created_at);
-                unset($user->updated_at);
                 return JsonResponse::respondSuccess(trans(JsonResponse::MSG_SUCCESS), $data);
             }
             else{
@@ -304,7 +323,7 @@ class OrderController extends Controller
             
             if($data){
 
-                if($data->status == Constants::ORDER_STATUS_ACCEPTED){
+                if($data->status == Constants::ORDER_STATUS_COMPLETED){
     
                     $data->rate = $request_data['rate'];                   
                     $data->save();

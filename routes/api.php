@@ -130,6 +130,7 @@ Route::group([
         Route::get('orders/user', [ClientOrderController::class, 'getOrdersUser']);
         Route::post('rate', [ClientOrderController::class, 'rateOrders']);
         Route::post('review', [ClientOrderController::class, 'writeReviewForOrder']);
+        Route::get('order/{id}', [ClientOrderController::class, 'show']);
 
       
         
