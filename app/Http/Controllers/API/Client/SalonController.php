@@ -78,7 +78,7 @@ class SalonController extends Controller
                     'days' => 'required',
                     'from' => 'required',
                     'to' => 'required',
-                    'location' => 'required|numeric',
+                    'location' => 'required',
                     'lat_location' => 'required|numeric',
                     'long_location' => 'required|numeric',
                 ];
@@ -250,7 +250,7 @@ class SalonController extends Controller
 
                     $password = sprintf("%06d", mt_rand(1, 999999));
                             
-                    $barber['password']= Hash::make($password);
+                    $barber['password']= $password;
                     $barber['city_id'] = 2;
                     
                     $this->barberRepository->create($barber);

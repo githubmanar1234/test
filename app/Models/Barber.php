@@ -41,7 +41,6 @@ class Barber extends Authenticatable
 
     protected $with = ['images' ,'services'];
 
-    protected $hidden = ['password'];
 
     public function images(){
 
@@ -57,7 +56,6 @@ class Barber extends Authenticatable
     {
         return $this->belongsTo(Salon::class, "salon_id", 'id');
     }
-
 
     public function barberReports()
     {

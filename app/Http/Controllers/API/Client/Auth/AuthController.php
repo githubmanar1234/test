@@ -93,7 +93,7 @@ class AuthController extends Controller
             $validator = Validator::make($this->requestData, $rules, ValidatorHelper::messages());
             if ($validator->passes()) {
 
-                $user = $this->barberRepository->findBy('salon_code', $this->requestData['salon_code']);
+                $user = $this->barberRepository->where('salon_code', $this->requestData['salon_code']);
                 
                 if (!$user) {
                     return JsonResponse::respondError(JsonResponse::MSG_LOGIN_FAILED, ResponseStatus::VALIDATION_ERROR);
