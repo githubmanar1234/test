@@ -55,6 +55,7 @@ class Constants
     const ORDER_STATUS_UNDER_REVIEW ='Under review';
     const ORDER_STATUS_COMPLETED ='Completed';
     const ORDER_STATUS_INCOMPLETED ='Incompleted';
+    const ORDER_STATUS_CANCELED ='Canceled';
     const ORDER_STATUS_UNDERWAY ='Underway';
     const ORDERS_STATUSES = [
         Constants::STATUS_REJECTED,

@@ -11,11 +11,12 @@ use App\Http\Repositories\IRepositories\ICategoryRepository;
 use App\Http\Repositories\IRepositories\IPostRepository;
 use App\Http\Repositories\IRepositories\IUserRepository;
 use App\Http\Repositories\IRepositories\ISalonRepository;
-use App\Http\Repositories\IRepositories\IPostImageRepository;
+use App\Http\Repositories\IRepositories\ITimingBarberRepository;
 use App\Http\Repositories\IRepositories\IPostLikeRepository;
 use App\Http\Repositories\IRepositories\IBarberRepository;
 use App\Models\Category;
 use App\Models\Salon;
+use App\Models\TimingBarber;
 use App\Models\Barber;
 use App\Models\BarberImage;
 use App\Models\Post;
@@ -34,7 +35,7 @@ class BarberController extends Controller
     private $categoryRepository;
     private $postRepository;
     private $barberRepository;
-    private $postImageRepository;
+    private $timingBarberRepository;
     private $requestData;
     private $authUser;
 
@@ -43,7 +44,7 @@ class BarberController extends Controller
         IUserRepository $userRepository,
         IPostRepository $postRepository,
         ISalonRepository $salonRepository,
-        IPostImageRepository $postImageRepository,
+        ITimingBarberRepository $timingBarberRepository,
         IPostLikeRepository $postLikeRepository,
         IBarberRepository $barberRepository
     )
@@ -53,7 +54,7 @@ class BarberController extends Controller
         $this->salonRepository = $salonRepository;
         $this->barberRepository = $barberRepository;
         $this->postLikeRepository = $postLikeRepository;
-        $this->postImageRepository = $postImageRepository;
+        $this->timingBarberRepository = $timingBarberRepository;
         $this->requestData = Mapper::toUnderScore(\Request()->all());
         //$this->authBarber = Auth::guard('barber')->user();
         $this->authUser = Auth::guard('client')->user();
@@ -91,7 +92,7 @@ class BarberController extends Controller
         return JsonResponse::respondError($validator->errors()->all());
     }
 
-
+    //complete barber profile with his timeLines.
     public function CompleteBarberInfo(Request $request)
     {
 
@@ -99,53 +100,91 @@ class BarberController extends Controller
 
             $data = $this->requestData;
 
-            $resource = Barber::find($user_id);
-             
-            if($resource){
-  
-            if(isset($data['name'] )){
+            $validation_rules = [
+                'days' => 'required',
+                'from' => 'required',
+                'to' => 'required',
+            ];
+            $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
+            if ($validator->passes()) {
 
-                $resource->name = $data['name'];
-            }
-            if(isset($data['phone_number'] )){
+                $resource = Barber::find($user_id);
+                
+                if($resource){
+    
+                if(isset($data['name'] )){
 
-                $resource->phone_number = $data['phone_number'];
-            }
-            if(isset($data['facebook_link'] )){
+                    $resource->name = $data['name'];
+                }
+                if(isset($data['phone_number'] )){
 
-                $resource->facebook_link = $data['facebook_link'];
-            }
-            if(isset($data['instagram_link'] )){
+                    $resource->phone_number = $data['phone_number'];
+                }
+                if(isset($data['facebook_link'] )){
 
-                $resource->instagram_link = $data['instagram_link'];
-            }
-            if(isset($data['whatsapp_number'] )){
+                    $resource->facebook_link = $data['facebook_link'];
+                }
+                if(isset($data['instagram_link'] )){
 
-                $resource->whatsapp_number = $data['whatsapp_number'];
-            }
-            $resource->save();
+                    $resource->instagram_link = $data['instagram_link'];
+                }
+                if(isset($data['whatsapp_number'] )){
 
-            $files = $request->file('images'); 
-             
-            foreach ($files as $file) {      
-                BarberImage::where('barber_id' ,$resource->id)->delete();
-                $imageUrl = FileHelper::processImage($file, 'public/barbers');
-                $barberImage = new BarberImage();
-                $barberImage->image = $imageUrl;
-                $barberImage->barber_id  = $resource->id;
-                $barberImage->save();
-               
-            }
+                    $resource->whatsapp_number = $data['whatsapp_number'];
+                }
+                $resource->save();
 
-            $updated = $this->barberRepository->update($data, $resource->id);
-            if (!$updated) return JsonResponse::respondError(trans(JsonResponse::MSG_UPDATE_ERROR));
-            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_UPDATED_SUCCESSFULLY));
+                
+                $days = $data['days'];
+                $days = json_decode($days, true);
+                
+                $from = $data['from'];
+                $from = json_decode($from, true);
+        
+                $to = $data['to'];
+                $to = json_decode($to, true);
+                
+                if (is_array($days)) {
+                    if (isset($days[0])) {
+                        TimingBarber::where('barber_id' ,$resource->id)->delete();
+
+                        foreach ($days as $key => $day) {
+                        
+                            $timingBarber = new TimingBarber();
+        
+                            $timingBarber->barber_id = $resource->id;
+                            $timingBarber->from = $from[$key];
+                            $timingBarber->to =  $to[$key];
+                            $timingBarber->day = $day;
+        
+                            $timingBarber->save();
+                        }
+                    }
+                }
+
+                if ( $request->hasfile('images')) {
+
+                    $files = $request->file('images'); 
+                    BarberImage::where('barber_id' ,$resource->id)->delete();
+
+                    foreach ($files as $file) {      
+                        $imageUrl = FileHelper::processImage($file, 'public/barbers');
+                        $barberImage = new BarberImage();
+                        $barberImage->image = $imageUrl;
+                        $barberImage->barber_id  = $resource->id;
+                        $barberImage->save();
+                    
+                    }
+                }
+
+                return JsonResponse::respondSuccess(trans(JsonResponse::MSG_UPDATED_SUCCESSFULLY));
                        
             }
             else{
                 return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
             }
-      
+        }
+        return JsonResponse::respondError($validator->errors()->all());
     }
 
 
@@ -206,6 +245,7 @@ class BarberController extends Controller
         
     }
 
+
      //Deactivate barber by his salon
     public function deactivateBarber($id)
     {
@@ -246,6 +286,29 @@ class BarberController extends Controller
         {
             return true;
         }
+    }
+
+
+    //get barber time llines.
+    public function getBarberTimeLines($id){
+
+        $request_data = $this->requestData;
+
+        $data = Barber::find($id);
+
+        if($data){
+
+            $timingesBarber =  TimingBarber::where('barber_id' , $id)->get();
+            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $timingesBarber);
+        }
+        else{
+            if (is_numeric($id)){
+                return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+            }
+
+            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        }  
+        
     }
   
 }

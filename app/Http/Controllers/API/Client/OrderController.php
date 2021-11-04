@@ -54,23 +54,46 @@ class OrderController extends Controller
 
 
     //get daily orders for barbers //time line
-    public function getOrders(){
+    public function getDailyOrders(){
 
         $request_data = $this->requestData;
 
          $user = Auth::guard('barber')->user();
-
+         
         if($this->authUser){
 
-            $data = Order::where('barber_id' , $user->id )->where('status' , Constants::ORDER_STATUS_ACCEPTED)
-            ->orWhere('status' , Constants::ORDER_STATUS_COMPLETED)->get();
+            $date = Carbon::now();
+            $order = Order::where('date' , $date )->get();
+             
+            if($order){
+                $data = Order::where('barber_id' , $user->id )->where('status' , Constants::ORDER_STATUS_ACCEPTED)
+                ->orWhere('status' , Constants::ORDER_STATUS_COMPLETED)->get();
 
 
-            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+                return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+            }
+            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, []);
         }
-     
 
         return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
+    }
+
+     //get daily orders for barbers by salon//time line
+     public function getDailyOrdersBySalon(){
+
+        $request_data = $this->requestData;
+
+            $date = Carbon::now();
+            $order = Order::where('date' , $date )->get();
+             
+            if($order){
+                $data = Order::where('status' , Constants::ORDER_STATUS_ACCEPTED)
+                ->orWhere('status' , Constants::ORDER_STATUS_COMPLETED)->get();
+
+
+                return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+            }
+            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, []);
     }
 
     //get order by id
@@ -261,6 +284,48 @@ class OrderController extends Controller
          return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
  
      }
+
+      //cancel order by barber.
+    public function setCanceledOrder(Request $request)
+    {
+        
+        if($this->authUser){
+        $request_data = $this->requestData;
+        $validation_rules = [
+            'order_id' => "required",
+        ];
+
+        $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
+        if ($validator->passes()) {
+
+           // $data = $this->orderRepository->allAsQuery();
+            $data =  Order::all();
+            
+            $data = $data->find($request_data['order_id']);
+
+            if($data){
+
+                if($data->status == Constants::ORDER_STATUS_UNDER_REVIEW || $data->status == Constants::ORDER_STATUS_ACCEPTED){
+    
+                    $data->status = Constants::ORDER_STATUS_CANCELED;                 
+                    $data->save();
+                    return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+                }  
+                else{
+                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                    } 
+            }
+             else{
+                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+              }
+        }
+        return JsonResponse::respondError($validator->errors()->all());
+        }
+
+        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
+    
+    }
+
     
     //view user profile by his barber.
      public function profileUser($id)
