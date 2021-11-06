@@ -237,11 +237,10 @@ class SalonController extends Controller
               if($resource->status == Constants::STATUS_ACCEPTED ){
 
                 $berbers_num = $resource->berbers_num;
-                
+               
                 if (count($resource->berbers) == 0 ){
                     for($i = 0 ; $i < $berbers_num ; $i++){
                 
-
                         $barber = [];
     
                         $barber['salon_id'] = $salon_id ;
@@ -257,8 +256,7 @@ class SalonController extends Controller
                         
                     }
                 }
-              
-
+            
                 if (isset($data['facebook_barberRepositorylink'])  ){
                     
                     $resource->facebook_link = $data['facebook_link'];

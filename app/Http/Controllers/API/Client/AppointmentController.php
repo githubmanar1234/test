@@ -22,6 +22,8 @@ use App\Models\User;
 use App\Models\BarberImage;
 use App\Models\Post;
 use App\Models\Order;
+use App\Models\Timing;
+use App\Models\TimingBarber;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -57,34 +59,34 @@ class AppointmentController extends Controller
     //make appointment/order.
     public function setAppointment(Request $request)
     {
+        
         $request_data = $this->requestData;
 
         $validation_rules = [
-            'day' => "required|numeric",
+            'date' => "required|date",
         ];
 
         $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {
 
-            $timingSalon =  Timing::where('day' , $request_data['day'])->get();
+            $date =  Carbon::parse($request_data['date'])->format('d');
             
-            $data = $data->find($request_data['order_id']);
+            $timingsSalon =  Timing::where('day' , $date)->get();
 
-            if($data){
+            if($timingsSalon){
 
-                if($data->status == Constants::ORDER_STATUS_UNDER_REVIEW){
-    
-                    $data->status = Constants::ORDER_STATUS_ACCEPTED;                 
-                    $data->save();
-                    return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
-                }  
-                else{
-                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-                    } 
+                   $timingsBarber =  TimingBarber::where('day' , $date)->get();
+
+                   if($timingsBarber) {
+                         return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $timingsBarber);
+                    }          
+                   else{
+                         return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                    }
             }
-             else{
-                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-              }
+           else{
+            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+           }
         }
         return JsonResponse::respondError($validator->errors()->all());  
     
