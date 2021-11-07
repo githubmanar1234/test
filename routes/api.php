@@ -54,7 +54,7 @@ Route::group([
     Route::post('setRejectedOrder', [ClientOrderController::class, 'setRejectedOrder']);
     Route::post('setCompletedOrder', [ClientOrderController::class, 'setCompletedOrder']);
     Route::post('setInCompletedOrder', [ClientOrderController::class, 'setInCompletedOrder']);
-    Route::post('setCanceledOrder', [ClientOrderController::class, 'setCanceledOrder']);
+    
     Route::get('user/{id}', [ClientOrderController::class, 'profileUser']);
 
 });
@@ -136,6 +136,9 @@ Route::group([
         Route::post('review', [ClientOrderController::class, 'writeReviewForOrder']);
         Route::get('order/{id}', [ClientOrderController::class, 'show']);
         Route::post('appointment', [AppointmentController::class, 'setAppointment']);
+        Route::post('order', [AppointmentController::class, 'createOrder']);
+        Route::post('setCanceledOrder', [ClientOrderController::class, 'setCanceledOrder']);
+
 
       
         
@@ -199,6 +202,7 @@ Route::group([
 
         //Salon
         Route::get('AcceptedRejectedSalons', [SalonController::class, 'getAcceptedAndRejectedSalons']);
+        Route::get('AcceptedAndDisabledSalons', [SalonController::class, 'getAcceptedAndDisabledSalons']);
         Route::get('PendingSalons', [SalonController::class, 'getPendingSalons']);
         Route::post('acceptSalon', [SalonController::class, 'setAcceptedSalon']);
         Route::post('rejectSalon', [SalonController::class, 'setRejectedSalon']);

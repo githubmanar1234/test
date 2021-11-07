@@ -17,6 +17,7 @@ use App\Http\Repositories\IRepositories\IPostReportRepository;
 use App\Http\Repositories\IRepositories\IBarberServiceRepository;
 use App\Models\Category;
 use App\Models\Salon;
+use App\Models\Setting;
 use App\Models\BarberService;
 use App\Models\Barber;
 use App\Models\Service;
@@ -104,12 +105,19 @@ class ServiceController extends Controller
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {
 
-                 $data['barber_id'] = $user->id;
-                 BarberService::where('barber_id' , $user->id )->delete();
-                 $resource = $this->barberServicesRepository->create($data);
-                
-                 if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
-                 return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource); 
+                 $min = Setting::where('key' , "min service time")->first()->value;
+                 $max = Setting::where('key' , "max service time")->first()->value;
+
+                 if($data['duration']  >= $min && $data['duration']  <= $max){
+                    
+                    $data['barber_id'] = $user->id;
+                    BarberService::where('barber_id' , $user->id )->delete();
+                    $resource = $this->barberServicesRepository->create($data);
+                   
+                    if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
+                    return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
+                 }   
+                 return JsonResponse::respondError("The duration must be between $min and $max");
         }
         return JsonResponse::respondError($validator->errors()->all());
     }

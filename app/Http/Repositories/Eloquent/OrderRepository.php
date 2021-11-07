@@ -4,7 +4,7 @@ namespace App\Http\Repositories\Eloquent;
 
 
 use App\Http\Repositories\IRepositories\IOrderRepository;
-use App\Models\Admin;
+use App\Models\Order;
 
 class OrderRepository extends BaseRepository implements IOrderRepository
 {
@@ -15,7 +15,7 @@ class OrderRepository extends BaseRepository implements IOrderRepository
      */
     public function model()
     {
-        return Admin::class;
+        return Order::class;
     }
 
 

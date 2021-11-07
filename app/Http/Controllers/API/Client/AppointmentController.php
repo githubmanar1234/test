@@ -69,10 +69,13 @@ class AppointmentController extends Controller
         $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {
 
-            $date =  Carbon::parse($request_data['date'])->format('d');
+            $date =  Carbon::parse($request_data['date'])->dayOfWeekIso;
             
-            $timingsSalon =  Timing::where('day' , $date)->get();
+            $date = $this->convert($date);
+           
 
+            $timingsSalon =  Timing::where('day' , $date)->get();
+            
             if($timingsSalon){
 
                    $timingsBarber =  TimingBarber::where('day' , $date)->get();
@@ -92,298 +95,80 @@ class AppointmentController extends Controller
     
     }
 
-    //reject order by barber.
-    public function setRejectedOrder(Request $request)
-    {
-
-        
-        if($this->authUser){
-        $request_data = $this->requestData;
-        $validation_rules = [
-            'order_id' => "required",
-            'reject_message' => "required",
-        ];
-
-        $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
-        if ($validator->passes()) {
-
-           // $data = $this->orderRepository->allAsQuery();
-            $data =  Order::all();
-            
-            $data = $data->find($request_data['order_id']);
-
-            if($data){
-
-                if($data->status == Constants::ORDER_STATUS_UNDER_REVIEW){
-    
-                    $data->status = Constants::ORDER_STATUS_REJECTED;  
-                    $data->reject_message = $request_data['reject_message'];                 
-                    $data->save();
-                    return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
-                }  
-                else{
-                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-                    } 
-            }
-             else{
-                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-              }
-        }
-        return JsonResponse::respondError($validator->errors()->all());
-        }
-
-        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
-
-    }
-
-    //complete order by barber.
-    public function setCompletedOrder(Request $request)
-    {
-
-        if($this->authUser){
-        $request_data = $this->requestData;
-        $validation_rules = [
-            'order_id' => "required",
-        ];
-
-        $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
-        if ($validator->passes()) {
-
-           // $data = $this->orderRepository->allAsQuery();
-            $data =  Order::all();
-            
-            $data = $data->find($request_data['order_id']);
-
-            if($data){
-
-                if($data->status == Constants::ORDER_STATUS_ACCEPTED){
-    
-                    $data->status = Constants::ORDER_STATUS_COMPLETED;                   
-                    $data->save();
-                    return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
-                }  
-                else{
-                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-                    } 
-            }
-             else{
-                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-              }
-        }
-        return JsonResponse::respondError($validator->errors()->all());
-        }
-
-        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
-
-    }
-
-     //incomplete order by barber.
-     public function setInCompletedOrder(Request $request)
+     //make order. not yet
+     public function createOrder(Request $request)
      {
+        $user_id = Auth::guard('client')->user()->id;
+      
+         $data = $this->requestData;
  
-         if($this->authUser){
-         $request_data = $this->requestData;
          $validation_rules = [
-             'order_id' => "required",
+            'start_time' => "required",
+            'end_time' => "required",
+             'order_number' => "required",
+             'barber_id' => "required",
          ];
  
-         $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
+         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
          if ($validator->passes()) {
- 
-            // $data = $this->orderRepository->allAsQuery();
-             $data =  Order::all();
-             
-             $data = $data->find($request_data['order_id']);
- 
-             if($data){
- 
-                 if($data->status == Constants::ORDER_STATUS_ACCEPTED){
+
+
+            $data['date'] = Carbon::now();
+            $data['start_time'] = $data['start_time'];
+            $data['end_time'] = $data['end_time'];
+            $data['order_number'] = $data['order_number'];
+            $data['status'] =  Constants::STATUS_PENDING;
+            $data['user_id'] =  $user_id;
+            $data['barber_id'] = $data['barber_id'];
+
+            //return $data;
+            $resource = $this->orderRepository->create($data);
+
+            if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
+            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
+           
+         }
+         return JsonResponse::respondError($validator->errors()->all());  
      
-                     $data->status = Constants::ORDER_STATUS_INCOMPLETED;                   
-                     $data->save();
-                     return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
-                 }  
-                 else{
-                     return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-                     } 
-             }
-              else{
-                 return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-               }
-         }
-         return JsonResponse::respondError($validator->errors()->all());
-         }
- 
-         return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
- 
-     }
-
-      //cancel order by barber.
-    public function setCanceledOrder(Request $request)
-    {
-        
-        if($this->authUser){
-        $request_data = $this->requestData;
-        $validation_rules = [
-            'order_id' => "required",
-        ];
-
-        $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
-        if ($validator->passes()) {
-
-           // $data = $this->orderRepository->allAsQuery();
-            $data =  Order::all();
-            
-            $data = $data->find($request_data['order_id']);
-
-            if($data){
-
-                if($data->status == Constants::ORDER_STATUS_UNDER_REVIEW || $data->status == Constants::ORDER_STATUS_ACCEPTED){
-    
-                    $data->status = Constants::ORDER_STATUS_CANCELED;                 
-                    $data->save();
-                    return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
-                }  
-                else{
-                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-                    } 
-            }
-             else{
-                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-              }
-        }
-        return JsonResponse::respondError($validator->errors()->all());
-        }
-
-        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
-    
-    }
-
-    
-    //view user profile by his barber.
-     public function profileUser($id)
-    {
-        
-        if($this->authUser){
-        
-            $data = Order::where('user_id' ,$id)->where('barber_id' ,$this->authUser->id )
-            ->where('status' ,Constants::ORDER_STATUS_ACCEPTED )->first();
-            
-            if($data){
-
-                return JsonResponse::respondSuccess(trans(JsonResponse::MSG_SUCCESS), $data);
-            }
-            else{
-                if (is_numeric($id)){
-                    return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
-                }
-
-                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-            }  
-        }
-    }
-
-    //get orders for users
-    public function getOrdersUser(){
-
-        $request_data = $this->requestData;
-
-        $user = Auth::guard('client')->user();
-       
-        if($user){
-
-            $data = Order::where('user_id' , $user->id)->get();
-            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
-        }
-
-        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
-    }
-
-    //rate order by user.
-    public function rateOrders(Request $request)
-    {
-        $request_data = $this->requestData;
-        
-        $user = Auth::guard('client')->user();
-       
-        if($user){
-
-        $request_data = $this->requestData;
-        $validation_rules = [
-            'order_id' => "required",
-            'rate' => "required|numeric",
-        ];
-
-        $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
-        if ($validator->passes()) {
-
-            $data =  Order::where('id' , $request_data['order_id'])->where('user_id' , $user->id)->first();
-            
-            if($data){
-
-                if($data->status == Constants::ORDER_STATUS_COMPLETED){
-    
-                    $data->rate = $request_data['rate'];                   
-                    $data->save();
-                    return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
-                }  
-                else{
-                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-                    } 
-            }
-             else{
-                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-              }
-        }
-        return JsonResponse::respondError($validator->errors()->all());
-        }
-
-        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
-
-    }
-
-     //write review for order by user.
-     public function writeReviewForOrder(Request $request)
-     {
-         $request_data = $this->requestData;
-         
-         $user = Auth::guard('client')->user();
-        
-         if($user){
- 
-         $request_data = $this->requestData;
-         $validation_rules = [
-             'order_id' => "required",
-             'notes' => "required",
-         ];
- 
-         $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
-         if ($validator->passes()) {
- 
-             $data =  Order::where('id' , $request_data['order_id'])->where('user_id' , $user->id)->first();
-             
-             if($data){
- 
-                 if($data->status == Constants::ORDER_STATUS_COMPLETED){
-     
-                     $data->notes = $request_data['notes'];                   
-                     $data->save();
-                     return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
-                 }  
-                 else{
-                     return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-                     } 
-             }
-              else{
-                 return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-               }
-         }
-         return JsonResponse::respondError($validator->errors()->all());
-         }
- 
-         return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
- 
      }
 
    
+     function convert($day){
+         
+        switch ($day) {
+
+                case('7'):
+                    $day = 2;
+                    break;
+
+                case('6'):
+                    $day = 3;
+                    break;    
+
+                case('5'):
+                    $day = 4;
+                    break; 
+
+                case('4'):
+                    $day = 5;
+                    break; 
+                        
+                case('3'):
+                    $day = 6;
+                    break; 
+
+                case('2'):
+                    $day = 7;
+                     break; 
+
+                case('1'):
+                    $day = 1;
+                    break;     
+
+
+                default:
+                $msg = 'Something went wrong.';
+        }
+        return $day;
+     }
 }

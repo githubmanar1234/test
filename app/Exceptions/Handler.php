@@ -79,6 +79,7 @@ class Handler extends ExceptionHandler
             return JsonResponse::respondError(trans('responses.msg_not_found'), ResponseStatus::NOT_FOUND);
 
         }
+        
         if ($exception instanceof ModelNotFoundException) {
             return JsonResponse::respondError(trans('responses.msg_not_found'), ResponseStatus::NOT_FOUND);
         }

@@ -289,37 +289,54 @@ class OrderController extends Controller
     public function setCanceledOrder(Request $request)
     {
         
-        if($this->authUser){
-        $request_data = $this->requestData;
-        $validation_rules = [
-            'order_id' => "required",
-        ];
+        $user = Auth::guard('client')->user();
+       
+        if($user){
+            $request_data = $this->requestData;
+            $validation_rules = [
+                'order_id' => "required",
+            ];
 
-        $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
-        if ($validator->passes()) {
+            $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
+            if ($validator->passes()) {
 
-           // $data = $this->orderRepository->allAsQuery();
-            $data =  Order::all();
-            
-            $data = $data->find($request_data['order_id']);
+                $data =  Order::all();
 
-            if($data){
+                $data = $data->find($request_data['order_id']);
 
-                if($data->status == Constants::ORDER_STATUS_UNDER_REVIEW || $data->status == Constants::ORDER_STATUS_ACCEPTED){
-    
-                    $data->status = Constants::ORDER_STATUS_CANCELED;                 
-                    $data->save();
-                    return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
-                }  
-                else{
-                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-                    } 
+                $start_time = $data->start_time;
+              
+                $now = Carbon::now()->format('Y-m-d H:i:s');
+                
+                $restTime = $start_time->diffInHours($now);
+                return $restTime;
+
+                //not after end the order
+                $value = Setting::where('key' , "cancel the appointment before time")->first()->value;
+                
+                $data = $data->find($request_data['order_id']);
+
+               
+                if($data){
+
+                        if($restTime <= $value){
+                            if($data->status == Constants::ORDER_STATUS_UNDER_REVIEW || $data->status == Constants::ORDER_STATUS_ACCEPTED){
+                        
+                                $data->status = Constants::ORDER_STATUS_CANCELED;                 
+                                $data->save();
+                                return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+                            }  
+                            else{
+                                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                            } 
+                        }
+                        else{
+                            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                        }
+                }
+              
             }
-             else{
-                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-              }
-        }
-        return JsonResponse::respondError($validator->errors()->all());
+            return JsonResponse::respondError($validator->errors()->all());
         }
 
         return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
@@ -375,34 +392,34 @@ class OrderController extends Controller
        
         if($user){
 
-        $request_data = $this->requestData;
-        $validation_rules = [
-            'order_id' => "required",
-            'rate' => "required|numeric",
-        ];
+            $request_data = $this->requestData;
+            $validation_rules = [
+                'order_id' => "required",
+                'rate' => "required|numeric",
+            ];
 
-        $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
-        if ($validator->passes()) {
+            $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
+            if ($validator->passes()) {
 
-            $data =  Order::where('id' , $request_data['order_id'])->where('user_id' , $user->id)->first();
-            
-            if($data){
+                $data =  Order::where('id' , $request_data['order_id'])->where('user_id' , $user->id)->first();
+                
+                if($data){
 
-                if($data->status == Constants::ORDER_STATUS_COMPLETED){
-    
-                    $data->rate = $request_data['rate'];                   
-                    $data->save();
-                    return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
-                }  
+                    if($data->status == Constants::ORDER_STATUS_COMPLETED){
+        
+                        $data->rate = $request_data['rate'];                   
+                        $data->save();
+                        return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+                    }  
+                    else{
+                        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                        } 
+                }
                 else{
                     return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-                    } 
+                }
             }
-             else{
-                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-              }
-        }
-        return JsonResponse::respondError($validator->errors()->all());
+            return JsonResponse::respondError($validator->errors()->all());
         }
 
         return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  

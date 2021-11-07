@@ -169,6 +169,27 @@ class SalonController extends Controller
           
     }
 
+    public function getAcceptedAndDisabledSalons()
+    {
+        $request_data = $this->requestData;
+
+        $data = $this->salonRepository->allAsQuery();
+
+        $data = $data->Where("status", Constants::STATUS_DISABLE)->orWhere("status", Constants::STATUS_ACCEPTED);
+
+        $data = $data->paginate(15);
+
+        if($data){
+            
+            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+        }
+        else{
+            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        }
+        
+          
+    }
+
      /**
  * @OA\Post(
  * path="/api/admin/setAcceptedSalon",

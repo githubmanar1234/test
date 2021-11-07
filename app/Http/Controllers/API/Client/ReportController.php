@@ -16,6 +16,9 @@ use App\Http\Repositories\IRepositories\IPostReportRepository;
 use App\Models\Category;
 use App\Models\Salon;
 use App\Models\Barber;
+use App\Models\Setting;
+use App\Models\Post;
+use App\Models\PostReport;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -161,8 +164,16 @@ class ReportController extends Controller
              $data['user_id'] = $user->id;
              
              $resource = $this->postReportRepository->create($data);
-                
              if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
+
+             $value = Setting::where('key' , "number of reported post for deletion")->first()->value;
+             
+             $numOfReports = PostReport::where('post_id' , $data['post_id'])->count();
+             
+             if($numOfReports >= $value){
+                 Post::where('id' ,  $data['post_id'])->delete();
+             }
+
             return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
               
            
