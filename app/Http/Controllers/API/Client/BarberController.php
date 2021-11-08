@@ -16,6 +16,7 @@ use App\Http\Repositories\IRepositories\IPostLikeRepository;
 use App\Http\Repositories\IRepositories\IBarberRepository;
 use App\Models\Category;
 use App\Models\Salon;
+use App\Models\Timing;
 use App\Models\TimingBarber;
 use App\Models\Barber;
 use App\Models\BarberImage;
@@ -97,8 +98,9 @@ class BarberController extends Controller
     {
 
            $user_id = Auth::guard('barber')->user()->id;
-
-            $data = $this->requestData;
+           $salon_id = Auth::guard('barber')->user()->salon->id;
+           
+           $data = $this->requestData;
 
             $validation_rules = [
                 'days' => 'required',
@@ -143,21 +145,52 @@ class BarberController extends Controller
         
                 $to = $data['to'];
                 $to = json_decode($to, true);
+
+                
                 
                 if (is_array($days)) {
                     if (isset($days[0])) {
+                        
                         TimingBarber::where('barber_id' ,$resource->id)->delete();
 
                         foreach ($days as $key => $day) {
-                        
-                            $timingBarber = new TimingBarber();
-        
-                            $timingBarber->barber_id = $resource->id;
-                            $timingBarber->from = $from[$key];
-                            $timingBarber->to =  $to[$key];
-                            $timingBarber->day = $day;
-        
-                            $timingBarber->save();
+                            $timingsSalonInday =  Timing::where('salon_id', $salon_id)->where('day', $day)->get();
+
+                            if(count($timingsSalonInday) > 0){
+                                $timingBarber = new TimingBarber();
+                                $timingBarber->barber_id = $resource->id;
+                                $timingBarber->day = $day;
+
+
+                                $fromVaild = false;
+
+                                $fromTime = Carbon::createFromFormat('H:i', $from[$key]);
+                                $toTime = Carbon::createFromFormat('H:i', $to[$key]);
+                                                    
+                                // from < to
+                                if($fromTime->gt($toTime)) {
+                                    return "wrong times" ;
+                                }
+
+                                foreach ($timingsSalonInday as $key => $timingSalon) {
+                                    $fromSlonTime = Carbon::createFromFormat('H:i:s', $timingSalon->from);
+                                    $toSalonTime = Carbon::createFromFormat('H:i:s', $timingSalon->to);
+                                   
+                                    if ($fromTime->gte($fromSlonTime) && $toSalonTime->gte($toTime)){
+                                        $fromVaild = true;
+                                        break;
+                                    }
+                                }
+
+                                $timingBarber->from = $fromTime;
+                                $timingBarber->to =  $toTime;
+                                if ($fromVaild){
+                                    $timingBarber->save();
+                                }
+                                else{
+                                    return "wrong times" ;
+                                }
+                            }
                         }
                     }
                 }
