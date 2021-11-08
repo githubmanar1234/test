@@ -16,8 +16,11 @@ use App\Http\Repositories\IRepositories\IPostLikeRepository;
 use App\Http\Repositories\IRepositories\IBarberRepository;
 use App\Http\Repositories\IRepositories\IOrderRepository;
 use App\Models\Category;
+use App\Models\OrderService;
 use App\Models\Salon;
+use App\Models\BarberService;
 use App\Models\Barber;
+use App\Models\Service;
 use App\Models\User;
 use App\Models\BarberImage;
 use App\Models\Post;
@@ -96,8 +99,8 @@ class AppointmentController extends Controller
     }
 
      //make order. not yet
-     public function createOrder(Request $request)
-     {
+    public function createOrder(Request $request)
+    {
         $user_id = Auth::guard('client')->user()->id;
       
          $data = $this->requestData;
@@ -107,6 +110,7 @@ class AppointmentController extends Controller
             'end_time' => "required",
              'order_number' => "required",
              'barber_id' => "required",
+             'services' => 'required',
          ];
  
          $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
@@ -121,16 +125,51 @@ class AppointmentController extends Controller
             $data['user_id'] =  $user_id;
             $data['barber_id'] = $data['barber_id'];
 
-            //return $data;
+            
             $resource = $this->orderRepository->create($data);
-
             if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
+
+            $services = $data['services'];
+            $services = json_decode($services, true);
+
+            if (is_array($services)) {
+                if (isset($services[0])) {
+                     
+                    foreach ($services as $serviceId) {
+                       
+                        $barberService = BarberService::find($serviceId);
+                        
+                        if($barberService){
+                          
+                            if($barberService->barber_id == $data['barber_id']){
+                             
+                                    $orderService = new OrderService();
+                                    $orderService->order_id  = $resource->id;
+                                    $orderService->bareber_services_id = $barberService->id;
+                                    $orderService->save();
+                                
+                            }
+                            else{
+                                return JsonResponse::respondError("Barber don't do this service");
+                            }
+                        }
+                        else{
+                            return JsonResponse::respondError("Service not found");
+                        }
+                        
+                    }
+                }
+            }
+            else{return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);}
+            $resource->orderServices;
+            $resource->user;
+            $resource->barber;
             return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
            
          }
          return JsonResponse::respondError($validator->errors()->all());  
      
-     }
+    }
 
    
      function convert($day){

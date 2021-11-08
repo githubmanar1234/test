@@ -238,7 +238,7 @@ class SalonController extends Controller
 
                 $berbers_num = $resource->berbers_num;
                
-                if (count($resource->berbers) == 0 ){
+                if (count($resource->barbers) == 0 ){
                     for($i = 0 ; $i < $berbers_num ; $i++){
                 
                         $barber = [];
