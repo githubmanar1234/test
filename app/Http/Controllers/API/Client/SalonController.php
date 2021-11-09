@@ -262,9 +262,13 @@ class SalonController extends Controller
     
                         $barber['salon_id'] = $salon_id ;
                     
-                        $salon_code = sprintf("%06d", mt_rand(1, 999999));
-                       
-                        $barber['salon_code']= Hash::make($salon_code);
+                        $barber_code = sprintf("%06d", mt_rand(1, 999999));
+
+                        if ($this->isBarberCodeExists($salon_code)) {
+                            $barber_code = $this->generateInviteCode();
+                        }
+
+                        $barber['barber_code']= $barber_code;
 
                         //$barber['salon_code']= $resource->salon_code;
     
@@ -434,6 +438,21 @@ class SalonController extends Controller
             return true;
         }
     }
+
+    function isBarberCodeExists($number)
+    {
+        $barber_code = Barber::where('barber_code', '=', $number)->first();
+
+        if ($barber_code === null )
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+    
     
   
 }
