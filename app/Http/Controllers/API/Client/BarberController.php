@@ -76,9 +76,13 @@ class BarberController extends Controller
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {
 
-           $salon_code = Auth::guard('client')->user()->salon->salon_code;
+          // $salon_code = Auth::guard('client')->user()->salon->salon_code;
 
-           $data['salon_code'] = $salon_code;
+           $barber_code = sprintf("%06d", mt_rand(1, 999999));
+                       
+           $data['barber_code']= $barber_code;
+
+          // $data['salon_code'] = $salon_code;
            $data['is_available'] = 0;
            $data['salon_id'] = $salon_id;
 

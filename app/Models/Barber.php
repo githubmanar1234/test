@@ -23,7 +23,7 @@ class Barber extends Authenticatable
      */
     protected $fillable = [
         'password',
-        'salon_code',
+        'barber_code',
         'salon_id',
         'name',
         'phone_number',

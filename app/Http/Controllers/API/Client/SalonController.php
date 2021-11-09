@@ -16,6 +16,7 @@ use App\Models\Category;
 use App\Models\Timing;
 use App\Models\Salon;
 use App\Models\Barber;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -124,6 +125,12 @@ class SalonController extends Controller
                         if (isset($days[0])) {
             
                             foreach ($days as $key => $day) {
+
+                            $fromTime = Carbon::createFromFormat('H:i:s', $from[$key]);
+                            $toTime = Carbon::createFromFormat('H:i:s', $to[$key]);
+
+                            if($toTime->gte($fromTime)  ){
+                            
                                 $timing = new Timing();
             
                                 $timing->salon_id = $resource->id;
@@ -132,6 +139,10 @@ class SalonController extends Controller
                                 $timing->day = $day;
             
                                 $timing->save();
+                              }
+                              else{
+                                return JsonResponse::respondError("your time is incorrect");
+                              }
                             }
                         }
                     }
@@ -188,6 +199,11 @@ class SalonController extends Controller
                         
                         foreach ($days as $key => $day) {
 
+                            $fromTime = Carbon::createFromFormat('H:i:s', $from[$key]);
+                            $toTime = Carbon::createFromFormat('H:i:s', $to[$key]);
+
+                            if($toTime->gte($fromTime)  ){
+
                             Timing::where('salon_id' , $salon->id)->delete();
 
                             $timing = new Timing();
@@ -199,6 +215,7 @@ class SalonController extends Controller
 
                             $timing->save();
                         }
+                    }
                     }
                 }
                 else{
@@ -245,7 +262,11 @@ class SalonController extends Controller
     
                         $barber['salon_id'] = $salon_id ;
                     
-                        $barber['salon_code']= $resource->salon_code;
+                        $salon_code = sprintf("%06d", mt_rand(1, 999999));
+                       
+                        $barber['salon_code']= Hash::make($salon_code);
+
+                        //$barber['salon_code']= $resource->salon_code;
     
                         $password = sprintf("%06d", mt_rand(1, 999999));
                                 
@@ -351,7 +372,7 @@ class SalonController extends Controller
             return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
         }
 
-           return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);  
+           return JsonResponse::respondError("Your salon is pending");  
     }
 
     public function show($id)

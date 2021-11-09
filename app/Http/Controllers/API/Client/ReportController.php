@@ -150,6 +150,7 @@ class ReportController extends Controller
     //Report post
     public function reportPost(Request $request)
     {
+        
        $user = Auth::guard('client')->user();
 
         $data = $this->requestData;
