@@ -87,7 +87,7 @@ class BarberController extends Controller
            $data['salon_id'] = $salon_id;
 
            $password = sprintf("%06d", mt_rand(1, 999999));
-           $data['password']= Hash::make($password);
+           $data['password']= $password;
 
             $resource = $this->barberRepository->create($data);
         
@@ -138,6 +138,8 @@ class BarberController extends Controller
 
                     $resource->whatsapp_number = $data['whatsapp_number'];
                 }
+
+                $resource->status = Constants::STATUS_ACCEPTED;
                 $resource->save();
 
                 

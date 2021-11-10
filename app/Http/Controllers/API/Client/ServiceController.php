@@ -111,7 +111,7 @@ class ServiceController extends Controller
                  if($data['duration']  >= $min && $data['duration']  <= $max){
                     
                     $data['barber_id'] = $user->id;
-                    BarberService::where('barber_id' , $user->id )->delete();
+                    // BarberService::where('barber_id' , $user->id )->delete();
                     $resource = $this->barberServicesRepository->create($data);
                    
                     if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);

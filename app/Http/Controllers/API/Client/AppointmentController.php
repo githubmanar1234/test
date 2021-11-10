@@ -152,6 +152,7 @@ class AppointmentController extends Controller
          $validation_rules = [
              'start_time' => "required",
              'end_time' => "required",
+             'date' => "required",
              'barber_id' => "required",
              'services' => 'required',
          ];
@@ -167,6 +168,7 @@ class AppointmentController extends Controller
             
             $now = Carbon::now()->toTimeString();
             $nowTime = Carbon::parse($now);
+
             $startTime = Carbon::parse($data['start_time']);
 
             //$time = $startTime->diff($nowTime)->format('%H:%I:%S');
@@ -179,7 +181,7 @@ class AppointmentController extends Controller
             }
 
 
-            $data['date'] = Carbon::now();
+            // $data['date'] = Carbon::now();
             $data['status'] =  Constants::STATUS_PENDING;
             $data['user_id'] =  $user_id;
             $data['order_number'] =  $order_number;

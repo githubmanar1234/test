@@ -227,7 +227,7 @@ class SalonController extends Controller
 
             if($data){
 
-                if($data->status == Constants::STATUS_PENDING){
+                if($data->status == Constants::STATUS_PENDING || $data->status == Constants::STATUS_DISABLE){
     
                     $data->status = "Accepted" ;
                     $data->is_available = 1 ;
