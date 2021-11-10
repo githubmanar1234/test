@@ -206,6 +206,8 @@ class AuthController extends Controller
             $validation_rules['yob'] = 'date';
         if (isset($data['name']))
             $validation_rules['name'] = "string|max:30";
+        if (isset($data['lang']))
+            $data['lang'] = $this->requestData['lang'];
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {
             $auth = $this->factory->createAuth();

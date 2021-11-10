@@ -38,8 +38,8 @@ class SettingSeeder extends Seeder
         Setting::create($data);
 
         $data['key'] = "book appointment before time";
-        $data['value'] = 60; 
-        $data['default'] = 60;
+        $data['value'] = 30; 
+        $data['default'] = 30;
         Setting::create($data);
 
         $data['key'] = "cancel the appointment before time";

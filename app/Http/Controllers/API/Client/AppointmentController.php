@@ -147,12 +147,12 @@ class AppointmentController extends Controller
      public function createOrder(Request $request)
     {
         $user_id = Auth::guard('client')->user()->id;
-
+      
          $data = $this->requestData;
          $validation_rules = [
              'start_time' => "required",
              'end_time' => "required",
-             'date' => "required",
+             'date' => "date|required",
              'barber_id' => "required",
              'barber_services' => 'required',
          ];
@@ -165,23 +165,21 @@ class AppointmentController extends Controller
             if ($this->isOrderNumberExists($order_number)) {
                  $order_number = $this->generateInviteCode();
             }
+        
             
-            $now = Carbon::now()->toTimeString();
-            $nowTime = Carbon::parse($now);
+            if (Carbon::parse($data["date"])->isToday()){   
+                
+                $value = Setting::where('key' , "book appointment before time")->first()->value;
+    
+                $startTime = Carbon::parse($data['start_time']);
 
-            $startTime = Carbon::parse($data['start_time']);
-
-            //$time = $startTime->diff($nowTime)->format('%H:%I:%S');
-            $time = $startTime->diffInMinutes($nowTime);
-            
-            $value = Setting::where('key' , "book appointment before time")->first()->value;
-           
-            if($time < $value){
-                return JsonResponse::respondError("You can't create order now");
+                $time = $startTime->diffInMinutes(Carbon::now()); 
+               
+                if($time < $value){
+                    return JsonResponse::respondError("You can't create order now");
+                }
             }
 
-
-            // $data['date'] = Carbon::now();
             $data['status'] =  Constants::STATUS_PENDING;
             $data['user_id'] =  $user_id;
             $data['order_number'] =  $order_number;
@@ -191,13 +189,13 @@ class AppointmentController extends Controller
             $duration = 0;
             if (is_array($barberServices)) {
                 if (isset($barberServices[0])) {
-                     
+                    
                     foreach ($barberServices as $serviceId) {
                        
                         $barberService = BarberService::find($serviceId);
                         
                         if($barberService){
-                          
+                            
                             if($barberService->barber_id == $data['barber_id']){
 
                                     $duration +=  $barberService->duration;
@@ -227,17 +225,21 @@ class AppointmentController extends Controller
             //to check if start and end time in avilable times for barber.
             $day =  Carbon::parse($data['date'])->dayOfWeekIso;
             $day = $this->convert($day);
-
+             
             $timingsBarber = TimingBarber::where('day' , $day)->where('barber_id', $data['barber_id'])->get();
             $orders = Order::whereDate('date' , $data['date'])->where('barber_id', $data['barber_id'])->get();
             
+            if(count($timingsBarber) == 0){
+                return JsonResponse::respondError("Barber does not exist in this day");
+            }
+           
             $startOrderTime = Carbon::createFromFormat('H:i:s', $data['start_time']);
             $endOrderTime = Carbon::createFromFormat('H:i:s', $data['end_time']);
 
             $availableTimes = $this->avilableTimes($day , $timingsBarber ,$orders, $duration);
-
+            
             foreach($availableTimes as $availableTime){
-
+                
                 $availableStartTime = Carbon::createFromFormat('H:i:s',$availableTime['slot_start_time']);
                 $endOrderEndTime = Carbon::createFromFormat('H:i:s', $availableTime['slot_end_time']);
 
