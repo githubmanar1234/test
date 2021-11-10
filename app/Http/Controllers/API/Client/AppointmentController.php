@@ -154,7 +154,7 @@ class AppointmentController extends Controller
              'end_time' => "required",
              'date' => "required",
              'barber_id' => "required",
-             'services' => 'required',
+             'barber_services' => 'required',
          ];
  
          $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
@@ -186,7 +186,7 @@ class AppointmentController extends Controller
             $data['user_id'] =  $user_id;
             $data['order_number'] =  $order_number;
 
-            $barberServices = $data['services'];
+            $barberServices = $data['barber_services'];
             $barberServices = json_decode($barberServices, true);
             $duration = 0;
             if (is_array($barberServices)) {

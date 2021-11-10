@@ -71,9 +71,9 @@ class OrderController extends Controller
         
         if($user){
             
-            $data = Order::where('status' , Constants::ORDER_STATUS_ACCEPTED)
-            ->orWhere('status' , Constants::ORDER_STATUS_COMPLETED)->get();
-            
+            // $data = Order::where('status' , Constants::ORDER_STATUS_ACCEPTED)
+            // ->orWhere('status' , Constants::ORDER_STATUS_COMPLETED)->get();
+            $data = Order::all();
             return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
         }
 

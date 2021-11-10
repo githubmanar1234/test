@@ -125,24 +125,31 @@ class SalonController extends Controller
                         if (isset($days[0])) {
             
                             foreach ($days as $key => $day) {
+                               if($day > 0 && $day < 8){
+                                    $fromTime = Carbon::createFromFormat('H:i:s', $from[$key]);
+                                    $toTime = Carbon::createFromFormat('H:i:s', $to[$key]);
 
-                            $fromTime = Carbon::createFromFormat('H:i:s', $from[$key]);
-                            $toTime = Carbon::createFromFormat('H:i:s', $to[$key]);
-
-                            if($toTime->gte($fromTime)  ){
-                            
-                                $timing = new Timing();
-            
-                                $timing->salon_id = $resource->id;
-                                $timing->from = $from[$key];
-                                $timing->to =  $to[$key];
-                                $timing->day = $day;
-            
-                                $timing->save();
-                              }
-                              else{
-                                return JsonResponse::respondError("your time is incorrect");
-                              }
+                                    if($toTime->gt($fromTime)  ){
+                                    
+                                        $timing = new Timing();
+                    
+                                        $timing->salon_id = $resource->id;
+                                        $timing->from = $from[$key];
+                                        $timing->to =  $to[$key];
+                                        $timing->day = $day;
+                    
+                                        $timing->save();
+                                    
+                                    }
+                                    
+                                    else{
+                                        return JsonResponse::respondError("your time is incorrect");
+                                    
+                                    }
+                                }
+                                else{
+                                    return JsonResponse::respondError("your days must be between 1 and 7");
+                                }
                             }
                         }
                     }
@@ -172,7 +179,16 @@ class SalonController extends Controller
 
             $salon->location = isset($data['location']) ? $data['location'] : $salon->location;
             $salon->lat_location = isset($data['lat_location']) ? $data['lat_location'] : $salon->lat_location;
-            $salon->long_location = isset($data['long_location']) ? $data['long_location'] : $salon->long_location;        
+            $salon->long_location = isset($data['long_location']) ? $data['long_location'] : $salon->long_location;
+
+            if(isset($data['status'] )){
+
+                if($salon->status == Constants::STATUS_REJECTED){
+
+                  $data['status'] = Constants::STATUS_PENDING;
+                }
+            }
+ 
             
             if($request->hasFile('image')) {
                 $file = $request->file('image'); 
@@ -275,6 +291,7 @@ class SalonController extends Controller
                         $password = sprintf("%06d", mt_rand(1, 999999));
                                 
                         $barber['password']= $password;
+                        $barber['status']= Constants::STATUS_PENDING;
                         $barber['city_id'] = 2;
                         
                         $this->barberRepository->create($barber);
@@ -394,9 +411,6 @@ class SalonController extends Controller
             return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
         }  
     }
-
-    
-
 
 
     // public function categories(){

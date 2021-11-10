@@ -66,9 +66,9 @@ class OrderController extends Controller
             $order = Order::where('date' , $date )->get();
              
             if($order){
-                $data = Order::where('barber_id' , $user->id )->where('status' , Constants::ORDER_STATUS_ACCEPTED)
-                ->orWhere('status' , Constants::ORDER_STATUS_COMPLETED)->get();
-
+                // $data = Order::where('barber_id' , $user->id )->where('status' , Constants::ORDER_STATUS_ACCEPTED)
+                // ->orWhere('status' , Constants::ORDER_STATUS_COMPLETED)->get();
+                $data = Order::where('barber_id' , $user->id )->get();
 
                 return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
             }
@@ -87,9 +87,11 @@ class OrderController extends Controller
             $order = Order::where('date' , $date )->get();
              
             if($order){
-                $data = Order::where('status' , Constants::ORDER_STATUS_ACCEPTED)
-                ->orWhere('status' , Constants::ORDER_STATUS_COMPLETED)->get();
+                // $data = Order::where('status' , Constants::ORDER_STATUS_ACCEPTED)
+                // ->orWhere('status' , Constants::ORDER_STATUS_COMPLETED)->get();
 
+                $data = Order::all();
+          
 
                 return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
             }

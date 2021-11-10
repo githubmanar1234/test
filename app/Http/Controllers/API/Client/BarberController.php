@@ -88,6 +88,7 @@ class BarberController extends Controller
 
            $password = sprintf("%06d", mt_rand(1, 999999));
            $data['password']= $password;
+           $data['status']= Constants::STATUS_PENDING;
 
             $resource = $this->barberRepository->create($data);
         
