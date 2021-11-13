@@ -96,6 +96,7 @@ class SalonController extends Controller
                     $data['salon_code'] = $salon_code;
                     $data['is_available'] = 0;
                     $data['is_open'] = 0;
+                    $data['status'] = Constants::STATUS_PENDING;
             
                     
                     if(!$request->hasFile('image')) {
@@ -181,13 +182,8 @@ class SalonController extends Controller
             $salon->lat_location = isset($data['lat_location']) ? $data['lat_location'] : $salon->lat_location;
             $salon->long_location = isset($data['long_location']) ? $data['long_location'] : $salon->long_location;
 
-            if(isset($data['status'] )){
-
-                if($salon->status == Constants::STATUS_REJECTED){
-
-                  $data['status'] = Constants::STATUS_PENDING;
-                }
-            }
+           
+            
  
             
             if($request->hasFile('image')) {
@@ -214,11 +210,11 @@ class SalonController extends Controller
                     if (isset($days[0])) {
                         
                         foreach ($days as $key => $day) {
-
+                            if($day > 0 && $day < 8){
                             $fromTime = Carbon::createFromFormat('H:i:s', $from[$key]);
                             $toTime = Carbon::createFromFormat('H:i:s', $to[$key]);
 
-                            if($toTime->gte($fromTime)  ){
+                            if($toTime->gt($fromTime)  ){
 
                             Timing::where('salon_id' , $salon->id)->delete();
 
@@ -231,6 +227,10 @@ class SalonController extends Controller
 
                             $timing->save();
                         }
+                    }  
+                    else{
+                        return JsonResponse::respondError("your days must be between 1 and 7");
+                    }
                     }
                     }
                 }
@@ -239,7 +239,7 @@ class SalonController extends Controller
                     }
             
             }
-            
+            $salon->status = Constants::STATUS_PENDING;
             $salon->save();
             return JsonResponse::respondSuccess(JsonResponse::MSG_UPDATED_SUCCESSFULLY);
         }

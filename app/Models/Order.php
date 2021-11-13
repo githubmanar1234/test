@@ -11,7 +11,7 @@ class Order extends AppModel
     use HasFactory,HasTranslations;
     //use SoftDeletes;
 
-    protected $fillable = ['date', 'start_time' , 'end_time' , 'order_number' , 'status', 'user_id', 'barber_id' , 
+    protected $fillable = ['date', 'start_time' , 'end_time' , 'order_number' , 'status','price', 'user_id', 'barber_id' , 
     'rate', 'reject_message' ,'notes'];
 
      protected $hidden = ['updatedAt', 'createdAt','deletedAt' ];

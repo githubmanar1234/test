@@ -161,6 +161,7 @@ class BarberController extends Controller
                         TimingBarber::where('barber_id' ,$resource->id)->delete();
 
                         foreach ($days as $key => $day) {
+                            if($day > 0 && $day < 8){
                             $timingsSalonInday =  Timing::where('salon_id', $salon_id)->where('day', $day)->get();
 
                             if(count($timingsSalonInday) > 0){
@@ -199,6 +200,11 @@ class BarberController extends Controller
                                 }
                             }
                         }
+                        else{
+                            return JsonResponse::respondError("your days must be between 1 and 7");
+                        }
+                    } 
+                    
                     }
                 }
 

@@ -147,149 +147,162 @@ class AppointmentController extends Controller
      public function createOrder(Request $request)
     {
         $user_id = Auth::guard('client')->user()->id;
+        $role = Auth::guard('client')->user()->role;
+        
+        if( $role == "user"){
       
-         $data = $this->requestData;
-         $validation_rules = [
-             'start_time' => "required",
-             'end_time' => "required",
-             'date' => "date|required",
-             'barber_id' => "required",
-             'barber_services' => 'required',
-         ];
- 
-         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
-         if ($validator->passes()) {
+            $data = $this->requestData;
+            $validation_rules = [
+                'start_time' => "required",
+                'end_time' => "required",
+                'date' => "date|required",
+                'barber_id' => "required",
+                'barber_services' => 'required',
+            ];
+        
+            $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
+            if ($validator->passes()) {
 
-            $order_number = sprintf("%06d", mt_rand(1, 999999));
-        
-            if ($this->isOrderNumberExists($order_number)) {
-                 $order_number = $this->generateInviteCode();
-            }
-        
+                $order_number = sprintf("%06d", mt_rand(1, 999999));
             
-            if (Carbon::parse($data["date"])->isToday()){   
-                
-                $value = Setting::where('key' , "book appointment before time")->first()->value;
-    
-                $startTime = Carbon::parse($data['start_time']);
-
-                $time = $startTime->diffInMinutes(Carbon::now()); 
-               
-                if($time < $value){
-                    return JsonResponse::respondError("You can't create order now");
+                if ($this->isOrderNumberExists($order_number)) {
+                    $order_number = $this->generateInviteCode();
                 }
-            }
-
-            $data['status'] =  Constants::STATUS_PENDING;
-            $data['user_id'] =  $user_id;
-            $data['order_number'] =  $order_number;
-
-            $barberServices = $data['barber_services'];
-            $barberServices = json_decode($barberServices, true);
-            $duration = 0;
-            if (is_array($barberServices)) {
-                if (isset($barberServices[0])) {
+            
+                
+                if (Carbon::parse($data["date"])->isToday()){   
                     
-                    foreach ($barberServices as $serviceId) {
-                       
-                        $barberService = BarberService::find($serviceId);
-                        
-                        if($barberService){
-                            
-                            if($barberService->barber_id == $data['barber_id']){
+                    $value = Setting::where('key' , "book appointment before time")->first()->value;
+        
+                    $startTime = Carbon::parse($data['start_time']);
 
-                                    $duration +=  $barberService->duration;
-                                
-                            }
-                            else{
-                                return JsonResponse::respondError("Barber don't do this service");
-                            }
-                        }
-                        else{
-                            return JsonResponse::respondError("Service not found");
-                        }
-                        
+                    $time = $startTime->diffInMinutes(Carbon::now()); 
+                
+                    if($time < $value){
+                        return JsonResponse::respondError("You can't create order now");
                     }
                 }
-            }
 
-            $barber = Barber::where('id' ,$data['barber_id'])->first();
-            $salon_id =  $barber->salon->id;
-            //If salon accepted and avilable .
-            $salonIsAccepted = Salon::where('id' , $salon_id)->where('status' , Constants::STATUS_ACCEPTED)
-            ->where('is_available' , 1)->first();
-            if(!$salonIsAccepted){
-                return JsonResponse::respondError("This salon is not available");
-            }
-                
-            //to check if start and end time in avilable times for barber.
-            $day =  Carbon::parse($data['date'])->dayOfWeekIso;
-            $day = $this->convert($day);
-             
-            $timingsBarber = TimingBarber::where('day' , $day)->where('barber_id', $data['barber_id'])->get();
-            $orders = Order::whereDate('date' , $data['date'])->where('barber_id', $data['barber_id'])->get();
-            
-            if(count($timingsBarber) == 0){
-                return JsonResponse::respondError("Barber does not exist in this day");
-            }
-           
-            $startOrderTime = Carbon::createFromFormat('H:i:s', $data['start_time']);
-            $endOrderTime = Carbon::createFromFormat('H:i:s', $data['end_time']);
+                $data['status'] =  Constants::STATUS_PENDING;
+                $data['user_id'] =  $user_id;
+                $data['order_number'] =  $order_number;
 
-            $availableTimes = $this->avilableTimes($day , $timingsBarber ,$orders, $duration);
-            
-            foreach($availableTimes as $availableTime){
-                
-                $availableStartTime = Carbon::createFromFormat('H:i:s',$availableTime['slot_start_time']);
-                $endOrderEndTime = Carbon::createFromFormat('H:i:s', $availableTime['slot_end_time']);
+                $barberServices = $data['barber_services'];
+                $barberServices = json_decode($barberServices, true);
+                $duration = 0;
+                $price = 0;
+                if (is_array($barberServices)) {
+                    if (isset($barberServices[0])) {
+                        
+                        foreach ($barberServices as $serviceId) {
 
-                if($startOrderTime->eq($availableStartTime) && $endOrderEndTime->eq($endOrderTime)){
-                
-                    $resource = $this->orderRepository->create($data);
-                    if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
-
-                    
-                    if (is_array($barberServices)) {
-                        if (isset($barberServices[0])) {
                             
-                            foreach ($barberServices as $serviceId) {
+                        
+                            $barberService = BarberService::find($serviceId);
                             
-                                $barberService = BarberService::find($serviceId);
+                            if($barberService){
                                 
-                                if($barberService){
-                                
-                                    if($barberService->barber_id == $data['barber_id']){
-        
-                                            $orderService = new OrderService();
-                                            $orderService->order_id  = $resource->id;
-                                            $orderService->bareber_services_id = $barberService->id;
-                                            $orderService->save();
-                                        
-                                    }
-                                    else{
-                                        return JsonResponse::respondError("Barber don't do this service");
-                                    }
+                                if($barberService->barber_id == $data['barber_id']){
+
+                                        $duration +=  $barberService->duration;
+                                        $price += $barberService->price;
+                                    
                                 }
                                 else{
-                                    return JsonResponse::respondError("Service not found");
+                                    return JsonResponse::respondError("Barber don't do this service");
                                 }
-                                
                             }
+                            else{
+                                return JsonResponse::respondError("Service not found");
+                            }
+                            
                         }
                     }
-                    else{return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);}
-
-                    $resource->orderServices;
-                    $resource->user;
-                    $resource->barber;
-                    return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
                 }
-            } 
+
+                $barber = Barber::where('id' ,$data['barber_id'])->first();
+                $salon_id =  $barber->salon->id;
+                //If salon accepted and avilable .
+                $salonIsAccepted = Salon::where('id' , $salon_id)->where('status' , Constants::STATUS_ACCEPTED)
+                ->where('is_available' , 1)->first();
+                if(!$salonIsAccepted){
+                    return JsonResponse::respondError("This salon is not available");
+                }
+                    
+                //to check if start and end time in avilable times for barber.
+                $day =  Carbon::parse($data['date'])->dayOfWeekIso;
+                $day = $this->convert($day);
+                
+                $timingsBarber = TimingBarber::where('day' , $day)->where('barber_id', $data['barber_id'])->get();
+                $orders = Order::whereDate('date' , $data['date'])->where('barber_id', $data['barber_id'])->get();
+                
+                if(count($timingsBarber) == 0){
+                    return JsonResponse::respondError("Barber does not exist in this day");
+                }
             
-            return JsonResponse::respondError("There is not time for your order");  
+                $startOrderTime = Carbon::createFromFormat('H:i:s', $data['start_time']);
+                $endOrderTime = Carbon::createFromFormat('H:i:s', $data['end_time']);
+
+                $availableTimes = $this->avilableTimes($day , $timingsBarber ,$orders, $duration);
+                // return  $availableTimes;
+                foreach($availableTimes as $availableTime){
+                    
+                    $availableStartTime = Carbon::createFromFormat('H:i:s',$availableTime['slot_start_time']);
+                    $endOrderEndTime = Carbon::createFromFormat('H:i:s', $availableTime['slot_end_time']);
+
+                    if($startOrderTime->eq($availableStartTime) && $endOrderEndTime->eq($endOrderTime)){
+                        $data['price'] = $price;
+                        $resource = $this->orderRepository->create($data);
+                        if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
+
+                        
+                        if (is_array($barberServices)) {
+                            if (isset($barberServices[0])) {
+                                
+                                foreach ($barberServices as $serviceId) {
+                                
+                                    $barberService = BarberService::find($serviceId);
+                                    
+                                    if($barberService){
+                                    
+                                        if($barberService->barber_id == $data['barber_id']){
             
-         }
-         return JsonResponse::respondError($validator->errors()->all());  
+                                                $orderService = new OrderService();
+                                                $orderService->order_id  = $resource->id;
+                                                $orderService->bareber_services_id = $barberService->id;
+                                                $orderService->save();
+                                            
+                                        }
+                                        else{
+                                            return JsonResponse::respondError("Barber don't do this service");
+                                        }
+                                    }
+                                    else{
+                                        return JsonResponse::respondError("Service not found");
+                                    }
+                                    
+                                }
+                            }
+                        }
+                        else{return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);}
+
+                        $resource->orderServices;
+                        $resource->user;
+                        $resource->barber;
+                        return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
+                    }
+                    else{
+                        return JsonResponse::respondError("There is not time for your order");
+                    }
+                
+                } 
+            
+            }
+             return JsonResponse::respondError($validator->errors()->all());  
+        }
+        else{
+            return JsonResponse::respondError("You aren't user");  
+        }
     }
 
 
