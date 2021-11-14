@@ -20,15 +20,28 @@ class Salon extends AppModel
 
     public $translatable = ['name'];
 
+    protected $with = ['barbers' ,'timings'];
+    
+    protected $appends = ['owner'];
 
     public function barbers(){
         
         return $this->hasMany(Barber::class,'salon_id');
     }
 
+    public function timings(){
+        
+        return $this->hasMany(Timing::class,'salon_id');
+    }
+
     public function city()
     {
         return $this->belongsTo(City::class, "city_id", 'id');
+    }
+
+    public function getImageAttribute()
+    {
+        return url($this->attributes['image']) ;
     }
 
     // public function users()
@@ -46,9 +59,14 @@ class Salon extends AppModel
     }
     
     //not used yet
-    public function user()
+    // public function user()
+    // {
+    //     return 'sa';
+    // }
+
+    public function getOwnerAttribute()
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return User::where('salon_id',$this->id)->first()->name;
     }
 
     // public function category()

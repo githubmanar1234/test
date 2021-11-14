@@ -102,6 +102,7 @@ Route::group([
 
         //Salons
         Route::post('salon', [ClientSalonController::class, 'RegisterSalon'])->middleware(['salon']);
+        Route::post('cost/orders', [ClientSalonController::class, 'costPerOrder'])->middleware(['salon']);
         Route::put('CompleteSalonInfo', [ClientSalonController::class, 'CompleteSalonInfo'])->middleware(['salon']); 
         Route::get('acceptedSalons', [ClientSalonController::class, 'getAcceptedSalons']);
         Route::get('salon', [ClientSalonController::class, 'getMySalon'])->middleware(['salon']);

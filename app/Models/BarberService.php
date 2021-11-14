@@ -15,7 +15,17 @@ class BarberService extends Authenticatable
    // protected $hidden =['password'];
 
     
-   
+   public function getServiceIdAttribute()
+   {
+
+        $ServiceId = json_decode($this->attributes['service_id']);
+        if ($ServiceId) {
+             return Service::find($ServiceId)->title;
+               
+         }
+           
+   }
+
     protected function serializeDate(\DateTimeInterface $date) : string
     {
         return $date->toDateTimeString();

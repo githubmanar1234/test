@@ -382,7 +382,7 @@ class SalonController extends Controller
     public function getMySalon(){
 
         $salon_id = Auth::guard('client')->user()->salon->id;
-        
+       
         $request_data = $this->requestData;
 
         $data = Salon::where('id' ,$salon_id)->where('status' , Constants::STATUS_ACCEPTED)->first();
@@ -390,6 +390,7 @@ class SalonController extends Controller
         if($data){
 
             $barbers = $data->barbers;
+            $owner = $data->user;
             return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
         }
 
@@ -465,6 +466,28 @@ class SalonController extends Controller
         {
             return true;
         }
+    }
+
+    public function costPerOrder($id){
+
+        $barbers = Barber::where('salon_id' ,$id)->get();
+        $value = Setting::where('key' , "cost per order")->first()->value;
+        
+        $cost = 0;
+
+        foreach($barbers as  $barber){
+
+            $barber_id = $barber->id;
+            $orders = Order::where('barber_id' , $barber_id )->get();
+            
+            if (count($orders) ){
+            
+                $cost += $value * count($orders);
+            }
+
+        }
+
+        return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS,$cost);
     }
     
     

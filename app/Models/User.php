@@ -70,6 +70,8 @@ class User extends Authenticatable
         return $this->belongsTo(Salon::class, 'salon_id', 'id');
     }
 
+   
+
     // public function images()
     // {
     //     return $this->morphMany(Image::class, 'imageable');
