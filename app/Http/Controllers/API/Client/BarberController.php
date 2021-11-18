@@ -17,6 +17,9 @@ use App\Http\Repositories\IRepositories\IBarberRepository;
 use App\Models\Category;
 use App\Models\Salon;
 use App\Models\Timing;
+use App\Models\Block;
+use App\Models\User;
+use App\Models\Order;
 use App\Models\TimingBarber;
 use App\Models\Barber;
 use App\Models\BarberImage;
@@ -245,54 +248,7 @@ class BarberController extends Controller
    
     }
 
-    //get barbers in same city 
-    public function getBarbers(){
 
-        $request_data = $this->requestData;
-
-        $user = Auth::guard('client')->user();
-        
-        $salon = $user->salon;
-
-        if($salon){
-            
-            //$images = $user->images;
-           // $salon_city = $salon->city->name;
-           $salon_city_id = $salon->city->id;
-
-           // $data = Barber::where('city' , $salon_city)->get();
-           $data = Barber::where('city_id' ,  $salon_city_id )->where('is_availble' , 1)->get();
-            
-            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
-        }
-
-        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
-    }
-
-
-    //get barber details by barber's id.
-    public function getBarberDetails($id){
-
-        $request_data = $this->requestData;
-
-        $data = Barber::find($id);
-
-        if($data){
-
-            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
-        }
-        else{
-            if (is_numeric($id)){
-                return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
-            }
-
-            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-        }  
-        
-    }
-
-
-     //Deactivate barber by his salon
     public function deactivateBarber($id)
     {
         $user = Auth::guard('client')->user();
@@ -335,26 +291,210 @@ class BarberController extends Controller
     }
 
 
-    //get barber time llines.
-    public function getBarberTimeLines($id){
+    //get barber timelines by user.
+    public function getBarberTimeLinesByUser($id){
 
         $request_data = $this->requestData;
 
+        $user = Auth::guard('client')->user();
+
+        $data = Barber::find($id);
+        if($user->role == "user"){
+
+            $block = Block::where('barber_id' , $id)->where('user_id' ,$user->id)->first();
+            if(!$block){
+                if($data){
+
+                    $timingesBarber =  TimingBarber::where('barber_id' , $id)->get();
+                        return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $timingesBarber);
+                }
+                else{
+                    if (is_numeric($id)){
+                        return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+                    }
+
+                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                    }  
+            }
+            else{
+                return JsonResponse::respondError("You can not see this barber's detailes");
+            }
+            
+        }
+    }
+
+    //get barber timelines by salon.
+    public function getBarberTimeLinesBySalon($id){
+
+        $request_data = $this->requestData;
+
+        $user = Auth::guard('client')->user();
+        $salon_id = $user->salon->id;
+    
         $data = Barber::find($id);
 
         if($data){
-
-            $timingesBarber =  TimingBarber::where('barber_id' , $id)->get();
-            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $timingesBarber);
+            $barber = Barber::where('id' ,$id)->where('salon_id' , $salon_id)->first();
+            if($barber){
+                $timingesBarber =  TimingBarber::where('barber_id' , $id)->get();
+                return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $timingesBarber);
+            }
+            else{
+                return JsonResponse::respondError("You can not see this barber's detailes");
+            }
+            
         }
         else{
-            if (is_numeric($id)){
-                return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+             if (is_numeric($id)){
+              return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
             }
-
-            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-        }  
+           return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        }        
         
     }
+
+
+    //get barbers in same city 
+    public function getBarbers(){
+
+        $request_data = $this->requestData;
+
+        $user = Auth::guard('client')->user();
+    
+        $salon = $user->salon;
+
+        if($user->role == "salon"){
+            if($salon){
+            $salon_city_id = $salon->city->id;
+            $data = Barber::where('city_id' ,  $salon_city_id )->where('is_availble' , 1)->get();
+            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+            }
+            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
+        }
+        else{
+            if($user->role == "user"){
+
+                $barbers = Barber::where('is_availble' , 1)->get();
+                foreach($barbers as  $barber){
+
+                    $block = Block::where('barber_id' , $barber->id)->where('user_id' ,$user->id)->first();
+                   
+                    $barbersNotBlock= Barber::where('is_availble' , 1)->where('id' ,'!=',$barber->id)->get();
+                    if($block){
+                        return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $barbersNotBlock);
+                    }
+                    else{
+                        return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $barbers);
+                    }
+                   
+                }
+               
+            }
+        }
+    }
   
+    
+    //get barber details by barber's id.
+    public function getBarberDetails($id){
+
+        $request_data = $this->requestData;
+
+        $user = Auth::guard('client')->user();
+
+        $data = Barber::find($id);
+
+        if($user->role == "salon"){
+            if($data){
+
+                return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+            }
+            else{
+                if (is_numeric($id)){
+                    return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+                }
+
+                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+            }  
+        }
+        else{
+            if($user->role == "user"){
+
+                    $block = Block::where('barber_id' , $data->id)->where('user_id' ,$user->id)->first();
+                    if($data){
+                        if(!$block){
+                            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+                        }
+                        else{
+                            return JsonResponse::respondError("You can not see this barber's detailes");
+                        }
+                    }
+                   
+                    else{
+                        if (is_numeric($id)){
+                            return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+                        }
+        
+                        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                    } 
+               
+            }
+        }
+    }
+
+    // public function getBarberDetails($id){
+
+    //     $request_data = $this->requestData;
+
+    //     $data = Barber::find($id);
+
+    //     if($data){
+
+    //         return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+    //     }
+    //     else{
+    //         if (is_numeric($id)){
+    //             return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+    //         }
+
+    //         return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+    //     }  
+        
+    // }
+
+    
+     //Block user by his barber
+     public function blockUser()
+     {
+         $barber = Auth::guard('barber')->user();
+ 
+         $data = $this->requestData;
+ 
+         $validation_rules = [
+             'user_id' => 'required|exists:users,id',
+         ];
+         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
+         if ($validator->passes()) {
+
+              $role = User::where('id' , $data['user_id'])->first()->role;
+            
+              $order = Order::where('user_id', $data['user_id'])->where('barber_id', $barber->id)->first();
+               if($role !== "salon"){
+                    if($order){
+                        $block = new Block();
+                        $block->user_id  =  $data['user_id'];
+                        $block->barber_id = $barber->id;
+                        $block->save();
+                        return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $block);
+                    }
+                    else{
+                        return JsonResponse::respondError("You can not block this user");
+                    }
+                }
+                else{
+                    return JsonResponse::respondError("You can not block salon");
+                }
+            
+         }
+         return JsonResponse::respondError($validator->errors()->all());
+     }
 }

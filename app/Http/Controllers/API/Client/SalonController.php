@@ -15,7 +15,9 @@ use App\Http\Repositories\IRepositories\IBarberRepository;
 use App\Models\Category;
 use App\Models\Timing;
 use App\Models\Salon;
+use App\Models\Order;
 use App\Models\Barber;
+use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -468,26 +470,51 @@ class SalonController extends Controller
         }
     }
 
-    public function costPerOrder($id){
+    public function costPerOrder(Request $request){
 
-        $barbers = Barber::where('salon_id' ,$id)->get();
-        $value = Setting::where('key' , "cost per order")->first()->value;
+        $salon_id = Auth::guard('client')->user()->salon->id;
+
+        $data = $this->requestData;
+
+        $validation_rules = [
+
+            'date' => "required",
+        ];
+          
+       
+        $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
+        if ($validator->passes()) {
+            
+            if($salon_id){
+
+                $barbers = Barber::where('salon_id' ,$salon_id)->get();
+                $value = Setting::where('key' , "cost per order")->first()->value;
+                
+                $totalFees = 0;
         
-        $cost = 0;
-
-        foreach($barbers as  $barber){
-
-            $barber_id = $barber->id;
-            $orders = Order::where('barber_id' , $barber_id )->get();
+                foreach($barbers as  $barber){
+        
+                    $barber_id = $barber->id;
+        
+                    $currentDateTime = Carbon::now();
+                    $newDateTime = Carbon::now()->subMonth();
+                    
+                    $orders = Order::where('barber_id' , $barber_id )->whereMonth('date', $request->date)
+                   ->whereYear('date',  $request->date)->count();
+                     
+                    $sumOrders = Order::where('barber_id' , $barber_id )->where('date' ,$data['date'] )->sum('price');
+                    
+                    $totalFees += $sumOrders;
+                    $totalFees += $value * $orders;
+                }
             
-            if (count($orders) ){
-            
-                $cost += $value * count($orders);
+                return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS,$totalFees); 
             }
-
+            else{
+                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+            }
         }
-
-        return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS,$cost);
+        return JsonResponse::respondError($validator->errors()->all());
     }
     
     

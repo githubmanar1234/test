@@ -54,6 +54,7 @@ Route::group([
     Route::post('setRejectedOrder', [ClientOrderController::class, 'setRejectedOrder']);
     Route::post('setCompletedOrder', [ClientOrderController::class, 'setCompletedOrder']);
     Route::post('setInCompletedOrder', [ClientOrderController::class, 'setInCompletedOrder']);
+    Route::post('blockUser', [ClientBarberController::class, 'blockUser']);
     
     Route::get('user/{id}', [ClientOrderController::class, 'profileUser']);
 
@@ -102,7 +103,7 @@ Route::group([
 
         //Salons
         Route::post('salon', [ClientSalonController::class, 'RegisterSalon'])->middleware(['salon']);
-        Route::post('cost/orders', [ClientSalonController::class, 'costPerOrder'])->middleware(['salon']);
+        Route::post('cost/orders', [ClientSalonController::class, 'costPerOrder'])->middleware(['salon']);;
         Route::put('CompleteSalonInfo', [ClientSalonController::class, 'CompleteSalonInfo'])->middleware(['salon']); 
         Route::get('acceptedSalons', [ClientSalonController::class, 'getAcceptedSalons']);
         Route::get('salon', [ClientSalonController::class, 'getMySalon'])->middleware(['salon']);
@@ -117,7 +118,8 @@ Route::group([
         Route::get('barbersBySalon/{id}', [ClientBarberController::class, 'getBarbersBySalon'])->middleware(['salon']);
         Route::post('deactivateBarbers/{id}', [ClientBarberController::class, 'deactivateBarber'])->middleware(['salon']);
         Route::get('getBarbers', [ClientBarberController::class, 'getBarbers']); 
-        Route::get('barberTimeLines/{id}', [ClientBarberController::class, 'getBarberTimeLines']);
+        Route::get('barberTimeLinesByUser/{id}', [ClientBarberController::class, 'getBarberTimeLinesByUser']);
+        Route::get('barberTimeLinesBySalon/{id}', [ClientBarberController::class, 'getBarberTimeLinesBySalon'])->middleware(['salon']);
 
         //Reports
         Route::post('reportBarber', [ClientReportController::class, 'reportBarber']);
