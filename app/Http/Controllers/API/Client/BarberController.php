@@ -353,7 +353,6 @@ class BarberController extends Controller
         
     }
 
-
     //get barbers in same city 
     public function getBarbers(){
 
@@ -392,7 +391,6 @@ class BarberController extends Controller
             }
         }
     }
-  
     
     //get barber details by barber's id.
     public function getBarberDetails($id){
@@ -440,27 +438,6 @@ class BarberController extends Controller
             }
         }
     }
-
-    // public function getBarberDetails($id){
-
-    //     $request_data = $this->requestData;
-
-    //     $data = Barber::find($id);
-
-    //     if($data){
-
-    //         return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
-    //     }
-    //     else{
-    //         if (is_numeric($id)){
-    //             return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
-    //         }
-
-    //         return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-    //     }  
-        
-    // }
-
     
      //Block user by his barber
      public function blockUser()
