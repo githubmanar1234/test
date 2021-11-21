@@ -470,6 +470,7 @@ class SalonController extends Controller
         }
     }
 
+    //calculate order cost during month for salon
     public function costPerOrder(Request $request){
 
         $salon_id = Auth::guard('client')->user()->salon->id;
@@ -477,8 +478,8 @@ class SalonController extends Controller
         $data = $this->requestData;
 
         $validation_rules = [
-
-            'date' => "required",
+            'year' => "required",
+            'month' => "required",
         ];
           
        
@@ -499,12 +500,16 @@ class SalonController extends Controller
                     $currentDateTime = Carbon::now();
                     $newDateTime = Carbon::now()->subMonth();
                     
-                    $orders = Order::where('barber_id' , $barber_id )->whereMonth('date', $request->date)
-                   ->whereYear('date',  $request->date)->count();
-                     
-                    $sumOrders = Order::where('barber_id' , $barber_id )->where('date' ,$data['date'] )->sum('price');
+                    $orders = Order::where('barber_id' , $barber_id )->whereYear('date',  $data['year'])
+                    ->whereMonth('date', $data['month'])
+                    ->count();
+                  //  return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS,$orders); 
+
+                    $sumOrders = Order::where('barber_id' , $barber_id )->whereYear('date',  $data['year'])
+                    ->whereMonth('date', $data['month'])->sum('price');
                     
                     $totalFees += $sumOrders;
+                    //sum fees for all order
                     $totalFees += $value * $orders;
                 }
             
