@@ -22,7 +22,7 @@ class CheckSalon
 
             return $next($request);
         }
-        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        return JsonResponse::respondError("You are not a salon");
         //return $next($request);
     }
 }

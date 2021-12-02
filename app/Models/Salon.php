@@ -16,7 +16,7 @@ class Salon extends AppModel
 
     protected $fillable = ['name', 'status', 'description','bio','reason','salon_code','berbers_num', 'city_id' 
     , 'type' ,'image', 'is_open','location','lat_location','long_location','phone_number',
-    'facebook_link','whatsapp_number','is_available'];
+    'facebook_link','whatsapp_number','is_available','founded_in','instagram_link'];
 
     public $translatable = ['name'];
 

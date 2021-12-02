@@ -166,7 +166,6 @@ class SalonController extends Controller
             return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
         }
         
-          
     }
 
     public function getAcceptedAndDisabledSalons()
@@ -178,6 +177,7 @@ class SalonController extends Controller
         $data = $data->Where("status", Constants::STATUS_DISABLE)->orWhere("status", Constants::STATUS_ACCEPTED);
 
         $data = $data->paginate(15);
+        // $data = $data->get();
 
         if($data){
             

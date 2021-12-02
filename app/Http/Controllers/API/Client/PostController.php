@@ -192,7 +192,7 @@ class PostController extends Controller
     
         $data = $this->requestData;
         $validation_rules = [
-            'post_id' => "required",
+            'post_id' => "required|exists:posts,id",
         ];
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {

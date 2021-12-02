@@ -14,7 +14,13 @@ class BarberService extends Authenticatable
     protected $fillable = ['price', 'duration', 'barber_id' , 'service_id'];
    // protected $hidden =['password'];
 
-    
+   //protected $with = ['services'];
+
+   public function services()
+   {
+       return $this->belongsTo(Service::class, "service_id", 'id');
+   }
+
    public function getServiceIdAttribute()
    {
 

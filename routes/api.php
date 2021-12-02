@@ -138,7 +138,7 @@ Route::group([
         Route::post('rate', [ClientOrderController::class, 'rateOrders']);
         Route::post('review', [ClientOrderController::class, 'writeReviewForOrder']);
         Route::get('order/{id}', [ClientOrderController::class, 'show']);
-        Route::post('appointment', [AppointmentController::class, 'setAppointment']);
+        Route::post('availableTimes', [AppointmentController::class, 'availableTimes']);
         Route::post('order', [AppointmentController::class, 'createOrder']);
         Route::post('setCanceledOrder', [ClientOrderController::class, 'setCanceledOrder']);
 

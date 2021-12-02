@@ -68,7 +68,7 @@ class SalonController extends Controller
         $user = Auth::guard('client')->user();
 
         $salon = Auth::guard('client')->user()->salon;
-        
+       
         $data = $this->requestData;
 
         if(!$salon){
@@ -84,8 +84,8 @@ class SalonController extends Controller
                     'location' => 'required',
                     'lat_location' => 'required|numeric',
                     'long_location' => 'required|numeric',
+                    'instagram_link' => 'required',
                 ];
-            
                 $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
                 if ($validator->passes()) {
         
@@ -99,7 +99,6 @@ class SalonController extends Controller
                     $data['is_available'] = 0;
                     $data['is_open'] = 0;
                     $data['status'] = Constants::STATUS_PENDING;
-            
                     
                     if(!$request->hasFile('image')) {
                          return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
@@ -113,6 +112,12 @@ class SalonController extends Controller
                         
                     $resource = $this->salonRepository->create($data);
                     $user->salon_id =  $resource->id;
+
+                     if(isset($data['email'])){
+
+                        $user->email = isset($data['email']) ? $data['email'] : $user->email;                 
+                     }
+                      
                     $user->save();
                 
                     $days = $data['days'];
@@ -183,11 +188,10 @@ class SalonController extends Controller
             $salon->location = isset($data['location']) ? $data['location'] : $salon->location;
             $salon->lat_location = isset($data['lat_location']) ? $data['lat_location'] : $salon->lat_location;
             $salon->long_location = isset($data['long_location']) ? $data['long_location'] : $salon->long_location;
-
-           
-            
- 
-            
+            $salon->instagram_link = isset($data['instagram_link']) ? $data['instagram_link'] : $salon->instagram_link;
+            $user->email = isset($data['email']) ? $data['email'] : $user->email;
+            $user->save();
+        
             if($request->hasFile('image')) {
                 $file = $request->file('image'); 
             
@@ -309,6 +313,11 @@ class SalonController extends Controller
                 if(isset($data['whatsapp_number'] )){
 
                     $resource->whatsapp_number = $data['whatsapp_number'];
+                }
+
+                if(isset($data['founded_in'] )){
+
+                    $resource->founded_in = $data['founded_in'];
                 }
                 $resource->save();
                 

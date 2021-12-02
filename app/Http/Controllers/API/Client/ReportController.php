@@ -116,7 +116,7 @@ class ReportController extends Controller
         $data = $this->requestData;
         $validation_rules = [
             'reason' => "required",
-            'salon_id' => "required",   
+            'salon_id' => "required|exists:salons,id",   
         ];
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {
@@ -140,7 +140,7 @@ class ReportController extends Controller
                     } 
             }
             else{
-                 return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                 return JsonResponse::respondError("JsonResponse::MSG_BAD_REQUEST");
                 } 
             
         }
@@ -156,7 +156,7 @@ class ReportController extends Controller
         $data = $this->requestData;
         $validation_rules = [
             'reason' => "required",
-            'post_id' => "required",   
+            'post_id' => "required|exists:posts,id",   
         ];
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {

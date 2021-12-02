@@ -33,6 +33,7 @@ class Barber extends Authenticatable
         'status',
         'is_availble',
         'city_id',
+        'gender',
 
         
     ];

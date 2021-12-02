@@ -57,7 +57,7 @@ class AuthController extends Controller
 
         $data = $this->requestData;
         $validation_rules = [
-            'phone' => 'required_without',
+            'phone' => 'required',
             'password' => 'required'
         ];
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
@@ -201,14 +201,23 @@ class AuthController extends Controller
             'country_id' => 'required|exists:countries,id',
             'fcm_token' => 'required',
             'role' => 'required',
+            'name' => 'required',
         ];
         if (isset($data['yob']))
             $validation_rules['yob'] = 'date';
-        if (isset($data['name']))
-            $validation_rules['name'] = "string|max:30";
+
+        // if (isset($data['name'])){
+            
+        //     // $data['name'] = $this->requestData['name'];
+        //     $validation_rules['name'] = "string|max:30";
+        // }
+          
+
         if (isset($data['lang']))
             $data['lang'] = $this->requestData['lang'];
+
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
+
         if ($validator->passes()) {
             $auth = $this->factory->createAuth();
             // Retrieve the UID (User ID) from the verified Firebase credential's token
