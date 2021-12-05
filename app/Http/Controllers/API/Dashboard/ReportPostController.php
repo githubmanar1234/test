@@ -104,15 +104,23 @@ class ReportPostController extends Controller
     public function show($id)
     {
         
-        $data =  $this->postRepository->find($id);
-       
+        // $data =  $this->postRepository->find($id);
+        $data = $this->postRepository->allAsQuery();
+        $data = $data->find($id);
         
         if($data){
 
             $data = $data->postReports;
             return JsonResponse::respondSuccess(trans(JsonResponse::MSG_SUCCESS), $data);
         }
-        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        else{
+
+            if (is_numeric($id)){
+                return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+            }
+
+            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        }
     }
 
      //To test just 

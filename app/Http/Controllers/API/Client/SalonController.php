@@ -392,20 +392,27 @@ class SalonController extends Controller
     //get my salon
     public function getMySalon(){
 
-        $salon_id = Auth::guard('client')->user()->salon->id;
-       
-        $request_data = $this->requestData;
+        if(Auth::guard('client')->user()->salon){
 
-        $data = Salon::where('id' ,$salon_id)->where('status' , Constants::STATUS_ACCEPTED)->first();
-       
-        if($data){
+            $salon_id = Auth::guard('client')->user()->salon->id;
+        
+            $request_data = $this->requestData;
 
-            $barbers = $data->barbers;
-            $owner = $data->user;
-            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+            $data = Salon::where('id' ,$salon_id)->where('status' , Constants::STATUS_ACCEPTED)->first();
+        
+            if($data){
+
+                $barbers = $data->barbers;
+                $owner = $data->user;
+                return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+            }
+
+            return JsonResponse::respondError("Your salon is not accepted yet");  
         }
-
-           return JsonResponse::respondError("Your salon is pending");  
+        else{
+            return JsonResponse::respondError("You have not salon");  
+        }
+      
     }
 
     public function show($id)

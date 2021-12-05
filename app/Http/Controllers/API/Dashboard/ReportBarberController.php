@@ -78,15 +78,24 @@ class ReportBarberController extends Controller
     public function show($id)
     {
         
-        $data =  $this->barberRepository->find($id);
-       
-        
+        // $data =  $this->barberRepository->find($id);
+        $data = $this->barberRepository->allAsQuery();
+        $data = $data->find($id);
+           
         if($data){
 
             $data = $data->barberReports;
             return JsonResponse::respondSuccess(trans(JsonResponse::MSG_SUCCESS), $data);
         }
-        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        else{
+            
+            if (is_numeric($id)){
+                return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+            }
+
+            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        }
+      
     }
 
  

@@ -235,10 +235,14 @@ class SalonController extends Controller
                     return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
                 }  
                 else{
-                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                    return JsonResponse::respondError("Salon not pending or disabled");
                     } 
             }
              else{
+                if (is_numeric($request_data['salon_id'])){
+                    return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+                }
+    
                 return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
               }
         }
@@ -293,10 +297,14 @@ class SalonController extends Controller
                     return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
                 }  
                 else{
-                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                    return JsonResponse::respondError("Salon not Pending");
                     } 
             }
              else{
+                if (is_numeric($request_data['salon_id'])){
+                    return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+                }
+    
                 return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
               }
         }
@@ -350,11 +358,16 @@ class SalonController extends Controller
                     return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
                 }  
                 else{
-                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                    return JsonResponse::respondError("Salon not accepted");
                     } 
             }
              else{
+                if (is_numeric($request_data['salon_id'])){
+                    return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+                }
+    
                 return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+              
               }
         }
         return JsonResponse::respondError($validator->errors()->all());

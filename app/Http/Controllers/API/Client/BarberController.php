@@ -260,7 +260,7 @@ class BarberController extends Controller
         if($resource ){
 
             if ($resource->salon_id != $salon_id ){
-                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                return JsonResponse::respondError("You are not owner on this barber");
             }
             
             $resource->is_availble = 0;
@@ -299,10 +299,13 @@ class BarberController extends Controller
         $user = Auth::guard('client')->user();
 
         $data = Barber::find($id);
+
         if($user->role == "user"){
 
             $block = Block::where('barber_id' , $id)->where('user_id' ,$user->id)->first();
+
             if(!$block){
+
                 if($data){
 
                     $timingesBarber =  TimingBarber::where('barber_id' , $id)->get();
@@ -321,6 +324,7 @@ class BarberController extends Controller
             }
             
         }
+        return JsonResponse::respondError("You are not user");
     }
 
     //get barber timelines by salon.
@@ -449,12 +453,15 @@ class BarberController extends Controller
          $validation_rules = [
              'user_id' => 'required|exists:users,id',
          ];
+
          $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
+
          if ($validator->passes()) {
 
               $role = User::where('id' , $data['user_id'])->first()->role;
             
               $order = Order::where('user_id', $data['user_id'])->where('barber_id', $barber->id)->first();
+              
                if($role !== "salon"){
                     if($order){
                         $block = new Block();
