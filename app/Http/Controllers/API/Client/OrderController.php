@@ -391,7 +391,7 @@ class OrderController extends Controller
         $request_data = $this->requestData;
         
         $user = Auth::guard('client')->user();
-       
+      
         if($user){
 
             $request_data = $this->requestData;
@@ -404,7 +404,7 @@ class OrderController extends Controller
             if ($validator->passes()) {
 
                 $data =  Order::where('id' , $request_data['order_id'])->where('user_id' , $user->id)->first();
-                
+               
                 if($data){
 
                     if($data->status == Constants::ORDER_STATUS_COMPLETED){
@@ -414,11 +414,11 @@ class OrderController extends Controller
                         return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
                     }  
                     else{
-                        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                        return JsonResponse::respondError("This order isnt completed");
                         } 
                 }
                 else{
-                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                    return JsonResponse::respondError("You dont take this order");
                 }
             }
             return JsonResponse::respondError($validator->errors()->all());

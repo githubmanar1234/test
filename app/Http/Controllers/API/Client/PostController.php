@@ -132,7 +132,7 @@ class PostController extends Controller
         $data = $this->requestData;
 
         $validation_rules = [
-          'post_id' => "required",
+          'post_id' => "required|exists:posts,id",
            
         ];
     
@@ -181,7 +181,6 @@ class PostController extends Controller
         }
         return JsonResponse::respondError($validator->errors()->all());
 
-
     }
   
 
@@ -201,15 +200,16 @@ class PostController extends Controller
            $post = Post::find($post_id);
         
            if(!$post){
+
             return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
            }
            else{
             
-            $data['user_id'] = $user->id;
-            $resource = $this->postLikeRepository->create($data);
+                $data['user_id'] = $user->id;
+                $resource = $this->postLikeRepository->create($data);
 
-            if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
-            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
+                if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
+                return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
            }  
             
            
