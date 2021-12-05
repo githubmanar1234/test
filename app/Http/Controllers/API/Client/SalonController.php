@@ -170,7 +170,7 @@ class SalonController extends Controller
 
         $validation_rules = [
             'city_id' => "exists:cities,id",
-            'address' => 'numeric',
+            // 'address' => 'numeric',
             'lat_location' => 'numeric',
             'long_location' => 'numeric',
         ];
