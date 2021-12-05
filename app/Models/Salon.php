@@ -66,7 +66,12 @@ class Salon extends AppModel
 
     public function getOwnerAttribute()
     {
-        return User::where('salon_id',$this->id)->first()->name;
+        $isExist = User::where('salon_id',$this->id)->first();
+        if ($isExist){
+            return $isExist->name;
+        }
+
+        return "no Owner";
     }
 
     // public function category()

@@ -113,27 +113,27 @@ class SalonController extends Controller
 
     
     //To test just 
-    public function store(Request $request)
-    {
-        $data = $this->requestData;
-        $validation_rules = [
-            'name' => "required",
-            'user_id' => "required",
-            'city_id' => "required",
-            'salon_code' => "required",
+    // public function store(Request $request)
+    // {
+    //     $data = $this->requestData;
+    //     $validation_rules = [
+    //         'name' => "required",
+    //         'user_id' => "required",
+    //         'city_id' => "required",
+    //         'salon_code' => "required",
            
-        ];
-        $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
-        if ($validator->passes()) {
+    //     ];
+    //     $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
+    //     if ($validator->passes()) {
 
         
-            $resource = $this->salonRepository->create($data);
+    //         $resource = $this->salonRepository->create($data);
         
-            if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
-            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
-        }
-        return JsonResponse::respondError($validator->errors()->all());
-    }
+    //         if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
+    //         return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
+    //     }
+    //     return JsonResponse::respondError($validator->errors()->all());
+    // }
 
     /**
  * @OA\GET(

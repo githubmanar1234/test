@@ -210,7 +210,7 @@ Route::group([
         Route::post('acceptSalon', [SalonController::class, 'setAcceptedSalon']);
         Route::post('rejectSalon', [SalonController::class, 'setRejectedSalon']);
         Route::post('disablSalon', [SalonController::class, 'setDisabledSalon']);
-        Route::post('salon', [SalonController::class, 'store']); 
+        // Route::post('salon', [SalonController::class, 'store']); 
         Route::delete('salon/{id}', [SalonController::class, 'destroy']);
 
         //City
