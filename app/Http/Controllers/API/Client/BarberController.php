@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Image;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\ValidatorHelper;
 use App\Helpers\FileHelper;
@@ -88,9 +89,11 @@ class BarberController extends Controller
           // $data['salon_code'] = $salon_code;
            $data['is_available'] = 0;
            $data['salon_id'] = $salon_id;
-
-           $password = sprintf("%06d", mt_rand(1, 999999));
+           
+        //    $password = sprintf("%06d", mt_rand(1, 999999));
+           $password = Str::random(20);
            $data['password']= $password;
+
            $data['status']= Constants::STATUS_PENDING;
 
             $resource = $this->barberRepository->create($data);
@@ -114,6 +117,7 @@ class BarberController extends Controller
                 'days' => 'required',
                 'from' => 'required',
                 'to' => 'required',
+                'whatsapp_number' => 'numeric',
             ];
             $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
             if ($validator->passes()) {
@@ -125,6 +129,11 @@ class BarberController extends Controller
                 if(isset($data['name'] )){
 
                     $resource->name = $data['name'];
+                }
+
+                if(isset($data['gender'] )){
+
+                    $resource->gender = $data['gender'];
                 }
                 
                 if(isset($data['city_id'] )){
@@ -484,4 +493,28 @@ class BarberController extends Controller
          }
          return JsonResponse::respondError($validator->errors()->all());
      }
+
+     //return profile barber by himself.
+     public function getMyProfile(){
+
+
+        if(Auth::guard('barber')->user()){
+
+            $barber_id = Auth::guard('barber')->user()->id;
+        
+            $request_data = $this->requestData;
+
+            $barber = Barber::where('id' ,$barber_id)->first();
+
+             // $barbers = $data->barbers;
+            // $owner = $data->user;
+            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $barber);
+              
+        }
+        else{
+            return JsonResponse::respondError("You are not barber");  
+        }
+      
+    }
+
 }

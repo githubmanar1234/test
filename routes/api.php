@@ -55,6 +55,7 @@ Route::group([
     Route::post('setCompletedOrder', [ClientOrderController::class, 'setCompletedOrder']);
     Route::post('setInCompletedOrder', [ClientOrderController::class, 'setInCompletedOrder']);
     Route::post('blockUser', [ClientBarberController::class, 'blockUser']);
+    Route::get('barberProfile', [ClientBarberController::class, 'getMyProfile']);
     
     Route::get('user/{id}', [ClientOrderController::class, 'profileUser']);
 

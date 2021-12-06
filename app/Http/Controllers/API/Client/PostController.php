@@ -88,7 +88,7 @@ class PostController extends Controller
                     if($salon->status == Constants::STATUS_ACCEPTED){
 
                         if(!$request->hasFile('images')) {
-                                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                                return JsonResponse::respondError("You must insert one image at least");
                         }
     
                         $data['published_at'] = Carbon::now();

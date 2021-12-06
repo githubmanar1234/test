@@ -19,6 +19,7 @@ use App\Models\Order;
 use App\Models\Barber;
 use App\Models\Setting;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -100,7 +101,7 @@ class SalonController extends Controller
                     $data['status'] = Constants::STATUS_PENDING;
                     
                     if(!$request->hasFile('image')) {
-                         return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                         return JsonResponse::respondError("You must insert image");
                     }
             
                     $file = $request->file('image'); 
@@ -291,7 +292,8 @@ class SalonController extends Controller
 
                         $barber['barber_code']= $barber_code;
     
-                        $password = sprintf("%06d", mt_rand(1, 999999));
+                        // $password = sprintf("%06d", mt_rand(1, 999999));
+                        $password = Str::random(20);
                                 
                         $barber['password']= $password;
                         $barber['status']= Constants::STATUS_PENDING;
@@ -364,8 +366,8 @@ class SalonController extends Controller
 
         $data = $data->Where("status", '=', "Accepted");
 
-        $data = $data->get();
-  
+        // $data = $data->get();
+        $data = $data->paginate(15);
 
         if($data){
 
@@ -507,10 +509,12 @@ class SalonController extends Controller
             if($salon_id){
 
                 $barbers = Barber::where('salon_id' ,$salon_id)->get();
+                
                 $value = Setting::where('key' , "cost per order")->first()->value;
                 
                 $totalFees = 0;
-        
+                $ordersCount = 0 ;
+
                 foreach($barbers as  $barber){
         
                     $barber_id = $barber->id;
@@ -518,20 +522,25 @@ class SalonController extends Controller
                     $currentDateTime = Carbon::now();
                     $newDateTime = Carbon::now()->subMonth();
                     
-                    $orders = Order::where('barber_id' , $barber_id )->whereYear('date',  $data['year'])
+                    $countOrders = Order::where('barber_id' , $barber_id )->whereYear('date',  $data['year'])
                     ->whereMonth('date', $data['month'])
                     ->count();
-                  //  return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS,$orders); 
 
                     $sumOrders = Order::where('barber_id' , $barber_id )->whereYear('date',  $data['year'])
                     ->whereMonth('date', $data['month'])->sum('price');
-                    
-                    $totalFees += $sumOrders;
+                    //sum price order of services
+                    $totalFees += $sumOrders; 
+                    //calculate all orders for this salon
+                    $ordersCount += $countOrders;
                     //sum fees for all order
-                    $totalFees += $value * $orders;
+                    $totalFees += $value * $countOrders;
                 }
-            
-                return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS,$totalFees); 
+                 
+                $detailCost['ordersCount'] = $ordersCount;
+
+                $detailCost['totalFees'] = $totalFees;
+                
+                return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS,$detailCost); 
             }
             else{
                 return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);

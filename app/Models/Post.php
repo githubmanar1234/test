@@ -14,11 +14,37 @@ class Post extends AppModel
     protected $fillable = ['description', 'salon_id' , 'image','published_at'];
     public $translatable = ['description'];
 
-
+    protected $appends = ['salon' , 'countLikes'];
 
     public function postReports()
     {
         return $this->hasMany(PostReport::class);
+    }
+
+    public function getSalonAttribute()
+    {
+        $salon = Salon::where('id',$this->salon_id)->first();
+        if ($salon){
+            return [$salon->name , $salon->description];
+        }
+
+        return "No salon";
+    }
+
+    public function getCountLikesAttribute()
+    {
+        $countLikes = PostLike::where('post_id',$this->id)->count();
+        
+        return $countLikes;
+        
+
+        
+    }
+
+    
+    public function salon()
+    {
+        return $this->belongsTo(Salon::class, "salon_id", 'id');
     }
 
   
