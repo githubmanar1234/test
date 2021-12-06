@@ -83,7 +83,7 @@ class PostController extends Controller
                  
                 if($salon){
 
-                    $salon_id = $salon->first()->id;
+                    $salon_id = $salon->id;
 
                     if($salon->status == Constants::STATUS_ACCEPTED){
 
