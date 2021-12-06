@@ -112,10 +112,10 @@ class SalonController extends Controller
                     $resource = $this->salonRepository->create($data);
                     $user->salon_id =  $resource->id;
 
-                     if(isset($data['email'])){
+                    //  if(isset($data['email'])){
 
-                        $user->email = isset($data['email']) ? $data['email'] : $user->email;                 
-                     }
+                    //     $user->email = isset($data['email']) ? $data['email'] : $user->email;                 
+                    //  }
                       
                     $user->save();
                 
@@ -170,7 +170,6 @@ class SalonController extends Controller
 
         $validation_rules = [
             'city_id' => "exists:cities,id",
-            // 'address' => 'numeric',
             'lat_location' => 'numeric',
             'long_location' => 'numeric',
         ];
@@ -187,9 +186,9 @@ class SalonController extends Controller
             $salon->location = isset($data['address']) ? $data['address'] : $salon->location;
             $salon->lat_location = isset($data['lat_location']) ? $data['lat_location'] : $salon->lat_location;
             $salon->long_location = isset($data['long_location']) ? $data['long_location'] : $salon->long_location;
-            $salon->instagram_link = isset($data['instagram_link']) ? $data['instagram_link'] : $salon->instagram_link;
-            $user->email = isset($data['email']) ? $data['email'] : $user->email;
-            $user->save();
+            // $salon->instagram_link = isset($data['instagram_link']) ? $data['instagram_link'] : $salon->instagram_link;
+            // $user->email = isset($data['email']) ? $data['email'] : $user->email;
+            // $user->save();
         
             if($request->hasFile('image')) {
                 $file = $request->file('image'); 
@@ -264,6 +263,7 @@ class SalonController extends Controller
         $validation_rules = [
             'description' => "required",
             'bio' => "required",
+            'whatsapp_number' => "numeric",
         ];
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {
@@ -290,8 +290,6 @@ class SalonController extends Controller
                         }
 
                         $barber['barber_code']= $barber_code;
-
-                        //$barber['salon_code']= $resource->salon_code;
     
                         $password = sprintf("%06d", mt_rand(1, 999999));
                                 
@@ -304,9 +302,14 @@ class SalonController extends Controller
                     }
                 }
             
-                if (isset($data['facebook_barberRepositorylink'])  ){
+                if (isset($data['facebook_link'])  ){
                     
                     $resource->facebook_link = $data['facebook_link'];
+                
+                }
+                if (isset($data['instagram_link'])  ){
+                    
+                    $resource->instagram_link = $data['instagram_link'];
                 
                 }
                 if(isset($data['whatsapp_number'] )){

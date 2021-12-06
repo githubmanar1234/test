@@ -77,110 +77,119 @@ class PostController extends Controller
 
         if ($validator->passes()) {
 
-            $user = Auth::guard('client')->user();
+                $user = Auth::guard('client')->user();
+            
+                $salon = $user->salon;
+                 
+                if($salon){
+
+                    $salon_id = $salon->first()->id;
+
+                    if($salon->status == Constants::STATUS_ACCEPTED){
+
+                        if(!$request->hasFile('images')) {
+                                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                        }
     
-        $salon = $user->salon;
-
-        if($salon){
-            $salon_id = $salon->first()->id;
-        }
-        else{
-            return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
-        }
-
-            if(!$request->hasFile('images')) {
-                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-            }
-
-            $data['published_at'] = Carbon::now();
-            $data['salon_id'] = $salon_id;
-            $data['description'] = $this->requestData['description'];
-
-            $resource = $this->postRepository->create($data);
-
-            if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
-
-            $files = $request->file('images'); 
-
-            foreach ($files as $file) {      
-
-                $imageUrl = FileHelper::processImage($file, 'public/posts');
-                $postImage = new PostImage();
-                $postImage->image = $imageUrl;
-                $postImage->post_id = $resource->id;
-                $postImage->save();
-            }
-
-            if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
-
-            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
-         
+                        $data['published_at'] = Carbon::now();
+                        $data['salon_id'] = $salon_id;
+                        $data['description'] = $this->requestData['description'];
+    
+                        $resource = $this->postRepository->create($data);
+    
+                        if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
+    
+                        $files = $request->file('images'); 
+    
+                        foreach ($files as $file) {      
+    
+                                $imageUrl = FileHelper::processImage($file, 'public/posts');
+                                $postImage = new PostImage();
+                                $postImage->image = $imageUrl;
+                                $postImage->post_id = $resource->id;
+                                $postImage->save();
+                            }
+    
+                            if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
+    
+                            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
+                    } 
+                    else{
+                        return JsonResponse::respondError("Your salon not accepted yet");
+                    } 
+                }
+                else{
+                    return JsonResponse::respondError("You dont have salon");
+                }   
         }
 
         return JsonResponse::respondError($validator->errors()->all());
     }
 
-
     //update post by his owner
     public function update(Request $request) 
     {
 
-        $user = Auth::guard('client')->user();
-           
-        $salon_id = $user->salon->id;
-          
+        $user = Auth::guard('client')->user(); 
+      
         $data = $this->requestData;
 
         $validation_rules = [
-          'post_id' => "required|exists:posts,id",
-           
+          'post_id' => "required|exists:posts,id",    
         ];
     
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
     
         if ($validator->passes()) {
-              
-            $resource = Post::find($data['post_id']);
-                
-            if($resource){
+            if($user->salon){
 
-                if ($resource->salon_id != $salon_id ){
+                $salon = $user->salon;
+                $salon_id = $salon->id;
 
-                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-                }
-                if (isset($data['description'])){
-                
-                    $resource->description = $data['description'];
-                }
-                $resource->save();
+                if($salon->status == Constants::STATUS_ACCEPTED){
 
-            
-                if($request->hasFile('images')) {
-                    if (isset($data['images'])){
+                    $post = Post::where('salon_id' , $salon_id)->where('id' ,$data['post_id'])->first();
 
-                        $files = $request->file('images'); 
-                        foreach ($files as $file) {      
-                            PostImage::where('post_id' , $resource->id)->delete();
-                            $imageUrl = FileHelper::processImage($file, 'public/posts');
-                            $postImage = new PostImage();
-                            $postImage->image = $imageUrl;
-                            $postImage->post_id = $resource->id;
-                            $postImage->save();
-                        }
+                    if (!$post ){
+
+                        return JsonResponse::respondError("You are not owner on this post");
                     }
-                }    
 
-                $updated = $this->postRepository->update($data, $resource->id);
-                if (!$updated) return JsonResponse::respondError(trans(JsonResponse::MSG_UPDATE_ERROR));
-                return JsonResponse::respondSuccess(trans(JsonResponse::MSG_UPDATED_SUCCESSFULLY));
-            }
+                    if (isset($data['description'])){
+                    
+                        $post->description = $data['description'];
+                    }
+                    $post->save();
+                
+                    if($request->hasFile('images')) {
+                        if (isset($data['images'])){
 
-            else{
-                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-            }
+                            $files = $request->file('images'); 
+                            foreach ($files as $file) {      
+                                PostImage::where('post_id' , $post->id)->delete();
+                                $imageUrl = FileHelper::processImage($file, 'public/posts');
+                                $postImage = new PostImage();
+                                $postImage->image = $imageUrl;
+                                $postImage->post_id = $post->id;
+                                $postImage->save();
+                            }
+                        }
+                    }    
+
+                    $updated = $this->postRepository->update($data, $post->id);
+                    if (!$updated) return JsonResponse::respondError(trans(JsonResponse::MSG_UPDATE_ERROR));
+                    return JsonResponse::respondSuccess(trans(JsonResponse::MSG_UPDATED_SUCCESSFULLY));  
+                } 
+                else{
+                    return JsonResponse::respondError("Your salon not accepted");
+                } 
+         } 
+         else{
+            return JsonResponse::respondError("You dont have salon");
+          }   
+
         }
         return JsonResponse::respondError($validator->errors()->all());
-
     }
   
 
@@ -193,26 +202,18 @@ class PostController extends Controller
         $validation_rules = [
             'post_id' => "required|exists:posts,id",
         ];
+        
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {
 
            $post_id = $data['post_id'];
            $post = Post::find($post_id);
         
-           if(!$post){
+            $data['user_id'] = $user->id;
+            $resource = $this->postLikeRepository->create($data);
 
-            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-           }
-           else{
-            
-                $data['user_id'] = $user->id;
-                $resource = $this->postLikeRepository->create($data);
-
-                if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
-                return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
-           }  
-            
-           
+            if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
+            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
          }
         return JsonResponse::respondError($validator->errors()->all());
     }
@@ -225,28 +226,43 @@ class PostController extends Controller
 
         $salon_id = $user->salon->id;
 
-        $resource = Post::find($id);
+        if($user->salon){
 
-        if($resource){
-        
-            $resource->where('salon_id' , $salon_id);
+            $salon = $user->salon;
+            $salon_id = $salon->id;
 
-            if($resource ){
+            if($salon->status == Constants::STATUS_ACCEPTED){
 
-              $this->postRepository->delete($resource);
-              return JsonResponse::respondSuccess(trans(JsonResponse::MSG_DELETED_SUCCESSFULLY));
-             }
-             return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST); 
-        }
+                $postExist = Post::find($id);
+
+                if(!$postExist){
+
+                    if (is_numeric($id)){
+                        return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+                    }
+                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST); 
+                }
+
+                $post = Post::where('salon_id' , $salon_id)->where('id' ,$id )->first();
+
+                if($post){
+
+                    $this->postRepository->delete($post);
+                    return JsonResponse::respondSuccess(trans(JsonResponse::MSG_DELETED_SUCCESSFULLY));       
+                }
+                    
+                else{
+                    return JsonResponse::respondError("You are not owner on this post");
+                }  
             
-        else{
-            if (is_numeric($id)){
-                return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
             }
-
-            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-        }  
-           
-    }
+            else{
+                return JsonResponse::respondError("Your salon not accepted");
+            }
+      }
+      else{
+        return JsonResponse::respondError("You dont have salon ");
+      }
+    } 
   
 }

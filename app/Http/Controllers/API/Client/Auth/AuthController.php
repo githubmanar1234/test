@@ -202,6 +202,7 @@ class AuthController extends Controller
             'fcm_token' => 'required',
             'role' => 'required',
             'name' => 'required',
+            'email' => 'email|unique:users',
         ];
         if (isset($data['yob']))
             $validation_rules['yob'] = 'date';
@@ -215,6 +216,9 @@ class AuthController extends Controller
 
         if (isset($data['lang']))
             $data['lang'] = $this->requestData['lang'];
+
+        if (isset($data['email']))
+            $data['email'] = $this->requestData['email'];    
 
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
 
