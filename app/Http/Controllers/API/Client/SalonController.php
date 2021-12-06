@@ -285,7 +285,7 @@ class SalonController extends Controller
                     
                         $barber_code = sprintf("%06d", mt_rand(1, 999999));
 
-                        if ($this->isBarberCodeExists($salon_code)) {
+                        if ($this->isBarberCodeExists($barber_code)) {
                             $barber_code = $this->generateInviteCode();
                         }
 
