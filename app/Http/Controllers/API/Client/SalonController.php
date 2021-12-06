@@ -295,7 +295,7 @@ class SalonController extends Controller
                                 
                         $barber['password']= $password;
                         $barber['status']= Constants::STATUS_PENDING;
-                        $barber['city_id'] = 2;
+                        $barber['city_id'] = $resource->city_id;
                         
                         $this->barberRepository->create($barber);
                         

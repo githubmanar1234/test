@@ -126,6 +126,11 @@ class BarberController extends Controller
 
                     $resource->name = $data['name'];
                 }
+                
+                if(isset($data['city_id'] )){
+
+                    $resource->city_id = $data['city_id'];
+                }
                 if(isset($data['phone_number'] )){
 
                     $resource->phone_number = $data['phone_number'];
@@ -155,8 +160,6 @@ class BarberController extends Controller
         
                 $to = $data['to'];
                 $to = json_decode($to, true);
-
-                
                 
                 if (is_array($days)) {
                     if (isset($days[0])) {
