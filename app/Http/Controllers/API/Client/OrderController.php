@@ -147,7 +147,7 @@ class OrderController extends Controller
                     return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
                 }  
                 else{
-                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                    return JsonResponse::respondError("Order is not under review yet");
                     } 
             }
              else{
@@ -232,7 +232,7 @@ class OrderController extends Controller
                     return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
                 }  
                 else{
-                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                    return JsonResponse::respondError("Order not accepted yet");
                     } 
             }
              else{
