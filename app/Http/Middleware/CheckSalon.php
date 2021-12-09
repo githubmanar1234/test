@@ -18,7 +18,7 @@ class CheckSalon
      */
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::guard('client')->user()->role == 'salon') {
+        if (Auth::guard()->user()->role == 'salon') {
 
             return $next($request);
         }

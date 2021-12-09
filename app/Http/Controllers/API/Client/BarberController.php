@@ -262,10 +262,19 @@ class BarberController extends Controller
     public function getBarbersBySalon($id){
 
         $salon = $this->salonRepository->find($id);
-
-        $data = $salon->barbers;
+        if($salon){
+            $data = $salon->barbers;
   
-        return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+        }
+        else{
+            if (is_numeric($id)){
+                return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+            }
+
+            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+        }
+       
    
     }
 

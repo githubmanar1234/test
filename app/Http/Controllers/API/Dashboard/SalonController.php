@@ -11,6 +11,7 @@ use App\Helpers\Mapper;
 use App\Models\Category;
 use App\Models\Country;
 use App\Models\Salon;
+use App\Models\User;
 use App\Helpers\ValidatorHelper;
 use App\Http\Repositories\IRepositories\IServiceRepository;
 use App\Http\Repositories\IRepositories\ISalonRepository;
@@ -395,5 +396,30 @@ class SalonController extends Controller
     
     }
 
+    public function updateUserRole(Request $request) 
+    {
+        $data = $this->requestData;
+
+        $validation_rules = [
+          'user_id' => "required|exists:users,id", 
+          'role'    => "required", 
+        ];
+    
+        $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
+    
+        if ($validator->passes()) {
+  
+            $user = User::where('id' , $data['user_id'])->first();
+
+            if (isset($data['role'])){
+                    
+                $user->role = $data['role'];
+            }
+
+            $user->save();
+                
+             return JsonResponse::respondError($validator->errors()->all());
+        }
+    }
   
 }

@@ -219,6 +219,7 @@ Route::group([
         Route::post('disablSalon', [SalonController::class, 'setDisabledSalon']);
         // Route::post('salon', [SalonController::class, 'store']); 
         Route::delete('salon/{id}', [SalonController::class, 'destroy']);
+        Route::post('updateUserRole', [SalonController::class, 'updateUserRole']); 
 
         //City
         Route::post('city', [CityController::class, 'storeCity']);
