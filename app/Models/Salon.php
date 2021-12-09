@@ -20,9 +20,11 @@ class Salon extends AppModel
 
     public $translatable = ['name'];
 
+    protected $hidden =['city_id'];
+
     protected $with = ['barbers' ,'timings'];
     
-    protected $appends = ['owner'];
+    protected $appends = ['owner' , 'city' ,'country'];
 
     public function barbers(){
         
@@ -72,6 +74,30 @@ class Salon extends AppModel
         }
 
         return "no Owner";
+    }
+
+    public function getCityAttribute()
+    {
+ 
+         $cityId = json_decode($this->attributes['city_id']);
+         if ($cityId) {
+
+            return City::find($cityId)->name;
+    
+          }
+            
+    }
+
+    public function getCountryAttribute()
+    {
+ 
+         $cityId = json_decode($this->attributes['city_id']);
+         if ($cityId) {
+
+            return City::find($cityId)->country->name;
+
+          }
+            
     }
 
     // public function category()
