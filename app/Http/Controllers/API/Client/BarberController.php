@@ -118,6 +118,7 @@ class BarberController extends Controller
                 'from' => 'required',
                 'to' => 'required',
                 'whatsapp_number' => 'numeric',
+                'birthday' => 'required',
             ];
             $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
             if ($validator->passes()) {
@@ -130,6 +131,14 @@ class BarberController extends Controller
 
                     $resource->name = $data['name'];
                 }
+                if(isset($data['birthday'] )){
+
+                    $resource->birthday = $data['birthday'];
+                }
+                if(isset($data['bio'] )){
+
+                    $resource->bio = $data['bio'];
+                }
 
                 if(isset($data['gender'] )){
 
@@ -140,22 +149,22 @@ class BarberController extends Controller
 
                     $resource->city_id = $data['city_id'];
                 }
-                if(isset($data['phone_number'] )){
+                // if(isset($data['phone_number'] )){
 
-                    $resource->phone_number = $data['phone_number'];
-                }
-                if(isset($data['facebook_link'] )){
+                //     $resource->phone_number = $data['phone_number'];
+                // }
+                // if(isset($data['facebook_link'] )){
 
-                    $resource->facebook_link = $data['facebook_link'];
-                }
-                if(isset($data['instagram_link'] )){
+                //     $resource->facebook_link = $data['facebook_link'];
+                // }
+                // if(isset($data['instagram_link'] )){
 
-                    $resource->instagram_link = $data['instagram_link'];
-                }
-                if(isset($data['whatsapp_number'] )){
+                //     $resource->instagram_link = $data['instagram_link'];
+                // }
+                // if(isset($data['whatsapp_number'] )){
 
-                    $resource->whatsapp_number = $data['whatsapp_number'];
-                }
+                //     $resource->whatsapp_number = $data['whatsapp_number'];
+                // }
 
                 $resource->status = Constants::STATUS_ACCEPTED;
                 $resource->save();
@@ -223,20 +232,20 @@ class BarberController extends Controller
                     }
                 }
 
-                if ( $request->hasfile('images')) {
+                // if ( $request->hasfile('images')) {
 
-                    $files = $request->file('images'); 
-                    BarberImage::where('barber_id' ,$resource->id)->delete();
+                //     $files = $request->file('images'); 
+                //     BarberImage::where('barber_id' ,$resource->id)->delete();
 
-                    foreach ($files as $file) {      
-                        $imageUrl = FileHelper::processImage($file, 'public/barbers');
-                        $barberImage = new BarberImage();
-                        $barberImage->image = $imageUrl;
-                        $barberImage->barber_id  = $resource->id;
-                        $barberImage->save();
+                //     foreach ($files as $file) {      
+                //         $imageUrl = FileHelper::processImage($file, 'public/barbers');
+                //         $barberImage = new BarberImage();
+                //         $barberImage->image = $imageUrl;
+                //         $barberImage->barber_id  = $resource->id;
+                //         $barberImage->save();
                     
-                    }
-                }
+                //     }
+                // }
 
                 return JsonResponse::respondSuccess(trans(JsonResponse::MSG_UPDATED_SUCCESSFULLY));
                        

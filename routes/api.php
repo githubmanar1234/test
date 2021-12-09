@@ -63,6 +63,7 @@ Route::group([
 
 // client routes
 Route::middleware('auth:client')->get('getUser', [ClientAuthController::class, "getUser"]);
+
 Route::group([
     "prefix" => "client"
 ], function () {
@@ -74,13 +75,23 @@ Route::group([
         Route::post('logoutBarber', [ClientAuthController::class, 'logoutBarber']);
 
         Route::post('register', [ClientAuthController::class, "register"]);
+
         Route::group(['middleware' => 'auth:client'], function () {
             Route::get('getUser', [ClientAuthController::class, 'getUser']);
             Route::post('logout', [ClientAuthController::class, 'logout']);
         });
+
     });
     Route::resource('countries', ClientCountryController::class)->only(['index']);
     Route::get('cities', [ClientCountryController::class, 'cities']);
+
+    //services
+    Route::get('services', [ClientServiceController::class, 'index']);
+    Route::get('service/{id}', [ClientServiceController::class, 'show']);
+
+    //categories
+    Route::get('categories', [ClientCategoryController::class, 'categories']);
+    Route::get('categories/find', [ClientCategoryController::class, 'find']);
 
     Route::get('salons/test', [ClientSalonController::class, 'test']);
 
@@ -89,12 +100,7 @@ Route::group([
 //            return \App\Helpers\JsonResponse::respondSuccess(\App\Helpers\JsonResponse::MSG_SUCCESS, \App\Models\City::all()->pluck('name','id'));
 //        });
 
-        Route::get('categories', [ClientCategoryController::class, 'categories']);
-        Route::get('categories/find', [ClientCategoryController::class, 'find']);
         
-        //services
-        Route::get('services', [ClientServiceController::class, 'index']);
-        Route::get('service/{id}', [ClientServiceController::class, 'show']);
 
         //users
         Route::get('userInfo', [ClientUserController::class, 'userInfo']);

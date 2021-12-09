@@ -12,25 +12,37 @@ class BarberService extends Authenticatable
     use HasFactory, HasApiTokens;
     
     protected $fillable = ['price', 'duration', 'barber_id' , 'service_id'];
-   // protected $hidden =['password'];
 
-   //protected $with = ['services'];
+   protected $hidden =['service_id'];
+   
+//    $serviceTitle = Service::find($service_id)->title ;
+
+   protected $appends = ['service'];
+
+   public $translatable = ['service'];
+
+   public function getServiceAttribute()
+   {
+
+        $ServiceId = json_decode($this->attributes['service_id']);
+        if ($ServiceId) {
+            $service = Service::find($ServiceId);
+            $title["en"] = $service->getTranslation("title", "en");
+            $title["ar"] = $service->getTranslation("title", "ar");
+            $title["tr"] = $service->getTranslation("title", "tr");
+
+            return $title;
+         }
+           
+   }
+
 
    public function services()
    {
        return $this->belongsTo(Service::class, "service_id", 'id');
    }
 
-   public function getServiceIdAttribute()
-   {
-
-        $ServiceId = json_decode($this->attributes['service_id']);
-        if ($ServiceId) {
-             return Service::find($ServiceId)->title;
-               
-         }
-           
-   }
+   
 
     protected function serializeDate(\DateTimeInterface $date) : string
     {

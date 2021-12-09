@@ -34,15 +34,20 @@ class Barber extends Authenticatable
         'is_availble',
         'city_id',
         'gender',
+        'birthday',
+        'bio',
 
         
     ];
 
     public $translatable = ['name'];
 
-    protected $with = ['images' ,'services'];
+    protected $with = ['services'];
+
+    protected $hidden = ['phone_number', 'facebook_link','instagram_link','whatsapp_number'];
 
 
+    //not used yet
     public function images(){
 
         return $this->hasMany(BarberImage::class,'barber_id');

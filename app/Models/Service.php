@@ -12,7 +12,9 @@ class Service extends AppModel
     use SoftDeletes;
 
     protected $table = "services";
+    
     protected $fillable = ['title', 'description', 'category_id', 'image'];
+
     public $translatable = ['title','description'];
 
 
