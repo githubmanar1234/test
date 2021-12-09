@@ -26,11 +26,18 @@ class BarberService extends Authenticatable
 
         $ServiceId = json_decode($this->attributes['service_id']);
         if ($ServiceId) {
-            $service = Service::find($ServiceId);
-            $title["en"] = $service->getTranslation("title", "en");
-            $title["ar"] = $service->getTranslation("title", "ar");
-            $title["tr"] = $service->getTranslation("title", "tr");
 
+            if (Service::find($ServiceId)){
+                $service = Service::find($ServiceId);
+                $title["en"] = $service->getTranslation("title", "en");
+                $title["ar"] = $service->getTranslation("title", "ar");
+                $title["tr"] = $service->getTranslation("title", "tr");
+    
+            }
+            else{
+                $title = "";
+            }
+          
             return $title;
          }
            

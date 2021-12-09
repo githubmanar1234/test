@@ -76,7 +76,7 @@ class SalonController extends Controller
             
                 $validation_rules = [
                     'name' => "required",
-                    'city_id' => "required",
+                    'city_id' => "exists:cities,id",
                     'type' => "required",
                     'berbers_num' => "required",
                     'days' => 'required',

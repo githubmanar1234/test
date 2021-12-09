@@ -74,7 +74,7 @@ class BarberController extends Controller
         $data = $this->requestData;
         $validation_rules = [
             'name' => "required",
-            'city_id' => "required",
+            'city_id' => "exists:cities,id",
         ];
       
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
@@ -118,7 +118,7 @@ class BarberController extends Controller
                 'from' => 'required',
                 'to' => 'required',
                 'whatsapp_number' => 'numeric',
-                'birthday' => 'required',
+                'birthday' => 'required|date',
             ];
             $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
             if ($validator->passes()) {
@@ -398,9 +398,9 @@ class BarberController extends Controller
 
         if($user->role == "salon"){
             if($salon){
-            $salon_city_id = $salon->city->id;
-            $data = Barber::where('city_id' ,  $salon_city_id )->where('is_availble' , 1)->get();
-            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+                // $salon_city_id = $salon->city_id;
+                $data = Barber::where('city_id' ,  $salon->city_id )->where('is_availble' , 1)->get();
+                return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
             }
             return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
         }

@@ -311,7 +311,6 @@ class OrderController extends Controller
                 $now = Carbon::now()->format('Y-m-d H:i:s');
                 
                 $restTime = $start_time->diffInHours($now);
-                return $restTime;
 
                 //not after end the order
                 $value = Setting::where('key' , "cancel the appointment before time")->first()->value;

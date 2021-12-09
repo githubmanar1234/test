@@ -79,24 +79,40 @@ class Salon extends AppModel
     public function getCityAttribute()
     {
  
-         $cityId = json_decode($this->attributes['city_id']);
-         if ($cityId) {
 
-            return City::find($cityId)->name;
-    
-          }
+        $cityId = json_decode($this->attributes['city_id']);
+        if ($cityId) {
+
+           if (City::find($cityId)){
+               return City::find($cityId)->name;
+           }
+           else{
+               return "no City";
+
+           }
+   
+         }
             
     }
 
     public function getCountryAttribute()
     {
- 
-         $cityId = json_decode($this->attributes['city_id']);
-         if ($cityId) {
 
-            return City::find($cityId)->country->name;
+        $cityId = json_decode($this->attributes['city_id']);
+        if ($cityId) {
 
-          }
+           if (City::find($cityId)){
+               if(City::find($cityId)->country){
+                    return City::find($cityId)->country->name;
+               }
+               else{
+                    return "no country";
+               }
+           }
+           else{
+               return "no City";
+           }
+        }
             
     }
 
