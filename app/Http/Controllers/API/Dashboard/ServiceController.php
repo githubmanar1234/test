@@ -234,7 +234,7 @@ class ServiceController extends Controller
             'title.*' => "required",
             'description' => "required|array|languages",
             'description.*' => "required",
-            'category_id' => "required",
+            'category_id' => "required|exists:categories,id",
         ];
 
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());

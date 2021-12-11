@@ -32,6 +32,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\ValidatorHelper;
 use App\Helpers\FileHelper;
+use Illuminate\Support\Facades\Crypt;
 
 
 class BarberController extends Controller
@@ -93,11 +94,13 @@ class BarberController extends Controller
         //    $password = sprintf("%06d", mt_rand(1, 999999));
            $password = Str::random(20);
            $data['password']= $password;
+           
 
            $data['status']= Constants::STATUS_PENDING;
 
             $resource = $this->barberRepository->create($data);
-        
+            $resource->makeVisible($password);
+            
         if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
         return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
         }
@@ -168,8 +171,7 @@ class BarberController extends Controller
 
                 $resource->status = Constants::STATUS_ACCEPTED;
                 $resource->save();
-
-                
+              
                 $days = $data['days'];
                 $days = json_decode($days, true);
                 
@@ -251,7 +253,7 @@ class BarberController extends Controller
                        
             }
             else{
-                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                return JsonResponse::respondError("Barber not exist");
             }
         }
         return JsonResponse::respondError($validator->errors()->all());
@@ -320,6 +322,14 @@ class BarberController extends Controller
         }
     }
 
+    // function makeVisible($password){
+
+    //      $password = makeVisible(['password']);
+             
+    //     //  Crypt::decrypt($password); 
+    //      return $password;
+    // }
+
 
     //get barber timelines by user.
     public function getBarberTimeLinesByUser($id){
@@ -369,7 +379,9 @@ class BarberController extends Controller
 
         if($data){
             $barber = Barber::where('id' ,$id)->where('salon_id' , $salon_id)->first();
+            
             if($barber){
+     
                 $timingesBarber =  TimingBarber::where('barber_id' , $id)->get();
                 return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $timingesBarber);
             }
@@ -400,9 +412,16 @@ class BarberController extends Controller
             if($salon){
                 // $salon_city_id = $salon->city_id;
                 $data = Barber::where('city_id' ,  $salon->city_id )->where('is_availble' , 1)->get();
+                $data->makeVisible(['password']);
+             
+                // Crypt::decrypt($password); 
+                // foreach( $data  as $barber){
+                //     $data->decryptPassword($password);
+                // }
+                
                 return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
             }
-            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
+            return JsonResponse::respondError("This user does not have salon");  
         }
         else{
             if($user->role == "user"){
@@ -523,11 +542,15 @@ class BarberController extends Controller
             $request_data = $this->requestData;
 
             $barber = Barber::where('id' ,$barber_id)->first();
-
-             // $barbers = $data->barbers;
-            // $owner = $data->user;
-            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $barber);
-              
+            if($barber){
+              // $barbers = $data->barbers;
+              // $owner = $data->user;
+              return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $barber);
+            }
+            else{
+                return JsonResponse::respondError("You dont  not have profile");  
+            }
+                      
         }
         else{
             return JsonResponse::respondError("You are not barber");  

@@ -42,10 +42,19 @@ class Barber extends Authenticatable
 
     public $translatable = ['name'];
 
-    protected $with = ['services'];
+    protected $with = ['services','timelines'];
 
-    protected $hidden = ['phone_number', 'facebook_link','instagram_link','whatsapp_number'];
+    protected $appends = ['salonType'];
 
+    protected $hidden = ['phone_number', 'facebook_link','instagram_link','whatsapp_number','password'];
+
+    // public function decryptPassword($password){
+
+    //     //  $password = $data->makeVisible(['password']);
+             
+    //      Crypt::decrypt($password); 
+    //      return $password;
+    // }
 
     //not used yet
     public function images(){
@@ -57,10 +66,32 @@ class Barber extends Authenticatable
 
         return $this->hasMany(BarberService::class,'barber_id');
     }
+
+    public function timelines(){
+
+        return $this->hasMany(TimingBarber::class,'barber_id');
+    }
     
     public function salon()
     {
         return $this->belongsTo(Salon::class, "salon_id", 'id');
+    }
+
+    public function getSalonTypeAttribute()
+    {
+ 
+         $SalonId = json_decode($this->attributes['salon_id']);
+         if ($SalonId) {
+ 
+             if (Salon::find($SalonId)){
+               return  Salon::find($SalonId)->type;
+             }
+             else{
+                return "no salon";
+             }
+           
+          }
+            
     }
 
     public function barberReports()

@@ -161,7 +161,7 @@ class SalonController extends Controller
                             }
                         }
                     }
-                    else{return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);}
+                    else{return JsonResponse::respondError("Days not array");}
                 
                     if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
                     return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
@@ -184,7 +184,7 @@ class SalonController extends Controller
             $salon->city_id = isset($data['city_id']) ? $data['city_id'] : $salon->city_id;
             $salon->type = isset($data['type']) ? $data['type'] : $salon->type;
 
-            $salon->location = isset($data['address']) ? $data['address'] : $salon->location;
+            $salon->address = isset($data['address']) ? $data['address'] : $salon->address;
             $salon->lat_location = isset($data['lat_location']) ? $data['lat_location'] : $salon->lat_location;
             $salon->long_location = isset($data['long_location']) ? $data['long_location'] : $salon->long_location;
             // $salon->instagram_link = isset($data['instagram_link']) ? $data['instagram_link'] : $salon->instagram_link;
@@ -240,7 +240,7 @@ class SalonController extends Controller
                     }
                 }
                 else{
-                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                    return JsonResponse::respondError("The days,from and to arraies are not the length");
                     }
             
             }
@@ -359,7 +359,6 @@ class SalonController extends Controller
     //get all accepted salons
     public function getAcceptedSalons(){
 
-     
         $request_data = $this->requestData;
 
         $data = $this->salonRepository->allAsQuery();

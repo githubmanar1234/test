@@ -78,10 +78,10 @@ class PostController extends Controller
         if ($validator->passes()) {
 
                 $user = Auth::guard('client')->user();
-            
-                $salon = $user->salon;
                  
-                if($salon){
+                if($user->salon){
+
+                    $salon = $user->salon;
 
                     $salon_id = $salon->id;
 
@@ -141,6 +141,7 @@ class PostController extends Controller
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
     
         if ($validator->passes()) {
+
             if($user->salon){
 
                 $salon = $user->salon;
@@ -197,25 +198,30 @@ class PostController extends Controller
     {
     
         $user = Auth::guard('client')->user();
-    
-        $data = $this->requestData;
-        $validation_rules = [
-            'post_id' => "required|exists:posts,id",
-        ];
-        
-        $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
-        if ($validator->passes()) {
+        if($usr){
+            $data = $this->requestData;
+            $validation_rules = [
+                'post_id' => "required|exists:posts,id",
+            ];
+            
+            $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
+            if ($validator->passes()) {
 
-           $post_id = $data['post_id'];
-           $post = Post::find($post_id);
-        
-            $data['user_id'] = $user->id;
-            $resource = $this->postLikeRepository->create($data);
+            $post_id = $data['post_id'];
+            $post = Post::find($post_id);
+            
+                $data['user_id'] = $user->id;
+                $resource = $this->postLikeRepository->create($data);
 
-            if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
-            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
-         }
-        return JsonResponse::respondError($validator->errors()->all());
+                if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
+                return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
+            }
+            return JsonResponse::respondError($validator->errors()->all());
+        }
+        else{
+            return JsonResponse::respondError("You are not user");
+        }
+           
     }
 
     //delete post by its salon
@@ -224,12 +230,11 @@ class PostController extends Controller
 
         $user = Auth::guard('client')->user();
 
-        $salon_id = $user->salon->id;
-
         if($user->salon){
 
+            $salon_id = $user->salon->id;
+
             $salon = $user->salon;
-            $salon_id = $salon->id;
 
             if($salon->status == Constants::STATUS_ACCEPTED){
 

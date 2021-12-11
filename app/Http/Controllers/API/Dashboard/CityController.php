@@ -67,7 +67,7 @@ class CityController extends Controller
         $data = $this->requestData;
         $validation_rules = [
             'name' => "required",
-            'country_id' => "required",  
+            'country_id' => "required|exists:countries,id",  
         ];
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {

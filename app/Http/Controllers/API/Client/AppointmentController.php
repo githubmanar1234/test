@@ -279,7 +279,7 @@ class AppointmentController extends Controller
                                 }
                             }
                         }
-                        else{return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);}
+                        else{return JsonResponse::respondError("barberServices is not array");}
 
                         $resource->orderServices;
                         $resource->user;

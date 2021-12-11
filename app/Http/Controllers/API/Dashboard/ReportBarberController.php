@@ -69,8 +69,10 @@ class ReportBarberController extends Controller
         if($data){
             return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
         }
-       
-          
+        else{
+            return JsonResponse::respondError("There are not reported barbers");
+        }
+              
     }
 
 

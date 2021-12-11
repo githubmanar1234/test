@@ -73,6 +73,7 @@ class ReportController extends Controller
     public function reportBarber(Request $request)
     {
        $user = Auth::guard('client')->user();
+
        if($user){
                 $data = $this->requestData;
                 $validation_rules = [
@@ -97,7 +98,7 @@ class ReportController extends Controller
                             return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
                         }  
                         else{
-                            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                            return JsonResponse::respondError("This barber not accepted yet");
                             } 
                     }
                     else{
@@ -116,6 +117,7 @@ class ReportController extends Controller
     public function reportSalon(Request $request)
     {
        $user = Auth::guard('client')->user();
+
        if($user){
             $data = $this->requestData;
             $validation_rules = [
@@ -161,6 +163,7 @@ class ReportController extends Controller
     {
         
        $user = Auth::guard('client')->user();
+
         if($user){
                 $data = $this->requestData;
                 $validation_rules = [
@@ -194,8 +197,6 @@ class ReportController extends Controller
                     }
 
                     return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
-                    
-                
                     
                 }
                 return JsonResponse::respondError($validator->errors()->all());

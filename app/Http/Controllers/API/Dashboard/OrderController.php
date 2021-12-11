@@ -77,7 +77,7 @@ class OrderController extends Controller
             return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
         }
 
-        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
+        return JsonResponse::respondError("You are not admin");  
     }
 
 

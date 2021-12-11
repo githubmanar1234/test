@@ -146,12 +146,15 @@ class SettingController extends Controller
      */
     public function getByKey()
     {
-
         $data = $this->requestData;
+
         $validation_rules = ['key' => 'required'];
+        
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {
+
             $resource = $this->settingRepository->findBy('key', $this->requestData['key']);
+            
             if ($resource) {
                 return JsonResponse::respondSuccess(trans(JsonResponse::MSG_UPDATED_SUCCESSFULLY), $resource);
             } else {

@@ -22,6 +22,7 @@ use App\Models\User;
 use App\Models\BarberImage;
 use App\Models\Post;
 use App\Models\Order;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -58,7 +59,7 @@ class OrderController extends Controller
 
         $request_data = $this->requestData;
 
-         $user = Auth::guard('barber')->user();
+        $user = Auth::guard('barber')->user();
          
         if($this->authUser){
 
@@ -75,7 +76,7 @@ class OrderController extends Controller
             return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, []);
         }
 
-        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
+        return JsonResponse::respondError("You are not barber");  
     }
 
      //get daily orders for barbers by salon//time line
@@ -127,7 +128,7 @@ class OrderController extends Controller
         if($this->authUser){
         $request_data = $this->requestData;
         $validation_rules = [
-            'order_id' => "required",
+            'order_id' => "required|exists:orders,id",
         ];
 
         $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
@@ -151,25 +152,24 @@ class OrderController extends Controller
                     } 
             }
              else{
-                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                return JsonResponse::respondError("Order is not exist");
               }
         }
         return JsonResponse::respondError($validator->errors()->all());
         }
 
-        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
+        return JsonResponse::respondError("You are not barber");  
     
     }
 
     //reject order by barber.
     public function setRejectedOrder(Request $request)
     {
-
         
         if($this->authUser){
         $request_data = $this->requestData;
         $validation_rules = [
-            'order_id' => "required",
+            'order_id' =>"required|exists:orders,id",
             'reject_message' => "required",
         ];
 
@@ -191,17 +191,17 @@ class OrderController extends Controller
                     return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
                 }  
                 else{
-                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                    return JsonResponse::respondError("Order is not under review");
                     } 
             }
              else{
-                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                return JsonResponse::respondError("Order is not exist");
               }
         }
         return JsonResponse::respondError($validator->errors()->all());
         }
 
-        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
+        return JsonResponse::respondError("You are not barber");  
 
     }
 
@@ -212,7 +212,7 @@ class OrderController extends Controller
         if($this->authUser){
         $request_data = $this->requestData;
         $validation_rules = [
-            'order_id' => "required",
+            'order_id' => "required|exists:orders,id",
         ];
 
         $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
@@ -236,13 +236,13 @@ class OrderController extends Controller
                     } 
             }
              else{
-                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                return JsonResponse::respondError("Order is not exist");
               }
         }
         return JsonResponse::respondError($validator->errors()->all());
         }
 
-        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
+        return JsonResponse::respondError("You are not barber"); 
 
     }
 
@@ -253,7 +253,7 @@ class OrderController extends Controller
          if($this->authUser){
          $request_data = $this->requestData;
          $validation_rules = [
-             'order_id' => "required",
+             'order_id' => "required|exists:orders,id",
          ];
  
          $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
@@ -273,21 +273,21 @@ class OrderController extends Controller
                      return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
                  }  
                  else{
-                     return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                    return JsonResponse::respondError("Order not accepted yet");
                      } 
              }
               else{
-                 return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                 return JsonResponse::respondError("Order is not exist");
                }
          }
          return JsonResponse::respondError($validator->errors()->all());
          }
  
-         return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
+         return JsonResponse::respondError("You are not barber");  
  
      }
 
-      //cancel order by barber.
+      //cancel order by user.
     public function setCanceledOrder(Request $request)
     {
         
@@ -296,7 +296,8 @@ class OrderController extends Controller
         if($user){
             $request_data = $this->requestData;
             $validation_rules = [
-                'order_id' => "required",
+                'order_id' => "required|exists:orders,id",
+                'cancel_message' => "",
             ];
 
             $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
@@ -305,44 +306,84 @@ class OrderController extends Controller
                 $data =  Order::all();
 
                 $data = $data->find($request_data['order_id']);
-
-                $start_time = $data->start_time;
-              
-                $now = Carbon::now()->format('Y-m-d H:i:s');
                 
+                $start_time = Carbon::parse($data->start_time);
+
+                $now = Carbon::now()->format('Y-m-d H:i:s');
+              
                 $restTime = $start_time->diffInHours($now);
 
                 //not after end the order
                 $value = Setting::where('key' , "cancel the appointment before time")->first()->value;
-                
-                $data = $data->find($request_data['order_id']);
-
-               
-                if($data){
 
                         if($restTime <= $value){
                             if($data->status == Constants::ORDER_STATUS_UNDER_REVIEW || $data->status == Constants::ORDER_STATUS_ACCEPTED){
                         
-                                $data->status = Constants::ORDER_STATUS_CANCELED;                 
+                                $data->status = Constants::ORDER_STATUS_CANCELED; 
+                                
+                                if(isset($request_data['cancel_message'])) {
+
+                                    $data->reject_message = $request_data['cancel_message']; 
+                                }
+                                               
                                 $data->save();
                                 return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
                             }  
                             else{
-                                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                                return JsonResponse::respondError("This order not accepted or under review now");
                             } 
                         }
                         else{
-                            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                            return JsonResponse::respondError("You can not cancel this order now");
                         }
-                }
-              
             }
             return JsonResponse::respondError($validator->errors()->all());
         }
 
-        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
+        return JsonResponse::respondError("You are not user");  
     
     }
+
+     //under review order by barber.
+     public function setUnderReviewOrder(Request $request)
+     {
+ 
+         if($this->authUser){
+         $request_data = $this->requestData;
+         $validation_rules = [
+             'order_id' => "required|exists:orders,id",
+         ];
+ 
+         $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
+         if ($validator->passes()) {
+ 
+            // $data = $this->orderRepository->allAsQuery();
+             $data =  Order::all();
+             
+             $data = $data->find($request_data['order_id']);
+ 
+             if($data){
+ 
+                 if($data->status == Constants::ORDER_STATUS_ACCEPTED){
+     
+                     $data->status = Constants::ORDER_STATUS_UNDER_REVIEW;                   
+                     $data->save();
+                     return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+                 }  
+                 else{
+                     return JsonResponse::respondError("Order not accepted yet");
+                     } 
+             }
+              else{
+                 return JsonResponse::respondError("Order is not exist");
+               }
+         }
+         return JsonResponse::respondError($validator->errors()->all());
+         }
+ 
+         return JsonResponse::respondError("You are not barber"); 
+ 
+     }
 
     
     //view user profile by his barber.
@@ -366,6 +407,10 @@ class OrderController extends Controller
                 return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
             }  
         }
+        else{
+            return JsonResponse::respondError("You are not barber");
+        }
+        
     }
 
     //get orders for users
@@ -381,7 +426,7 @@ class OrderController extends Controller
             return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
         }
 
-        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
+        return JsonResponse::respondError("You are not user");  
     }
 
     //rate order by user.
@@ -395,7 +440,7 @@ class OrderController extends Controller
 
             $request_data = $this->requestData;
             $validation_rules = [
-                'order_id' => "required",
+                'order_id' => "required|exists:orders,id",
                 'rate' => "required|numeric",
             ];
 
@@ -423,7 +468,7 @@ class OrderController extends Controller
             return JsonResponse::respondError($validator->errors()->all());
         }
 
-        return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
+        return JsonResponse::respondError("You are not user");  
 
     }
 
@@ -436,37 +481,37 @@ class OrderController extends Controller
         
          if($user){
  
-         $request_data = $this->requestData;
-         $validation_rules = [
-             'order_id' => "required",
-             'notes' => "required",
-         ];
- 
-         $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
-         if ($validator->passes()) {
- 
-             $data =  Order::where('id' , $request_data['order_id'])->where('user_id' , $user->id)->first();
-             
-             if($data){
- 
-                 if($data->status == Constants::ORDER_STATUS_COMPLETED){
-     
-                     $data->notes = $request_data['notes'];                   
-                     $data->save();
-                     return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
-                 }  
-                 else{
-                     return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-                     } 
-             }
-              else{
-                 return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-               }
+                $request_data = $this->requestData;
+                $validation_rules = [
+                    'order_id' => "required|exists:orders,id",
+                    'notes' => "required",
+                ];
+        
+                $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
+                if ($validator->passes()) {
+        
+                    $data =  Order::where('id' , $request_data['order_id'])->where('user_id' , $user->id)->first();
+                    
+                    if($data){
+        
+                        if($data->status == Constants::ORDER_STATUS_COMPLETED){
+            
+                            $data->notes = $request_data['notes'];                   
+                            $data->save();
+                            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
+                        }  
+                        else{
+                            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+                            } 
+                    }
+                    else{
+                        return JsonResponse::respondError("You dont have this order");
+                    }
+                }
+                return JsonResponse::respondError($validator->errors()->all());
          }
-         return JsonResponse::respondError($validator->errors()->all());
-         }
  
-         return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);  
+         return JsonResponse::respondError("You are not user");  
  
      }
 

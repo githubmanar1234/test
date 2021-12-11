@@ -53,6 +53,7 @@ Route::group([
     Route::post('acceptOrder', [ClientOrderController::class, 'setAcceptedOrder']);
     Route::post('setRejectedOrder', [ClientOrderController::class, 'setRejectedOrder']);
     Route::post('setCompletedOrder', [ClientOrderController::class, 'setCompletedOrder']);
+    Route::post('setUnderReviewOrder', [ClientOrderController::class, 'setUnderReviewOrder']);
     Route::post('setInCompletedOrder', [ClientOrderController::class, 'setInCompletedOrder']);
     Route::post('blockUser', [ClientBarberController::class, 'blockUser']);
     Route::get('barberProfile', [ClientBarberController::class, 'getMyProfile']);

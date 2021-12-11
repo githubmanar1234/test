@@ -51,9 +51,11 @@ class CategoryController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function find(){
+
         $request_data = $this->requestData;
 
         $data = $this->categoryRepository->allAsQuery();
+        
         if (isset($this->requestData['title']))foreach (Constants::LANGUAGES as $LANGUAGE){
             $data = $data->orWhere("title->".$LANGUAGE,'like',"%".lcfirst($request_data['title'])."%");
             $data = $data->orWhere("title->".$LANGUAGE,'like',"%".ucfirst($request_data['title'])."%");

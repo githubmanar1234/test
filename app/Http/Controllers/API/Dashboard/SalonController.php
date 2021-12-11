@@ -91,7 +91,7 @@ class SalonController extends Controller
             return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
         }
         else{
-            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+            return JsonResponse::respondError("There are not pending salons");
         }
         
           
@@ -164,7 +164,7 @@ class SalonController extends Controller
             return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
         }
         else{
-            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+            return JsonResponse::respondError("There are not accepted and rejected salons");
         }
         
     }
@@ -185,7 +185,7 @@ class SalonController extends Controller
             return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
         }
         else{
-            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+            return JsonResponse::respondError("There are not accepted and disabled salons");
         }
         
           
@@ -216,7 +216,7 @@ class SalonController extends Controller
     {
         $request_data = $this->requestData;
         $validation_rules = [
-            'salon_id' => "required",
+            'salon_id' => "required|exists:salons,id",
         ];
 
         $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
@@ -276,7 +276,7 @@ class SalonController extends Controller
     {
         $request_data = $this->requestData;
         $validation_rules = [
-            'salon_id' => "required",
+            'salon_id' => "required|exists:salons,id",
             'reason' => "required",
         ];
 
@@ -337,7 +337,7 @@ class SalonController extends Controller
     {
         $request_data = $this->requestData;
         $validation_rules = [
-            'salon_id' => "required",
+            'salon_id' => "required|exists:salons,id",
             'reason' => "required",
         ];
 
@@ -396,6 +396,7 @@ class SalonController extends Controller
     
     }
 
+    //to test just for me :)
     public function updateUserRole(Request $request) 
     {
         $data = $this->requestData;

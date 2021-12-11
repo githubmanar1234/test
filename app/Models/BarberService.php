@@ -32,6 +32,7 @@ class BarberService extends Authenticatable
                 $title["en"] = $service->getTranslation("title", "en");
                 $title["ar"] = $service->getTranslation("title", "ar");
                 $title["tr"] = $service->getTranslation("title", "tr");
+                $title["image"] = $service->image;
     
             }
             else{

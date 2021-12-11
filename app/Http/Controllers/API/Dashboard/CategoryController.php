@@ -164,7 +164,6 @@ class CategoryController extends Controller
 
         
         $data = $data->get();
-        return $data;
         return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
     }
 
@@ -287,16 +286,20 @@ class CategoryController extends Controller
 
     public function updateCategoriesOrder()
     {
-
         $data = $this->requestData;
+
         $cats = Category::all();
+
         $count = $cats->count();
+
         $validation_rules = [
             'orders' => "required|array|min:" . $count . "|max:" . $count,
             'orders.*' => "required|numeric|distinct|max:" . $count
         ];
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
+
         if ($validator->passes()) {
+            
             foreach ($data['orders'] as $key => $value) {
                 if (!$cats->contains('id', $key))
                     return JsonResponse::respondError(["invalid category id " . $key]);
