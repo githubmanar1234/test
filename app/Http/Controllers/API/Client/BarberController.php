@@ -87,20 +87,18 @@ class BarberController extends Controller
                        
            $data['barber_code']= $barber_code;
 
-          // $data['salon_code'] = $salon_code;
            $data['is_available'] = 0;
            $data['salon_id'] = $salon_id;
            
-        //    $password = sprintf("%06d", mt_rand(1, 999999));
            $password = Str::random(20);
            $data['password']= $password;
            
-
            $data['status']= Constants::STATUS_PENDING;
 
             $resource = $this->barberRepository->create($data);
-            $resource->makeVisible($password);
-            
+            // $resource->makeVisible(['password']);
+            $resource['newPassword'] = $resource->password;
+
         if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
         return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
         }
@@ -415,9 +413,6 @@ class BarberController extends Controller
                 $data->makeVisible(['password']);
              
                 // Crypt::decrypt($password); 
-                // foreach( $data  as $barber){
-                //     $data->decryptPassword($password);
-                // }
                 
                 return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
             }
@@ -427,6 +422,8 @@ class BarberController extends Controller
             if($user->role == "user"){
 
                 $barbers = Barber::where('is_availble' , 1)->get();
+                $data->makeVisible(['password']);
+                
                 foreach($barbers as  $barber){
 
                     $block = Block::where('barber_id' , $barber->id)->where('user_id' ,$user->id)->first();
