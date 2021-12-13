@@ -140,6 +140,8 @@ Route::group([
         Route::delete('post/{id}', [ClientPostController::class, 'destroy'])->middleware(['salon']);
         Route::post('post/update', [ClientPostController::class, 'update'])->middleware(['salon']);
         Route::post('likePost', [ClientPostController::class, 'likePost']);
+        Route::post('viewPost', [ClientPostController::class, 'viewPost']);
+
 
         //Orders
         Route::get('orders/user', [ClientOrderController::class, 'getOrdersUser']);

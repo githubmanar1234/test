@@ -14,7 +14,7 @@ use Spatie\Translatable\HasTranslations;
 
 class Barber extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens,HasTranslations;
+    use HasFactory, Notifiable, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
@@ -40,7 +40,7 @@ class Barber extends Authenticatable
         
     ];
 
-    public $translatable = ['name'];
+    // public $translatable = ['name'];
 
     protected $with = ['services','timelines'];
 

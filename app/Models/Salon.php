@@ -8,7 +8,7 @@ use Spatie\Translatable\HasTranslations;
 
 class Salon extends AppModel
 {
-    use HasFactory,HasTranslations;
+    use HasFactory;
     //use SoftDeletes;
 
     protected $table = "salons";
@@ -18,7 +18,7 @@ class Salon extends AppModel
     , 'type' ,'image', 'is_open','address','lat_location','long_location','phone_number',
     'facebook_link','whatsapp_number','is_available','founded_in','instagram_link'];
 
-    public $translatable = ['name'];
+    // public $translatable = ['name'];
 
     protected $hidden =['city_id'];
 

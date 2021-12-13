@@ -13,9 +13,11 @@ use App\Http\Repositories\IRepositories\ISalonRepository;
 use App\Http\Repositories\IRepositories\IPostImageRepository;
 use App\Http\Repositories\IRepositories\IPostLikeRepository;
 use App\Http\Repositories\IRepositories\IBarberRepository;
+use App\Http\Repositories\IRepositories\IViewRepository;
 use App\Models\Category;
 use App\Models\Salon;
 use App\Models\Barber;
+use App\Models\View;
 use App\Models\Post;
 use App\Models\PostImage;
 use Illuminate\Support\Facades\Auth;
@@ -33,11 +35,13 @@ class PostController extends Controller
     private $postRepository;
     private $barberRepository;
     private $postImageRepository;
+    private $viewRepository;
     private $requestData;
     private $authUser;
 
     public function __construct(
         ICategoryRepository $categoryRepository,
+        IViewRepository $viewRepository,
         IUserRepository $userRepository,
         IPostRepository $postRepository,
         ISalonRepository $salonRepository,
@@ -47,6 +51,7 @@ class PostController extends Controller
     )
     {
         $this->userRepository = $userRepository;
+        $this->viewRepository = $viewRepository;
         $this->postRepository = $postRepository;
         $this->salonRepository = $salonRepository;
         $this->postLikeRepository = $postLikeRepository;
@@ -198,7 +203,7 @@ class PostController extends Controller
     {
     
         $user = Auth::guard('client')->user();
-        if($usr){
+        if($user){
             $data = $this->requestData;
             $validation_rules = [
                 'post_id' => "required|exists:posts,id",
@@ -269,5 +274,61 @@ class PostController extends Controller
         return JsonResponse::respondError("You dont have salon ");
       }
     } 
+
+    public function viewPost(Request $request)
+    {
+        $user = Auth::guard('client')->user();
+
+        if($user){
+
+            $data = $this->requestData;
+
+            $validation_rules = [
+                'post_id' => "required|exists:posts,id",
+            ];
+            
+            $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
+            if ($validator->passes()) {
+
+                    $views = View::where('user_id' , $user->id)->where('post_id' , $data['post_id'])->get();
+
+                    if(count($views) > 0){
+                        foreach($views as $view){
+
+                            $now = Carbon::now()->day;
+                            $created_at =Carbon::parse($view->created_at)->day;
+
+                            if($created_at !== $now){
+
+                                $data['user_id'] = $user->id;
+                        
+                                $resource = $this->viewRepository->create($data);
+            
+                                if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
+                                return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
+                            }
+                            else{
+                            return JsonResponse::respondError("You already have viewed this post today");
+                            }
+                        }
+                    }
+                    else{
+                        $data['user_id'] = $user->id;
+                        
+                        $resource = $this->viewRepository->create($data);
+    
+                        if (!$resource) return JsonResponse::respondError(JsonResponse::MSG_CREATION_ERROR);
+                        return JsonResponse::respondSuccess(trans(JsonResponse::MSG_ADDED_SUCCESSFULLY), $resource);
+                        }
+                     
+                   
+            }
+            return JsonResponse::respondError($validator->errors()->all());
+        }
+        else{
+            return JsonResponse::respondError("You are not user");
+        }
+           
+    }
   
 }
