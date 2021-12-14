@@ -61,7 +61,7 @@ class CategoryController extends Controller
             $data = $data->orWhere("title->".$LANGUAGE,'like',"%".ucfirst($request_data['title'])."%");
         }
         if (isset($this->requestData['description'])) foreach (Constants::LANGUAGES as $LANGUAGE) {
-            $data = $data->orWhere("description->" . $LANGUAGE, 'like', "%".$request_data['description']."%");
+            $data = $data->where("description->" . $LANGUAGE, 'like', "%".$request_data['description']."%");
         }
         $data = $data->get();
         return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS,$data);

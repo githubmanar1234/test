@@ -331,4 +331,6 @@ class AuthController extends Controller
             throw new GeneralException(JsonResponse::MSG_BAD_REQUEST, JsonResponse::MSG_NOT_AUTHORIZED);
         }
     }
+
+   
 }

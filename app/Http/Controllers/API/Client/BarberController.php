@@ -75,7 +75,6 @@ class BarberController extends Controller
         $data = $this->requestData;
         $validation_rules = [
             'name' => "required",
-            'city_id' => "exists:cities,id",
         ];
       
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
@@ -146,10 +145,10 @@ class BarberController extends Controller
                     $resource->gender = $data['gender'];
                 }
                 
-                if(isset($data['city_id'] )){
+                // if(isset($data['city_id'] )){
 
-                    $resource->city_id = $data['city_id'];
-                }
+                //     $resource->city_id = $data['city_id'];
+                // }
                 // if(isset($data['phone_number'] )){
 
                 //     $resource->phone_number = $data['phone_number'];

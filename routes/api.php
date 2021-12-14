@@ -57,8 +57,13 @@ Route::group([
     Route::post('setInCompletedOrder', [ClientOrderController::class, 'setInCompletedOrder']);
     Route::post('blockUser', [ClientBarberController::class, 'blockUser']);
     Route::get('barberProfile', [ClientBarberController::class, 'getMyProfile']);
+    Route::get('orders/find', [ClientOrderController::class, 'findAsBarber']);
+    Route::post('changePassword', [ClientUserController::class, 'changePasswordBarber']);
     
+
     Route::get('user/{id}', [ClientOrderController::class, 'profileUser']);
+
+    
 
 });
 
@@ -107,6 +112,7 @@ Route::group([
         Route::get('userInfo', [ClientUserController::class, 'userInfo']);
         Route::get('user/{id}', [ClientUserController::class, 'userById']);
         Route::post('user/updateInfo', [ClientUserController::class, 'updateInfo']);
+        Route::post('user/changePassword', [ClientUserController::class, 'changePasswordClient']);
         //Route::put('user/updateInfo', [ClientUserController::class, 'updateInfo']);
 
         //Salons
@@ -122,6 +128,7 @@ Route::group([
         //Barbers
         Route::get('barber/{id}', [ClientBarberController::class, 'getBarberDetails']);
         Route::post('barber', [ClientBarberController::class, 'store'])->middleware(['salon']);
+        Route::post('resetPassword', [ClientUserController::class, 'resetPassword'])->middleware(['salon']);
         
         Route::get('barbersBySalon/{id}', [ClientBarberController::class, 'getBarbersBySalon'])->middleware(['salon']);
         Route::post('deactivateBarbers/{id}', [ClientBarberController::class, 'deactivateBarber'])->middleware(['salon']);
@@ -151,9 +158,8 @@ Route::group([
         Route::post('availableTimes', [AppointmentController::class, 'availableTimes']);
         Route::post('order', [AppointmentController::class, 'createOrder']);
         Route::post('setCanceledOrder', [ClientOrderController::class, 'setCanceledOrder']);
+        Route::get('orders/find', [ClientOrderController::class, 'findAsSalon']);
 
-
-      
         
     });
 });

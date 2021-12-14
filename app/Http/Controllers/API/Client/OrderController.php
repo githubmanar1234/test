@@ -511,9 +511,89 @@ class OrderController extends Controller
                 return JsonResponse::respondError($validator->errors()->all());
          }
  
-         return JsonResponse::respondError("You are not user");  
+         return JsonResponse::respondError("You are not user", ResponseStatus::NOT_AUTHORIZED);  
  
      }
+
+
+    public function findAsSalon()
+    {
+
+        $userClient = Auth::guard('client')->user();
+        if(!$userClient){
+            return JsonResponse::respondError("not authenticate");
+        }
+        $salon_id = Auth::guard('client')->user()->salon_id;
+        // $userBarber = Auth::guard('barber')->user();
+
+        $request_data = $this->requestData;
+
+        $data = $this->orderRepository->allAsQuery();
+
+        $data = $data->Where("status", Constants::STATUS_ACCEPTED);
+
+        $data = $data->whereHas('barber', function ($q) use ($salon_id) {
+            $q->where('salon_id', $salon_id );
+        });
+        
+        if($userClient){
+            if($userClient->role == "salon"){
+ 
+                if (isset($this->requestData['barber_id'])){
+                    $data->where("barber_id", "=" , $request_data['barber_id']);
+                }
+
+                if (isset($this->requestData['order_number'])){
+                    $data->where("order_number", "=" , $request_data['order_number']);
+                }
+
+                if (isset($this->requestData['date'])){
+                    $data->where("date", "=" , $request_data['date']);
+                }
+
+            }
+            else{
+                return JsonResponse::respondError("You are not a salon");
+            }
+
+        }
+       
+        $data = $data ->get();
+        return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS,$data);
+     
+    }
+
+    public function findAsBarber()
+    {
+
+        $userBarber = Auth::guard('barber')->user();
+        if(!$userBarber){
+            return JsonResponse::respondError("not authenticate");
+        }
+       
+        $barber_id = Auth::guard('barber')->user()->id;
+
+        $request_data = $this->requestData;
+
+        $data = $this->orderRepository->allAsQuery();
+
+        $data = $data->Where("status", Constants::STATUS_ACCEPTED)->where('barber_id' ,$barber_id);
+        
+        if($userBarber){
+
+                if (isset($this->requestData['order_number'])){
+                    $data->where("order_number", "=" , $request_data['order_number']);
+                }
+
+                if (isset($this->requestData['date'])){
+                    $data->where("date", "=" , $request_data['date']);
+                }
+        
+        }
+        $data = $data ->get();
+        return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS,$data);
+     
+    }
 
    
 }

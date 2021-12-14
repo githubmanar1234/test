@@ -297,7 +297,7 @@ class SalonController extends Controller
                                 
                         $barber['password']= $password;
                         $barber['status']= Constants::STATUS_PENDING;
-                        $barber['city_id'] = $resource->city_id;
+                        // $barber['city_id'] = $resource->city_id;
                         
                         $this->barberRepository->create($barber);
                         
@@ -448,10 +448,14 @@ class SalonController extends Controller
 
         $data = $this->salonRepository->allAsQuery();
 
-        $data->Where("status", Constants::STATUS_ACCEPTED);
+        $data = $data->Where("status", Constants::STATUS_ACCEPTED);
         
         if (isset($this->requestData['type'])){
             $data->Where("type", "=" , $request_data['type']);
+        }
+
+        if (isset($this->requestData['name'])){
+            $data->Where("name",'like', "%".$request_data['name']."%");
         }
 
         $data = $data ->get();
