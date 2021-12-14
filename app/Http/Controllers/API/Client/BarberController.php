@@ -396,7 +396,7 @@ class BarberController extends Controller
         
     }
 
-    //get barbers in same city 
+    //get  my barbers in same salon 
     public function getBarbers(){
 
         $request_data = $this->requestData;
@@ -407,38 +407,16 @@ class BarberController extends Controller
 
         if($user->role == "salon"){
             if($salon){
-                // $salon_city_id = $salon->city_id;
-                $data = Barber::where('city_id' ,  $salon->city_id )->where('is_availble' , 1)->get();
+
+                $data = Barber::where('salon_id' ,  $salon->id )->where('is_availble' , 1)->get();
                 $data->makeVisible(['password']);
-             
-                // Crypt::decrypt($password); 
-                
+                             
                 return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
             }
             return JsonResponse::respondError("This user does not have salon");  
         }
-        else{
-            if($user->role == "user"){
+        return JsonResponse::respondError("This user does not have salon");  
 
-                $barbers = Barber::where('is_availble' , 1)->get();
-                $data->makeVisible(['password']);
-                
-                foreach($barbers as  $barber){
-
-                    $block = Block::where('barber_id' , $barber->id)->where('user_id' ,$user->id)->first();
-                   
-                    $barbersNotBlock= Barber::where('is_availble' , 1)->where('id' ,'!=',$barber->id)->get();
-                    if($block){
-                        return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $barbersNotBlock);
-                    }
-                    else{
-                        return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $barbers);
-                    }
-                   
-                }
-               
-            }
-        }
     }
     
     //get barber details by barber's id.
