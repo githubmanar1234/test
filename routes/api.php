@@ -81,6 +81,7 @@ Route::group([
         Route::post('logoutBarber', [ClientAuthController::class, 'logoutBarber']);
 
         Route::post('register', [ClientAuthController::class, "register"]);
+        Route::post('changePhone', [ClientAuthController::class, 'changePhone']);
 
         Route::group(['middleware' => 'auth:client'], function () {
             Route::get('getUser', [ClientAuthController::class, 'getUser']);

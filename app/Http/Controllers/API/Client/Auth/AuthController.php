@@ -332,5 +332,61 @@ class AuthController extends Controller
         }
     }
 
+    
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     * @throws GeneralException
+     * @throws \Kreait\Firebase\Exception\AuthException
+     * @throws \Kreait\Firebase\Exception\FirebaseException
+     */
+    public function changePhone()
+    {
+        $dbUser = Auth::guard('client')->user();
+        if($dbUser){
+
+            $data = $this->requestData;
+            $validation_rules = [
+                'phone' => 'required|unique:users,phone',
+                'access_token' => 'required',
+            ];
+              
+            $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
+    
+            if ($validator->passes()) {
+                $auth = $this->factory->createAuth();
+                // Retrieve the UID (User ID) from the verified Firebase credential's token
+                $uid = $this->verifyToken($auth)->claims()->get('sub');
+                $user = $auth->getUser($uid);
+    
+                // Retrieve the user model linked with the Firebase UID
+                $data['firebase_uid'] = $uid;
+                if ($data['phone'] != $user->phoneNumber) {
+    
+                    Log::error("register failed provided phone number not the same on the google firebase database");
+                    return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST, ResponseStatus::BAD_REQUEST);
+                }
+            
+                $dbUser->phone = $data['phone'];
+                $dbUser->save();
+                
+                // Create a Personnal Access Token
+                $token = $dbUser->createToken($deviceName)->plainTextToken;
+                // Store the created token
+                $dbUser['access_token'] = $token;
+                return JsonResponse::respondSuccess(JsonResponse::MSG_LOGIN_SUCCESSFULLY, $dbUser);
+            } 
+            else {
+                return JsonResponse::respondError($validator->errors()->all());
+    
+            }
+        }
+        
+        else{
+            return JsonResponse::respondError("not authenticate");
+        }
+
+    }
+
+
    
 }
