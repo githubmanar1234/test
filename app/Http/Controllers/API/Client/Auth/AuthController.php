@@ -22,6 +22,8 @@ use Kreait\Firebase\Exception\Messaging\InvalidMessage;
 use Kreait\Firebase\Factory;
 use App\Http\Repositories\IRepositories\ISalonRepository;
 use App\Http\Repositories\IRepositories\IBarberRepository;
+use App\Models\Salon;
+use App\Models\Barber;
 
 class AuthController extends Controller
 {
@@ -341,6 +343,7 @@ class AuthController extends Controller
      */
     public function changePhone()
     {
+
         $dbUser = Auth::guard('client')->user();
         if($dbUser){
 
@@ -369,6 +372,8 @@ class AuthController extends Controller
                 $dbUser->phone = $data['phone'];
                 $dbUser->save();
                 
+                $deviceName = isset($this->requestData['device_name']) ? $this->requestData['device_name'] : "access token";
+
                 // Create a Personnal Access Token
                 $token = $dbUser->createToken($deviceName)->plainTextToken;
                 // Store the created token
