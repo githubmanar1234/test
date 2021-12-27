@@ -42,9 +42,9 @@ class Barber extends Authenticatable
 
     // public $translatable = ['name'];
 
-    protected $with = ['services','timelines'];
+    protected $with = ['services','timelines','images'];
 
-    protected $appends = ['salonType'];
+    protected $appends = ['salonType','rate'];
 
     protected $hidden = ['phone_number', 'facebook_link','instagram_link','whatsapp_number','password'];
 
@@ -65,6 +65,27 @@ class Barber extends Authenticatable
     public function services(){
 
         return $this->hasMany(BarberService::class,'barber_id');
+    }
+
+    // public function orders(){
+
+    //     return $this->hasMany(Order::class,'barber_id');
+    // }
+
+    
+    public function getRateAttribute(){
+
+        $orders = Order::where('barber_id',$this->id)->get();
+
+        if(count($orders) > 0){
+
+            return  Order::where('barber_id',$this->id)->avg('rate');
+        }
+        else{
+            return 0;
+        }
+      
+        
     }
 
     public function timelines(){

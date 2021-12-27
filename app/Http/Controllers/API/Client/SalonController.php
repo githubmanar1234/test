@@ -265,6 +265,7 @@ class SalonController extends Controller
             'description' => "required",
             'bio' => "required",
             'whatsapp_number' => "numeric",
+            'founded_in' => "date",
         ];
         $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
         if ($validator->passes()) {

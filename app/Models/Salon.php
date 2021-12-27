@@ -24,13 +24,40 @@ class Salon extends AppModel
 
     protected $with = ['barbers' ,'timings'];
     
-    protected $appends = ['owner' , 'city' ,'country'];
+    protected $appends = ['owner' , 'city' ,'country','rate'];
 
     public function barbers(){
         
         return $this->hasMany(Barber::class,'salon_id');
     }
 
+       
+    public function getRateAttribute(){
+
+        $barbers = $this->barbers;
+        
+        if(count($barbers) > 0){
+
+            $rateBarbers = 0;
+            $countRateBarbers = 0;
+
+            foreach($barbers as $barber){
+
+                if($barber->getRateAttribute()){
+                    $rateBarbers += $barber->getRateAttribute();
+                    $countRateBarbers = $countRateBarbers + 1;
+                }
+               
+            }
+             return $rateBarbers / ($countRateBarbers);
+            
+        }
+        else{
+            return 0;
+        }
+      
+        
+    }
     public function timings(){
         
         return $this->hasMany(Timing::class,'salon_id');
