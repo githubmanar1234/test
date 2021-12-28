@@ -201,7 +201,6 @@ class AuthController extends Controller
             'phone' => 'required|unique:users,phone',
             'password' => 'required|confirmed|min:6',
             'country_id' => 'required|exists:countries,id',
-            // 'salon_id' => 'required|exists:salons,id',
             'fcm_token' => 'required',
             'role' => 'required',
             'name' => 'required|string|max:30',
@@ -224,7 +223,7 @@ class AuthController extends Controller
             $uid = $this->verifyToken($auth)->claims()->get('sub');
             $user = $auth->getUser($uid);
             // Retrieve the user model linked with the Firebase UID
-            $data['firebase_uid'] = "jgjh99";
+            $data['firebase_uid'] = $uid ;
             if ($data['phone'] != $user->phoneNumber) {
 
                 Log::error("register failed provided phone number not the same on the google firebase database");
