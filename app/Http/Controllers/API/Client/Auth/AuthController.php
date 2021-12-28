@@ -221,15 +221,15 @@ class AuthController extends Controller
         if ($validator->passes()) {
             $auth = $this->factory->createAuth();
             // // Retrieve the UID (User ID) from the verified Firebase credential's token
-            // $uid = $this->verifyToken($auth)->claims()->get('sub');
-            // $user = $auth->getUser($uid);
+            $uid = $this->verifyToken($auth)->claims()->get('sub');
+            $user = $auth->getUser($uid);
             // Retrieve the user model linked with the Firebase UID
             $data['firebase_uid'] = "jgjh99";
-            // if ($data['phone'] != $user->phoneNumber) {
+            if ($data['phone'] != $user->phoneNumber) {
 
-            //     Log::error("register failed provided phone number not the same on the google firebase database");
-            //     return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST, ResponseStatus::BAD_REQUEST);
-            // }
+                Log::error("register failed provided phone number not the same on the google firebase database");
+                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST, ResponseStatus::BAD_REQUEST);
+            }
             $deviceName = isset($this->requestData['device_name']) ? $this->requestData['device_name'] : "access token";
             $data['fcm_token'] = $this->requestData['fcm_token'];
             $data['name'] = $this->requestData['name'];
