@@ -22,9 +22,9 @@ class Salon extends AppModel
 
     protected $hidden =['city_id'];
 
-    protected $with = ['barbers' ,'timings'];
+    protected $with = ['barbers' ,'timings','posts'];
     
-    protected $appends = ['owner' , 'city' ,'country','rate'];
+    protected $appends = ['owner' , 'city' ,'country','rate','email'];
 
     public function barbers(){
         
@@ -37,30 +37,42 @@ class Salon extends AppModel
         $barbers = $this->barbers;
         
         if(count($barbers) > 0){
-
+            
             $rateBarbers = 0;
             $countRateBarbers = 0;
 
             foreach($barbers as $barber){
 
                 if($barber->getRateAttribute()){
+                  
                     $rateBarbers += $barber->getRateAttribute();
                     $countRateBarbers = $countRateBarbers + 1;
                 }
                
             }
-             return $rateBarbers / ($countRateBarbers);
+            if($rateBarbers !== 0 && $countRateBarbers !== 0){
+                
+                return $rateBarbers / ($countRateBarbers);
+            }
+            else{
+                return 0;
+            } 
             
         }
         else{
             return 0;
-        }
-      
-        
+        }   
     }
+    
+
     public function timings(){
         
         return $this->hasMany(Timing::class,'salon_id');
+    }
+
+    public function posts(){
+        
+        return $this->hasMany(Post::class,'salon_id');
     }
 
     public function city()
@@ -101,6 +113,16 @@ class Salon extends AppModel
         }
 
         return "no Owner";
+    }
+
+    public function getEmailAttribute()
+    {
+        $isExist = User::where('salon_id',$this->id)->first();
+        if ($isExist){
+            return $isExist->email;
+        }
+
+        return "no email";
     }
 
     public function getCityAttribute()

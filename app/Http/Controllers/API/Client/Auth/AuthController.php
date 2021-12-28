@@ -201,20 +201,14 @@ class AuthController extends Controller
             'phone' => 'required|unique:users,phone',
             'password' => 'required|confirmed|min:6',
             'country_id' => 'required|exists:countries,id',
+            'salon_id' => 'required|exists:salons,id',
             'fcm_token' => 'required',
             'role' => 'required',
-            'name' => 'required',
+            'name' => 'required|string|max:30',
             'email' => 'email|unique:users',
         ];
         if (isset($data['yob']))
             $validation_rules['yob'] = 'date';
-
-        // if (isset($data['name'])){
-            
-        //     // $data['name'] = $this->requestData['name'];
-        //     $validation_rules['name'] = "string|max:30";
-        // }
-          
 
         if (isset($data['lang']))
             $data['lang'] = $this->requestData['lang'];
@@ -226,11 +220,11 @@ class AuthController extends Controller
 
         if ($validator->passes()) {
             $auth = $this->factory->createAuth();
-            // Retrieve the UID (User ID) from the verified Firebase credential's token
+            // // Retrieve the UID (User ID) from the verified Firebase credential's token
             $uid = $this->verifyToken($auth)->claims()->get('sub');
             $user = $auth->getUser($uid);
             // Retrieve the user model linked with the Firebase UID
-            $data['firebase_uid'] = $uid;
+            $data['firebase_uid'] = "jgjh99";
             if ($data['phone'] != $user->phoneNumber) {
 
                 Log::error("register failed provided phone number not the same on the google firebase database");
@@ -241,9 +235,26 @@ class AuthController extends Controller
             $data['name'] = $this->requestData['name'];
             $data['password'] = Hash::make($data['password']);
 
+            // $user = new User();
+            // $user->name = $data['name'] ;
+            // $user->role = $data['role'];
+            // $user->phone  = $data['phone'];
+            // $user->password =  $data['password'];
+            // $user->country_id  = $data['country_id'];
+            // $user->salon_id = 22;
+            // $user->yob = "2004-06-26 00:00:00";
+            // $user->fcm_token = "dsds";
+            // $user->lang = "en";
+            // $user->email = "jhghgg@gmail.com";
+         
+            // $user->save() ;
+            // return $user;
+
             $dbUser = $this->userRepository->create($data);
+           
             // Create a Personnal Access Token
             $token = $dbUser->createToken($deviceName)->plainTextToken;
+           
             // Store the created token
             $dbUser['access_token'] = $token;
             return JsonResponse::respondSuccess(JsonResponse::MSG_LOGIN_SUCCESSFULLY, $dbUser);

@@ -13,6 +13,7 @@ use App\Http\Repositories\IRepositories\IBarberRepository;
 use App\Http\Repositories\IRepositories\IBarberReportRepository;
 use App\Http\Repositories\IRepositories\ISalonReportRepository;
 use App\Http\Repositories\IRepositories\IPostReportRepository;
+use App\Http\Repositories\IRepositories\IPostRepository;
 use App\Models\Category;
 use App\Models\Salon;
 use App\Models\Barber;
@@ -28,6 +29,7 @@ use App\Helpers\ValidatorHelper;
 class ReportController extends Controller
 {
     private $userRepository;
+    private $postRepository;
     private $categoryRepository;
     private $salonRepository;
     private $barberRepository;
@@ -44,10 +46,12 @@ class ReportController extends Controller
         IUserRepository $userRepository,
         ISalonRepository $salonRepository,
         IBarberReportRepository $barberReportRepository,
-        IBarberRepository $barberRepository
+        IBarberRepository $barberRepository,
+        IPostRepository $postRepository
     )
     {
         $this->userRepository = $userRepository;
+        $this->postRepository = $postRepository;
         $this->barberReportRepository = $barberReportRepository;
         $this->salonReportRepository = $salonReportRepository;
         $this->postReportRepository = $postReportRepository;

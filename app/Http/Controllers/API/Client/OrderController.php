@@ -60,17 +60,20 @@ class OrderController extends Controller
         $request_data = $this->requestData;
 
         $user = Auth::guard('barber')->user();
-         
+        
         if($this->authUser){
 
-            $date = Carbon::now();
+            $date = Carbon::now()->format('Y-m-d');
+           
             $order = Order::where('date' , $date )->get();
+            
              
             if($order){
+             
                 // $data = Order::where('barber_id' , $user->id )->where('status' , Constants::ORDER_STATUS_ACCEPTED)
                 // ->orWhere('status' , Constants::ORDER_STATUS_COMPLETED)->get();
                 $data = Order::where('barber_id' , $user->id )->get();
-
+               
                 return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, $data);
             }
             return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS, []);
@@ -419,6 +422,7 @@ class OrderController extends Controller
         $request_data = $this->requestData;
 
         $user = Auth::guard('client')->user();
+       
        
         if($user){
 

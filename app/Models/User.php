@@ -34,7 +34,8 @@ class User extends Authenticatable
         'skills',
         'lang',
         'work_experience',
-        'location'
+        'location',
+        'salon_id',
     ];
 
     
