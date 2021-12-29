@@ -278,32 +278,94 @@ class BarberController extends Controller
     }
 
 
-    public function deactivateBarber($id)
+    public function deactivateBarber(Request $request)
     {
         $user = Auth::guard('client')->user();
 
-        $salon_id = $user->salon->id;
-        
-        $resource = Barber::find($id);
-
-        if($resource ){
-
-            if ($resource->salon_id != $salon_id ){
-                return JsonResponse::respondError("You are not owner on this barber");
-            }
-            
-            $resource->is_availble = 0;
-            $resource->save();
-            return JsonResponse::respondSuccess(trans(JsonResponse::MSG_SUCCESS));
+        if(!$user->salon){
+            return JsonResponse::respondError("You are not have salon");
         }
         else{
-            if (is_numeric($id)){
-                return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+            $salon_id = $user->salon->id;
+            
+        }
+
+        $data = $this->requestData;
+
+        $validation_rules = [
+            'status' => 'required|numeric',
+            'barber_id' => 'required|exists:barbers,id',
+        ];
+        $validator = Validator::make($data, $validation_rules, ValidatorHelper::messages());
+        if ($validator->passes()) {
+
+            
+
+            if(!($data['status'] == 0 || $data['status'] == 1)){
+
+                return JsonResponse::respondError("status must be 0 or 1");
             }
 
-            return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
-        }   
+            $resource = Barber::find($data['barber_id']);
+
+            if($resource ){
+    
+                if ($resource->salon_id != $salon_id ){
+                    return JsonResponse::respondError("You are not owner on this barber");
+                }
+                 
+                if($data['status'] == 0){
+
+                    $resource->is_availble = 0;
+                   
+                }
+                else{
+                    $resource->is_availble = 1;
+                }
+
+                $resource->save();
+                return JsonResponse::respondSuccess(trans(JsonResponse::MSG_SUCCESS));
+              
+            }
+            else{
+                if (is_numeric($id)){
+                    return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+                }
+    
+                return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+            }   
+        }
+
+           return JsonResponse::respondError($validator->errors()->all());
+        
     }
+
+    // public function deactivateBarber($id)
+    // {
+    //     $user = Auth::guard('client')->user();
+
+    //     $salon_id = $user->salon->id;
+        
+    //     $resource = Barber::find($id);
+
+    //     if($resource ){
+
+    //         if ($resource->salon_id != $salon_id ){
+    //             return JsonResponse::respondError("You are not owner on this barber");
+    //         }
+            
+    //         $resource->is_availble = 0;
+    //         $resource->save();
+    //         return JsonResponse::respondSuccess(trans(JsonResponse::MSG_SUCCESS));
+    //     }
+    //     else{
+    //         if (is_numeric($id)){
+    //             return JsonResponse::respondError(JsonResponse::MSG_NOT_FOUND);
+    //         }
+
+    //         return JsonResponse::respondError(JsonResponse::MSG_BAD_REQUEST);
+    //     }   
+    // }
 
     function isInviteNumberExists($number)
     {
@@ -530,6 +592,76 @@ class BarberController extends Controller
             return JsonResponse::respondError("You are not barber");  
         }
       
+    }
+
+    //ToDo
+    public function findBarberAsClient()
+    {
+
+        $userClient = Auth::guard('client')->user();
+
+        if(!$userClient){
+            return JsonResponse::respondError("not authenticate");
+        }
+  
+        $request_data = $this->requestData;
+
+        if(Auth::guard('client')->user()->role == "salon"){
+             
+            $salon_id = Auth::guard('client')->user()->salon_id;
+
+    
+            $barbers = $this->barberRepository->allAsQuery();
+            
+    
+            $barbers = $barbers->Where("status", Constants::STATUS_ACCEPTED);
+    
+            $barbers = $barbers->whereHas('salon', function ($q) use ($salon_id) {
+                $q->where('salon_id', $salon_id );
+            });
+           
+     
+            if (isset($this->requestData['name'])){
+                 $barbers->where("name", "=" , $request_data['name']);
+            }
+            
+            $barbers = $barbers->get();
+    
+            return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS,$barbers);
+        }
+        else{
+ 
+            $validation_rules = [
+                'salon_id' => 'required|exists:salons,id',
+            ];
+   
+            $validator = Validator::make($request_data, $validation_rules, ValidatorHelper::messages());
+   
+            if ($validator->passes()) {
+        
+                    $barbers = $this->barberRepository->allAsQuery();
+                    
+                    $barbers = $barbers->Where("status", Constants::STATUS_ACCEPTED);
+            
+                    $salon_id = $request_data['salon_id'];
+
+                    $barbers = $barbers->whereHas('salon', function ($q) use($salon_id ) {
+                        $q->where('salon_id',  $salon_id );
+                    });
+                
+            
+                    if (isset($this->requestData['name'])){
+                        $barbers->where("name", "=" , $request_data['name']);
+                    }
+                    
+                    $barbers = $barbers->get();
+            
+                    return JsonResponse::respondSuccess(JsonResponse::MSG_SUCCESS,$barbers);
+            }
+            return JsonResponse::respondError($validator->errors()->all());
+        }
+       
+     
     }
 
 }

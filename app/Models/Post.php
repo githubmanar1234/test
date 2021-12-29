@@ -12,7 +12,7 @@ class Post extends AppModel
     //use SoftDeletes;
 
     protected $fillable = ['description', 'salon_id' , 'image','published_at'];
-    public $translatable = ['description'];
+    // public $translatable = ['description'];
 
     protected $appends = ['salon' , 'countLikes'];
 
@@ -25,7 +25,8 @@ class Post extends AppModel
     {
         $salon = Salon::where('id',$this->salon_id)->first();
         if ($salon){
-            return [$salon->name , $salon->description];
+
+            return ['name' => $salon->name ,'description' =>  $salon->description ,'profile' =>$salon->image];
         }
 
         return "No salon";

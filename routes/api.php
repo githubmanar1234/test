@@ -127,12 +127,13 @@ Route::group([
 
 
         //Barbers
+        Route::get('findBarberAsClient', [ClientBarberController::class, 'findBarberAsClient']);
         Route::get('barber/{id}', [ClientBarberController::class, 'getBarberDetails']);
         Route::post('barber', [ClientBarberController::class, 'store'])->middleware(['salon']);
         Route::post('resetPassword', [ClientUserController::class, 'resetPassword'])->middleware(['salon']);
         
         Route::get('barbersBySalon/{id}', [ClientBarberController::class, 'getBarbersBySalon'])->middleware(['salon']);
-        Route::post('deactivateBarbers/{id}', [ClientBarberController::class, 'deactivateBarber'])->middleware(['salon']);
+        Route::post('deactivateBarbers', [ClientBarberController::class, 'deactivateBarber'])->middleware(['salon']);
         Route::get('getBarbers', [ClientBarberController::class, 'getBarbers']); 
         Route::get('barberTimeLinesByUser/{id}', [ClientBarberController::class, 'getBarberTimeLinesByUser']);
         Route::get('barberTimeLinesBySalon/{id}', [ClientBarberController::class, 'getBarberTimeLinesBySalon'])->middleware(['salon']);
